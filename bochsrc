@@ -1,0 +1,24 @@
+############################################################### 
+# bochsrc.txt file for DLX Linux disk image. 
+############################################################### 
+# how much memory the emulated machine will have 
+megs: 40
+# filename of ROM images 
+romimage: file=$BXSHARE/BIOS-bochs-legacy, address=0xffff0000
+vgaromimage: file=$BXSHARE/VGABIOS-lgpl-latest 
+
+cpu: count=2 ,model=corei5_lynnfield_750
+
+
+
+#panic: action=ask
+ata0: enabled=1, ioaddr1=0x1f0, ioaddr2=0x3f0, irq=14 
+ata0-master: type=disk, path=kenrel.iso, mode=flat, biosdetect=auto, translation=auto, model="Generic 1234"
+boot: disk
+
+#debug: action=ask, pci=report
+#log: /dev/tty  
+ 
+keyboard: type=mf, serial_delay=200, paste_delay=100000
+#keyboard: keymap=gui/keymaps/x11-pc-de.map
+#keyboard: user_shortcut=ctrl-alt-del

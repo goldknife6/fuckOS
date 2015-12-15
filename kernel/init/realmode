@@ -1,0 +1,43 @@
+#include <mm/mmu.h>
+
+
+.set	REAL_MODE_CSEG, 0x18         	# real code segment selector
+.set	REAL_MODE_DSEG, 0x10         	# real data segment selector
+
+.section .bstext
+	.globl		real_entry
+real_entry:
+	//lgdt    	realdesc
+
+	movw		$REAL_MODE_DSEG, %ax    # Our data segment selector
+	movw    	%ax, %ds                # -> DS: Data Segment
+	movw    	%ax, %es                # -> ES: Extra Segment
+	movw    	%ax, %fs                # -> FS
+	movw    	%ax, %gs                # -> GS
+	movw    	%ax, %ss 
+1:	jmp 1b
+
+
+
+
+	call		real_main
+
+	.globl		realstack
+	.p2align	12
+realstack:
+	.space		0x1000
+
+	.p2align 2                                	# force 4 byte alignment
+realgdt:
+	SEG_NULL					# null seg
+	SEG(STA_X|STA_R, 0x0, 0xffffffff)		# code seg
+	SEG(STA_W, 0x0, 0xffffffff)	       	 	# data seg
+	SEG16(STA_X|STA_R, 0x0, 0xffffffff)		# code seg
+	SEG16(STA_W, 0x0, 0xffffffff)	       	 	# data seg
+
+realdesc:
+	.word   0x27                            	# sizeof(realgdt) - 1
+	.long   realgdt 
+
+.section .bsdata
+                           	# address realgdt

@@ -1,0 +1,25 @@
+#include <types.h>
+#include <string.h>
+
+
+#include <fuckOS/kernel.h>
+
+
+#include <mm/mmu.h>
+
+#define REALADDR 0x640
+#define	SMAP 0x534d4150
+
+#define	SECTION __attribute__ ((section(".bstext")))
+
+
+SECTION
+void real_main()
+{
+}
+
+SECTION
+void detect_memory()
+{
+
+}
