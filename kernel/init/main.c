@@ -15,7 +15,7 @@ void os_entry(void* ginfo,uint32_t gmagic)
 	
 	memset(_BSS_START,0x0,_BSS_END - _BSS_START);
 
-	console_init();
+	console_init(0xB8000);
 
 
 	if ( MULTIBOOT2_BOOTLOADER_MAGIC != gmagic)

@@ -18,13 +18,16 @@ struct free_area_struct {
 struct zone_struct {
 	uint32_t 	free_pages;
 	spinlock_t 	lock;
-	page_t* 	zone_mem_map;
+	struct page* 	zone_mempage;
 	uint32_t 	size;
-	free_area_t	free_area[MAXORDER];
+	struct free_area_struct	free_area[MAXORDER];
 };
 
 
-extern zone_t zone_normal;
-extern zone_t zone_high;
+extern struct zone_struct zone_normal;
+extern struct zone_struct zone_high;
 
+
+extern struct page* alloc_buddy(struct zone_struct *,uint8_t);
+extern void free_buddy(struct zone_struct *,struct page*,uint8_t);
 #endif/*!_MMZONE_H_*/

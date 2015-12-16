@@ -8,14 +8,12 @@ console_t console[NUMCON];
 static void vga_graphic_putc(uint32_t c);
 static void vga_text_putc(uint32_t c);
 
-void console_init()
+void console_init(viraddr_t dispmem)
 {
 	int i = 0;
-	//for(i;i<NUMCON;i++) {
-	//}
-	console[NUMCON].display_addr = (uint32_t*)0xB8000;
-	console[NUMCON].original_start_addr = (uint32_t*)0xB8000;
-	console[NUMCON].current_start_addr = (uint32_t*)0xB8000;
+	console[NUMCON].display_addr = (uint32_t*)dispmem;
+	console[NUMCON].original_start_addr = (uint32_t*)dispmem;
+	console[NUMCON].current_start_addr = (uint32_t*)dispmem;
 	console[NUMCON].cursor = 0;
 	console_clear();
 }
@@ -23,7 +21,11 @@ void console_init()
 void console_write_char(uint32_t c)
 {
 	vga_text_putc(c);
-	
+}
+
+void updata_display_addr(uint32_t addr)
+{
+	console[NUMCON].display_addr = (uint32_t*)addr;
 }
 
 static void vga_graphic_putc(uint32_t c)
@@ -49,10 +51,6 @@ void console_clear()
 
 static void vga_text_putc(uint32_t c)
 {
-	
-	
-
-	// if no attribute given, then use black on white
 	if (!(c & ~0xFF))
 		c |= 0x0700;
 	
@@ -65,7 +63,6 @@ static void vga_text_putc(uint32_t c)
 		break;
 	case '\n':
 		crt_pos += CRT_COLS;
-		// fallthru 
 	case '\r':
 		crt_pos -= (crt_pos % CRT_COLS);
 		break;
@@ -81,7 +78,6 @@ static void vga_text_putc(uint32_t c)
 		break;
 	}
 
-	// What is the purpose of this?
 	if (crt_pos >= CRT_SIZE) {
 		int i;
 

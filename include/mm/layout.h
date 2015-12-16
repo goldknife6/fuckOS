@@ -16,13 +16,13 @@
  *	------------------------------------------------------>0xFF400000
  * 								PTSIZE
  *	KERNEL_VIDEO & KERNEL_TEMP---------------------------->0xFF000000
- *								|
- *			CPU0's KERNEL_TEMP 	KERNEL_TEMP	|
- *			Invalid Memory (*)	PAGE_SIZE	|
- *			CPU1's KERNEL_TEMP 	KERNEL_TEMP	|
- *			Invalid Memory (*)	PAGE_SIZE	|
- *								|
- *	KERNEL_STACKBOTT-------------------------------------->0xFEC00000
+ *		
+ *			
+ *			
+ *			
+ *			
+ *		
+ *	
  *
  *			
  *	KERNEL_NORMAL----------------------------------------->0xF0000000
@@ -44,9 +44,14 @@
 
 #define	KERNEL_STKSIZE		(1 << 12)
 
+#define KERNEL_VIDEO		(0xFF000000)
+
+#define KERNEL_MMIO		(0xFF800000)
+
+
 #define NORMAL_ADDR		(KERNEL_NORMAL - KERNEL_BASE_ADDR)
 
-
+#define	PT_SIZE			(PAGE_SIZE << 10)
 
 
 #endif

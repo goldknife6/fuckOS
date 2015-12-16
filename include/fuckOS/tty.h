@@ -30,8 +30,9 @@ typedef struct tty_struct {
 }tty_t;
 
 
-extern console_t console[];
-extern void console_init();
+extern struct console_struct console[];
+extern void console_init(uint32_t);
 extern void console_write_char(uint32_t c);
 extern void console_clear();
+extern void updata_display_addr(uint32_t addr);
 #endif/*_MINIOS_TTY_H*/

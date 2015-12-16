@@ -61,7 +61,7 @@ typedef enum {
 
 #define v2p(kaddr) 		virt_to_phys(__FILE__,__LINE__ ,kaddr)
 #define p2v(paddr) 		phys_to_virt(__FILE__,__LINE__ ,paddr)
-#define pte2p(kaddr) 		virt_to_phys(__FILE__,__LINE__ ,(uint32_t)kaddr)
+#define pgd2p(kaddr) 		virt_to_phys(__FILE__,__LINE__ ,(uint32_t)kaddr)
 
 #define page2pfn(page) 		_page2pfn(__FILE__,__LINE__ ,(page))
 #define page2phys(page) 	_page2phys(__FILE__,__LINE__ ,(page))

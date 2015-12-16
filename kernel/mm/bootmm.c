@@ -3,6 +3,7 @@
 
 #include <fuckOS/kernel.h>
 #include <fuckOS/assert.h>
+#include <fuckOS/tty.h>
 
 #include <mm/pages.h>
 #include <mm/layout.h>
@@ -25,6 +26,7 @@ static void get_normal_maxpfn();
 static void get_high_maxpfn();
 static void get_totalram_pages();
 static void bootmm_init();
+static void mempage_init();
 
 struct mmap mmapinfo[128];
 int nr_mmapinfo;
@@ -35,6 +37,7 @@ int totalram_pages;
 pgd_t *kpgd;
 
 struct page *mempage;
+
 /*
 *	获取内存分布信息
 *	计算各种全局变量的值
@@ -44,8 +47,6 @@ void bootmm(void* ginfo)
 
 	detect_memory(ginfo);
 
-	printmapp();
-
 	get_max_pfn();
 
 	get_normal_maxpfn();
@@ -54,7 +55,10 @@ void bootmm(void* ginfo)
 
 	get_totalram_pages();
 
+	printmapp();
+
 	bootmm_init();
+	
 }
 
 
@@ -96,7 +100,7 @@ static void get_max_pfn()
 		max_pfn = 0x100000;
 	}
 #endif
-	printk("max_pfn %x ",max_pfn);
+	
 }
 
 
@@ -109,22 +113,20 @@ static void get_normal_maxpfn()
 
 	for(mmap ;mmap < end;mmap++) {
 		if(mmap->type == 1) {
-			if (mmap->addr >= KERNEL_NORMAL - KERNEL_BASE_ADDR)
+			if (mmap->addr >= NORMAL_ADDR)
 				continue;
 
-			if (mmap->addr + mmap->len < KERNEL_NORMAL - KERNEL_BASE_ADDR) {
+			if (mmap->addr + mmap->len < NORMAL_ADDR) {
 				if (mmap->addr + mmap->len > last)
 					last = mmap->addr + mmap->len;
 			} else{
-				last = PFN(KERNEL_NORMAL - KERNEL_BASE_ADDR);
+				last = NORMAL_ADDR;
 				break;
 			}
 		}
 	}
-	normal_maxpfn = last;
-#ifdef	CONFIG_DEBUG
-	printk("normal_maxpfn:%x ",last);
-#endif
+	normal_maxpfn = PFN(last);
+
 }
 
 static void get_high_maxpfn()
@@ -145,51 +147,67 @@ static void get_high_maxpfn()
 		}
 	}
 	high_maxpfn = (last & ~0xFFF) >> PAGE_SHIFT;
-#ifdef	CONFIG_DEBUG
-	printk("high_maxpfn:%x ",high_maxpfn);
-#endif
 }
 
+
 /*
-*	
+*	内核刚刚启动时的页分配器
+*	建立完内核页表时使用，初始化伙伴系统之后就
+*	不再使用
+*
 */
+static void *base = NULL;
 static void *alloc_bootmm_pages(int size)
 {
-	static	void *base = NULL;
 	if (!base) {
 		base = PAGE_ALIGN(_BSS_END + 0xFFF);
 	}
 #ifdef	CONFIG_DEBUG
 	assert(size > 0);
-	printk("base:%x\n",base);
 #endif	
 	void *tmp = base;
 	base += size * PAGE_SIZE;
+
+	if (tmp >= (void*)(normal_maxpfn * PAGE_SIZE + KERNEL_BASE_ADDR))
+		panic("boot_bootmm: we're out of memory!\n");
+
+	memset(tmp,0x0,size * PAGE_SIZE);
 	return tmp;
 }
 
 static int is_page_aval(int pfn)
 {
+	struct mmap *mmap = mmapinfo;
+	struct mmap *end = mmapinfo + nr_mmapinfo;
+
+	uint64_t last = 0;
+
+	if (pfn < PFN(0x100000))
+		return 0;
+
+	if (pfn >= max_pfn)
+		return 0;
+
+	for(mmap ;mmap < end;mmap++) {
+		if(mmap->type == 1) {
+			if (PFN(mmap->addr) <= pfn && pfn < PFN(mmap->addr+ mmap->len))
+				return 1;
+		}
+	}
 	return 0;
 }
-/*
-struct page {
-	//struct list_head list;
-	//atomic_t	nref;
-	uint32_t	flags;
-	int32_t		order;
 
-	//struct kmem_cache* slab;
-	void ** 	freelist;//slab
-	int32_t		inuse;
-	//spinlock_t	slublock;
-};
-*/
+static void check_page(struct page*page)
+{
+	if (!(page->flags & _pg_reserved)) {
+		printk("pfn:%x phys:%lx",page2pfn(page),page2phys(page));
+		printk("flags:%lx\n",page->flags);
+		panic("check_page\n");
+	}
+}
 static void mempage_init()
 {
 	int i;
-	
-
 	for(i = 0 ;i < max_pfn;i++) {
 		if(is_page_aval(i)) {
 			memset(&mempage[i],0,sizeof(struct page));
@@ -199,39 +217,113 @@ static void mempage_init()
 	}
 }
 
+static int get_pmd(pgd_t *pgd,int perm)
+{
+
+	struct page* page;
+	physaddr_t pa;
+	pa = v2p((viraddr_t)alloc_bootmm_pages(1));
+
+#ifdef CONFIG_PAE
+	uint32_t pe = perm & ~(_PAGE_RW | _PAGE_USER);
+#else
+	uint32_t pe = perm;
+#endif
+
+	pgd_set(pgd,pa,pe);
+	return 0;
+}
+
+static int get_pte(pmd_t *pmd,int perm)
+{
+	struct page* page;
+	physaddr_t pa;
+	pa = v2p((viraddr_t)alloc_bootmm_pages(1));
+	pmd_set(pmd,pa,perm);
+	return 0;
+}
+
+
+static pte_t *boot_page_walk(pgd_t * pgdp,viraddr_t address,bool create)
+{
+
+	pgd_t * pgd = NULL;
+	pte_t * pte = NULL;
+	pmd_t * pmd = NULL;
+	struct page *page = NULL;
+
+	pgd =  pgd_offset (pgdp, address);
+
+	if (pgd_none(*pgd) && !create)
+		goto unlock;
+	else if (pgd_none(*pgd)) {
+		if( get_pmd(pgd,_PAGE_PRESENT | _PAGE_RW | _PAGE_USER) < 0)
+			goto unlock;
+		pgd =  pgd_offset (pgdp, address);
+	}
+	pmd =  pmd_offset (pgd, address);
+	if (pmd_none(*pmd) && !create)
+		goto unlock;
+	else if (pmd_none(*pmd)) {
+		if( get_pte(pmd,_PAGE_PRESENT | _PAGE_RW | _PAGE_USER) < 0)
+			goto unlock;
+		pmd =  pmd_offset (pgd, address);
+		
+	}
+	pte = pte_offset (pmd, address);
+unlock:
+	return pte;
+}
+
+/*
+*
+*	对内核页表进行映射
+*
+*/
 void boot_map_region(pgd_t *pgdir, viraddr_t va, 
 			size_t size, physaddr_t pa, int perm)
 {
 	uint32_t i;
 	for ( i = 0; i < size; i += PAGE_SIZE ) {
-		pte_t* pte = NULL;
-		//pte = page_walk(pgdir, va + i, true);
+		pte_t* pte = boot_page_walk(pgdir,va + i, true);;
 		assert(pte);
-		pte_set(pte, pa, perm | _PAGE_PRESENT);
+		pte_set(pte, pa + i, perm | _PAGE_PRESENT);
 	}
 	
 }
 extern void page_check();
+extern void zone_init();
 
 static void bootmm_init()
 {
 	int num;
+
+	//分配内核页目录
 	pgd_t *kpgd = alloc_bootmm_pages(1);
-
-	page_check();
-
-	//映射内核页目录
-	boot_map_region(kpgd, KERNEL_BASE_ADDR, 
-				KERNEL_NORMAL - KERNEL_BASE_ADDR, 0, _PAGE_RW);
+	memset(kpgd,0,PAGE_SIZE);
 
 	
-	lcr3(pte2p(kpgd));
-
+	//映射内核页目录 0xc0000000 ~ 0xf0000000 = 0x00000000 ~ 0x30000000
+	boot_map_region(kpgd, KERNEL_BASE_ADDR, NORMAL_ADDR, 0, _PAGE_RW);
 	
+	//映射内核VAG映射区
+	boot_map_region(kpgd, KERNEL_VIDEO, PT_SIZE, 0xb8000, _PAGE_RW);
+	
+	
+	lcr3(pgd2p(kpgd));
+	
+	updata_display_addr(KERNEL_VIDEO);
+
 	num = max_pfn * sizeof(struct page) / PAGE_SIZE + 1;
-	mempage = alloc_bootmm_pages(num);
+
+	mempage = alloc_bootmm_pages(num);//分配page数组
+
 	memset(mempage,0xFF,num * PAGE_SIZE);
+
 	mempage_init();
+
+	//初始化伙伴分配系统 mm/zone.c
+	zone_init();
 }
 
 static void printmapp()
@@ -241,4 +333,7 @@ static void printmapp()
 	for(mmap ;mmap < end;mmap++) {
 		printk ("0x%016llx 0x%016llx %x\n",mmap->addr,mmap->len,mmap->type);
 	}
+	printk("max_pfn %x ",max_pfn);
+	printk("high_maxpfn:%x ",high_maxpfn);
+	printk("normal_maxpfn:%x \n",normal_maxpfn);
 }
