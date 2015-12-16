@@ -10,7 +10,6 @@
 #define PMD_SIZE        	(1UL << PMD_SHIFT)
 #define PGDIR_SIZE		(1UL << PGDIR_SHIFT)
 
-
 #define PAGE_MASK		(~(PAGE_SIZE-1ULL))
 #define PMD_MASK		(~(PMD_SIZE-1ULL))
 #define PGDIR_MASK		(~(PGDIR_SIZE-1ULL))
@@ -23,5 +22,4 @@
 typedef struct { uint64_t pte_low; }pte_t;
 typedef struct { uint64_t pmd; }pmd_t;
 typedef struct { uint64_t pgd; }pgd_t;
-
-#endif/*!_3LEVEL_H*/
+#endif/*!_3LEVEL_H_*/

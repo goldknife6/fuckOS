@@ -3,7 +3,7 @@
 
 #include<types.h>
 #define PAGE_SHIFT		(12)
-#define PMD_SHIFT		(22) //non-PAE
+#define PMD_SHIFT		(22)
 #define PGDIR_SHIFT		(22)
 
 #define PAGE_SIZE       	(1UL << PAGE_SHIFT)
@@ -22,4 +22,4 @@
 typedef struct { uint32_t pte_low; }pte_t;
 typedef struct { uint32_t pmd; }pmd_t;
 typedef struct { uint32_t pgd; }pgd_t;
-#endif/**/
+#endif/*!_2LEVEL_H_*/

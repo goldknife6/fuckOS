@@ -92,8 +92,8 @@ static void get_max_pfn()
 	}
 	max_pfn = PFN(last);
 #ifndef	CONFIG_PAE
-	if(max_pfn >= (0x100000000ULL >> PAGE_SIZE)) {
-		max_pfn = 0x100000000ULL >> PAGE_SIZE;
+	if(max_pfn >= 0x100000) {
+		max_pfn = 0x100000;
 	}
 #endif
 	printk("max_pfn %x ",max_pfn);
@@ -204,25 +204,30 @@ void boot_map_region(pgd_t *pgdir, viraddr_t va,
 {
 	uint32_t i;
 	for ( i = 0; i < size; i += PAGE_SIZE ) {
-		pte_t* pte = page_walk(pgdir, va + i, true);
+		pte_t* pte = NULL;
+		//pte = page_walk(pgdir, va + i, true);
 		assert(pte);
 		pte_set(pte, pa, perm | _PAGE_PRESENT);
 	}
 	
 }
+extern void page_check();
 
 static void bootmm_init()
 {
 	int num;
 	pgd_t *kpgd = alloc_bootmm_pages(1);
 
+	page_check();
+
 	//映射内核页目录
 	boot_map_region(kpgd, KERNEL_BASE_ADDR, 
 				KERNEL_NORMAL - KERNEL_BASE_ADDR, 0, _PAGE_RW);
 
+	
 	lcr3(pte2p(kpgd));
 
-	while(1);
+	
 	num = max_pfn * sizeof(struct page) / PAGE_SIZE + 1;
 	mempage = alloc_bootmm_pages(num);
 	memset(mempage,0xFF,num * PAGE_SIZE);

@@ -9,12 +9,14 @@ extern void bootmm(void*);
 
 extern char _BSS_START[],_BSS_END[];
 
+int i;
 void os_entry(void* ginfo,uint32_t gmagic)
 {
 	
 	memset(_BSS_START,0x0,_BSS_END - _BSS_START);
 
 	console_init();
+
 
 	if ( MULTIBOOT2_BOOTLOADER_MAGIC != gmagic)
 		printk("GrubMultiInfo:%x GrubMagic:%x\n",ginfo,gmagic);

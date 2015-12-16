@@ -2,13 +2,12 @@
 
 #include <asm/atomic.h>
 
-const char *panicstr;
+const char *panicstr = NULL;
 extern int vprintf(const char *fmt, va_list ap);
 
 
 void _panic(const char *file, int line, const char *fmt,...)
 {
-	extern spinlock_t pklock;
 	va_list ap;
 	if (panicstr)
 		goto dead;

@@ -1,10 +1,14 @@
-#ifndef _VMA_H_
-#define _VMA_H_ 
+#ifndef _MM_H_
+#define _MM_H_ 
 #include <types.h>
+#include <errno.h>
 
-#include <minios/list.h>
-#include <minios/rbtree.h>
+#include <fuckOS/list.h>
+//#include <fuckOS/rbtree.h>
 
+#include <mm/pages.h>
+
+#include <asm/atomic.h>
 
 enum {
 	VM_READ = 1 << 0,
@@ -23,7 +27,7 @@ struct vm_area_struct
 {
 	struct mm_struct* vm_mm;
 	struct vm_area_struct* vm_next;
-	struct rb_node vm_rb;
+	//struct rb_node vm_rb;
 
 	viraddr_t vm_start;
 	viraddr_t vm_end;
@@ -33,7 +37,8 @@ struct vm_area_struct
 struct mm_struct
 {
 	struct vm_area_struct* mmap;
-	struct rb_root mm_rb;
+	//struct rb_root mm_rb;
+	pgd_t* mm_pgd;
 
 	viraddr_t free_area_cache;
 
@@ -48,8 +53,8 @@ struct mm_struct
 
 	viraddr_t start_stack;
 
-	atomic_t mmap_count;
-	atomic_t mm_count;
+	int mmap_count;
+	int mm_count;
 	spinlock_t page_table_lock;
 };
-#endif/*_VMA_H_*/
+#endif/*_MM_H_*/

@@ -1,5 +1,7 @@
 #ifndef _MINIOS_ASSERT_H
 #define _MINIOS_ASSERT_H
+
+#include <fuckOS/kernel.h>
 extern void _panic(const char *file, int line, const char *fmt,...)  __attribute__((noreturn));
 
 
