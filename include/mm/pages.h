@@ -5,15 +5,15 @@
 # include "pgtable-3level.h"
 #else
 # include "pgtable-2level.h"
-#endif/*!CONFIG_PAE*/
+#endif
 
 #include <asm/atomic.h>
 
 #include <fuckOS/list.h>
 #include <fuckOS/assert.h>
 
-#include <mm/layout.h>
 #include <mm/mm.h>
+#include <mm/layout.h>
 #include <mm/slab.h>
 
 struct page {
@@ -97,7 +97,6 @@ typedef enum {
 
 #define PAGE_ALIGN(x)		ROUNDDOWN(x, PAGE_SIZE)
 
-extern pte_t *page_walk(struct mm_struct*,viraddr_t ,bool );
 extern struct page *mempage;
 extern int max_pfn;
 extern int normal_maxpfn;
@@ -347,4 +346,5 @@ extern struct page* page_alloc(gfp_t);
 extern struct page* pages_alloc(gfp_t,uint8_t);
 extern void page_free(struct page* );
 extern void pages_free(struct page*,uint8_t);
+extern pte_t *page_walk(struct mm_struct*,viraddr_t ,bool );
 #endif/*!_MINIOS_PAGES_H_*/

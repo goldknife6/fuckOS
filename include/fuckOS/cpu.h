@@ -23,7 +23,7 @@ struct cpuinfo {
 
 extern struct cpuinfo cpus[CPUNUMS];
 extern int ncpu;                    // Total number of CPUs in the system
-extern struct cpuinfo* bootcpu;     		// The boot-strap processor (BSP)
+extern struct cpuinfo* bootcpu;     // The boot-strap processor (BSP)
 extern physaddr_t lapicaddr;        // Physical MMIO address of the local APIC
 
 
@@ -31,8 +31,5 @@ extern physaddr_t lapicaddr;        // Physical MMIO address of the local APIC
 
 
 extern void detect_cpuinfo();
-static int get_cpuid()
-{
-	return 0;
-}
+extern int get_cpuid();
 #endif/*!_MINIOS_CPU_H*/

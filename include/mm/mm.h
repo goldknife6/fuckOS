@@ -1,12 +1,17 @@
 #ifndef _MM_H_
 #define _MM_H_ 
+
+#ifdef CONFIG_PAE
+# include "pgtable-3level.h"
+#else
+# include "pgtable-2level.h"
+#endif
+
 #include <types.h>
 #include <errno.h>
 
 #include <fuckOS/list.h>
 //#include <fuckOS/rbtree.h>
-
-#include <mm/pages.h>
 
 #include <asm/atomic.h>
 

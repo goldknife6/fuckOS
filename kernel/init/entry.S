@@ -2,23 +2,9 @@
 #include <mm/mmu.h>
 #include <sys/multiboot2.h>
 
-#define SEG_NULL						\
-	.word 0, 0;						\
-	.byte 0, 0, 0, 0
-#define SEG(type,base,lim)					\
-	.word (((lim) >> 12) & 0xffff), ((base) & 0xffff);	\
-	.byte (((base) >> 16) & 0xff), (0x90 | (type)),		\
-		(0xC0 | (((lim) >> 28) & 0xf)), (((base) >> 24) & 0xff)
-
-#define SEG16(type,base,lim)					\
-	.word (((lim) >> 12) & 0xffff), ((base) & 0xffff);	\
-	.byte (((base) >> 16) & 0xff), (0x90 | (type)),		\
-		(0x00 | (((lim) >> 28) & 0xf)), (((base) >> 24) & 0xff)
-
 
 #define CHECKSUM 	(-(MULTIBOOT2_HEADER_MAGIC + 0 + _header_end - _header_start))
 
-#define RELOC(x)	((x) - KERNEL_BASE_ADDR)
 	
 	.text
 	.globl  start, _start

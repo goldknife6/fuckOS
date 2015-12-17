@@ -189,7 +189,8 @@ static int get_pte(pmd_t *pmd,int perm)
 /*
 *page_walk - look up a pte_t from a user-virtual address
 */
-pte_t *page_walk(struct mm_struct* mm,viraddr_t address,bool create)
+pte_t *page_walk(struct mm_struct* mm,
+			viraddr_t address,bool create)
 {
 #ifdef CONFIG_DEBUG
 	assert(mm);
@@ -220,7 +221,7 @@ pte_t *page_walk(struct mm_struct* mm,viraddr_t address,bool create)
 			goto unlock;
 		pmd =  pmd_offset (pgd, address);
 	}
-	pte = pte_offset (pmd, address);
+	pte = pte_offset(pmd, address);
 unlock:
 	spin_unlock(&mm->page_table_lock);
 	return pte;

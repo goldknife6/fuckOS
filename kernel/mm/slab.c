@@ -117,11 +117,10 @@ struct page* new_slab(struct mem_cache *c)
 	struct page* page = NULL;
 	struct mem_cache_node* n = &c->node;
 
-	page = pages_alloc (_GFP_ZERO,c->order);
+	page = pages_alloc(_GFP_ZERO,c->order);
 
-	if (!page) {
+	if (!page)
 		return NULL;
-	}
 	
 
 	new_slab_init(c,page);

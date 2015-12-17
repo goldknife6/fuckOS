@@ -48,10 +48,12 @@
 
 #define KERNEL_MMIO		(0xFF800000)
 
+#define KERNEL_MMIO_LIMIT	(0xFFC00000)
 
 #define NORMAL_ADDR		(KERNEL_NORMAL - KERNEL_BASE_ADDR)
 
 #define	PT_SIZE			(PAGE_SIZE << 10)
 
+#define MPENTRY_PADDR		(0x7000)
 
 #endif

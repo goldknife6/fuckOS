@@ -185,7 +185,6 @@ static void buddy_check()
 		if(phys < 0x30000000 || PFN(phys) >= high_maxpfn)
 			panic("normal\n");
 	}
-	panic("down\n");
 }
 /*
 *
@@ -209,6 +208,4 @@ void zone_init()
 
 	free_area_init(&zone_high);
 	
-	buddy_check();
-
 }

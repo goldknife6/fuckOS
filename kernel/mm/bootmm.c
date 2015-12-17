@@ -18,6 +18,7 @@ struct mmap
 };
 
 extern void detect_memory(void*);
+extern void slab_init();
 extern char _BSS_END[];
 
 static void printmapp();
@@ -61,7 +62,9 @@ void bootmm(void* ginfo)
 
 	bootmm_init();
 	
+	slab_init();
 }
+
 
 
 /*
@@ -178,6 +181,7 @@ static void *alloc_bootmm_pages(int size)
 	return tmp;
 }
 
+
 static int is_page_aval(int pfn)
 {
 	struct mmap *mmap = mmapinfo;
@@ -289,7 +293,7 @@ unlock:
 *	对内核页表进行映射
 *
 */
-void boot_map_region(pgd_t *pgdir, viraddr_t va, 
+static void boot_map_region(pgd_t *pgdir, viraddr_t va, 
 			size_t size, physaddr_t pa, int perm)
 {
 	uint32_t i;
@@ -300,6 +304,20 @@ void boot_map_region(pgd_t *pgdir, viraddr_t va,
 	}
 	
 }
+void * mmio_map_region(physaddr_t pa, size_t size)
+{
+	static viraddr_t base = KERNEL_MMIO;
+	viraddr_t result = base;
+	size = PAGE_ALIGN(size);
+	if( base + size < KERNEL_MMIO_LIMIT ) 
+		boot_map_region(kpgd, base, size, pa, _PAGE_PRESENT|_PAGE_PCD|_PAGE_PWT|_PAGE_RW);
+	else 
+		panic("Overflowing MMIO\n");
+
+	base = base + size;
+	return (void *) result;
+}
+
 extern void page_check();
 extern void zone_init();
 
