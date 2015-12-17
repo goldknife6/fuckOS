@@ -21,7 +21,7 @@ page_is_buddy(struct page *page, uint8_t order)
 #ifdef CONFIG_DEBUG
 	assert(page);
 	assert(order >= 0);
-	assert(order <= MAXORDER);
+	assert(order < MAXORDER);
 #endif	
        if ((page_order(page) == order) &&  
             (page_count(page) == 0) &&
@@ -60,7 +60,7 @@ _alloc_buddy(struct zone_struct *zone,uint8_t order)
 #ifdef CONFIG_DEBUG
 	assert(zone);
 	assert(order >= 0);
-	assert(order <= MAXORDER);
+	assert(order < MAXORDER);
 #endif
 
 	if (zone->size == 0)
@@ -100,21 +100,22 @@ free_buddy(struct zone_struct *zone,
 	uint32_t index = page - zone->zone_mempage;
 
 #ifdef CONFIG_DEBUG
+	assert(index >= 0);
 	assert(zone);
 	assert(page);
 	assert(order >= 0);
-	assert(order <= MAXORDER);
+	assert(order < MAXORDER);
 #endif
-	zone->free_pages += 1UL << order; 
+	zone->free_pages += 1 << order; 
 
-	while(order < (MAXORDER - 1)) {
+	while (order < MAXORDER - 1) {
 		
-		uint32_t buddy_index = index ^ (1UL << order);
+		int32_t buddy_index = index ^ (1 << order);
 		struct page* buddy = zone->zone_mempage + buddy_index;
 
-		if(buddy >= zone->zone_mempage + zone->size)
+		if (buddy >= zone->zone_mempage + zone->size)
 			break;
-		if(buddy < zone->zone_mempage)
+		if (buddy < zone->zone_mempage)
 			break;
 
 #ifdef CONFIG_DEBUG
@@ -122,7 +123,7 @@ free_buddy(struct zone_struct *zone,
 	assert(!(page2pfn(buddy) % (1<<order)));
 #endif		
 
-		if(!page_is_buddy(buddy, order))
+		if (!page_is_buddy(buddy, order))
 			break;
 		area = &zone->free_area[order];
 		area->nfree--;
@@ -137,24 +138,16 @@ free_buddy(struct zone_struct *zone,
 	}
 	page = zone->zone_mempage + index;
 	page->order = order;
+	
 	list_add(&page->list, &zone->free_area[order].free_list);
 	zone->free_area[order].nfree++;
 }
-/*
-struct zone_struct {
-	uint32_t 	free_pages;
-	spinlock_t 	lock;
-	struct page* 	zone_mempage;
-	uint32_t 	size;
-	struct free_area_struct	free_area[MAXORDER];
-};
-*/
+
+
 static void 
 free_area_init(struct zone_struct * zone)
 {
-	uint32_t i = 0,j = 0,np = 0;
-	if (!zone->size)
-		return;
+	int32_t i = 0,j = 0,np = 0;
 
 	struct page* mmap = zone->zone_mempage;
 
@@ -162,19 +155,37 @@ free_area_init(struct zone_struct * zone)
 		INIT_LIST_HEAD(&zone->free_area[i].free_list);
 
 	for (i = 0 ;i < zone->size;i++) {
-		if(page_order(&mmap[i]) == 0) {
+		if(page_order(&mmap[i]) == -1 && mmap[i].flags & _pg_free) {
 			free_buddy(zone,&mmap[i],0);
 		}
 	}
 
-	list_for_each_entry(mmap, &zone->free_area[0].free_list, list) {
-			j++;	
-	}
-
-	zone->free_area[0].nfree = j;
 }
+
 static void buddy_check()
 {
+	int c = 0,i;
+	struct page* page;
+	physaddr_t phys;
+
+	while(1) {
+		page = alloc_buddy(&zone_normal,0);
+		if(!page)
+			break;
+		phys = page2phys(page);
+		if(phys < 0x100000 || PFN(phys) >= normal_maxpfn)
+			panic("normal\n");
+	}
+
+	while(1) {
+		page = alloc_buddy(&zone_high,0);
+		if(!page)
+			break;
+		phys = page2phys(page);
+		if(phys < 0x30000000 || PFN(phys) >= high_maxpfn)
+			panic("normal\n");
+	}
+	panic("down\n");
 }
 /*
 *
@@ -183,6 +194,7 @@ static void buddy_check()
 */
 void zone_init()
 {
+
 	zone_normal.size = normal_maxpfn;
 	zone_normal.zone_mempage = mempage;
 	zone_normal.free_pages = 0;
@@ -194,10 +206,9 @@ void zone_init()
 	SPIN_LOCK_INIT(&zone_high.lock);
 
 	free_area_init (&zone_normal);
-	free_area_init (&zone_high);
 
+	free_area_init(&zone_high);
+	
 	buddy_check();
 
-	printk("high size:%x ",zone_high.size);
-	printk("normal size:%x\n",zone_normal.size);
 }

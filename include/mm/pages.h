@@ -14,6 +14,7 @@
 
 #include <mm/layout.h>
 #include <mm/mm.h>
+#include <mm/slab.h>
 
 struct page {
 	struct list_head list;
@@ -21,7 +22,7 @@ struct page {
 	uint32_t	flags;
 	int32_t		order;
 
-	//struct kmem_cache* slab;
+	struct mem_cache* slab;
 	void ** 	freelist;//slab
 	int32_t		inuse;
 	spinlock_t	slublock;
@@ -59,9 +60,9 @@ typedef enum {
 #define __pa(x) 		((physaddr_t)((x) - KERNEL_BASE_ADDR))
 #define __va(x) 		((viraddr_t)((x) + KERNEL_BASE_ADDR))
 
-#define v2p(kaddr) 		virt_to_phys(__FILE__,__LINE__ ,kaddr)
-#define p2v(paddr) 		phys_to_virt(__FILE__,__LINE__ ,paddr)
-#define pgd2p(kaddr) 		virt_to_phys(__FILE__,__LINE__ ,(uint32_t)kaddr)
+#define v2p(kaddr) 		virt_to_phys(__FILE__,__LINE__ ,(viraddr_t)(kaddr))
+#define p2v(paddr) 		phys_to_virt(__FILE__,__LINE__ ,(physaddr_t)(paddr))
+#define pgd2p(kaddr) 		virt_to_phys(__FILE__,__LINE__ ,(uint32_t)(kaddr))
 
 #define page2pfn(page) 		_page2pfn(__FILE__,__LINE__ ,(page))
 #define page2phys(page) 	_page2phys(__FILE__,__LINE__ ,(page))
@@ -96,7 +97,7 @@ typedef enum {
 
 #define PAGE_ALIGN(x)		ROUNDDOWN(x, PAGE_SIZE)
 
-extern pte_t *page_walk (struct mm_struct*,viraddr_t ,bool );
+extern pte_t *page_walk(struct mm_struct*,viraddr_t ,bool );
 extern struct page *mempage;
 extern int max_pfn;
 extern int normal_maxpfn;
@@ -292,7 +293,7 @@ pte_offset(pmd_t *pmd, viraddr_t address)
 }
 
 
-static inline pfn_t 
+static inline physaddr_t 
 _page2pfn(char *file,uint32_t line ,volatile struct page * page)
 {
 #ifdef CONFIG_DEBUG
@@ -342,7 +343,8 @@ _virt2page(char *file,uint32_t line ,viraddr_t vir)
 	return _phys2page(file,line ,v2p(vir));
 }
 
-
-
-
+extern struct page* page_alloc(gfp_t);
+extern struct page* pages_alloc(gfp_t,uint8_t);
+extern void page_free(struct page* );
+extern void pages_free(struct page*,uint8_t);
 #endif/*!_MINIOS_PAGES_H_*/

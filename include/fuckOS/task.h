@@ -71,7 +71,7 @@ struct task_struct
 	struct list_head list;
 	struct list_head wait_list;
 
-	struct rb_node sched_entry;
+	//struct rb_node sched_entry;
 };
 
 
@@ -90,52 +90,10 @@ struct pidmap
 			   type,ppid,store);					\
 	} while (0)
 
-#define task2pgd(x) 	(x->mm->pgd)
 #define curtask	 	(thiscpu->cpu_task)
 
 
 extern struct task_struct* task_pidmap[];
 
-extern void switch_task(struct task_struct *prev,struct task_struct *next);
-
-
-
-
-extern int kernel_thread (int ( * fn )( void * ),uint32_t flags);
-
-
-extern void task_init(void);
-
-
-extern void task_init_percpu(void);
-
-
-extern int task_create(void *binary,int type,pid_t ppid,struct task_struct **);
-
-
-extern int user_mem_check(struct task_struct *task, const void *va, size_t len, int perm);
-
-
-extern int user_mem_assert(struct task_struct *task, const void *va, size_t len, int perm);
-
-
-extern int pid2task(pid_t pid, struct task_struct **taskstore, bool checkperm);
-
-
-extern int exit_mm(struct task_struct *task);
-
-
-extern struct task_struct *alloc_task();
-
-
-extern void free_task(struct task_struct *task);
-
-extern int alloc_pidmap();
-
-extern void free_pidmap(pid_t);
-//fork.c
-extern int do_fork(int clone_flags, struct frame *frame, struct task_struct **store);
-//exit.c
-extern int do_exit(struct task_struct *task);
 
 #endif/*_MINIOS_TASK_H*/

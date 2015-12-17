@@ -14,7 +14,7 @@ export INC 	:=  $(KHANDER)
 CFLAGE		:= -fno-builtin -fno-stack-protector  -fno-omit-frame-pointer -nostdlib
 CFLAGE		+= -Wall -Wno-format -Wno-unused -Werror -gstabs -m32  -fno-tree-ch  
 export UCFLAGS 	:= $(UHANDER) $(CFLAGE) -DUSER
-export KCFLAGS 	:= $(KHANDER) $(CFLAGE) -DKERNEL  -DCONFIG_PAE -DCONFIG_DEBUG
+export KCFLAGS 	:= $(KHANDER) $(CFLAGE) -DKERNEL  -DCONFIG_PAE1 -DCONFIG_DEBUG
 export KLDFLAGS := $(LDFLAGS) -T kernel.ld 
 export ULDFLAGS := -T user.ld $(LDFLAGS)
 export V	:= @
@@ -24,7 +24,7 @@ export GCC_LIB 	:= $(shell $(CC) $(CFLAGE) -print-libgcc-file-name)
 IMAGES		:= kenrel.iso
 BOCHS		:= bochs
 QEMU		:= qemu-system-i386
-QEMUOPTS	:= -m 1G -smp 2 -hdb kernel/fs/fs.img
+QEMUOPTS	:= -m 2G -smp 2 -hdb kernel/fs/fs.img
 GRUB		:= grub-mkrescue
 IOSDIR		:= iso
 

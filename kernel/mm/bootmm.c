@@ -55,6 +55,8 @@ void bootmm(void* ginfo)
 
 	get_totalram_pages();
 
+	high_maxpfn = max_pfn < high_maxpfn ? max_pfn : high_maxpfn;
+
 	printmapp();
 
 	bootmm_init();
@@ -91,10 +93,11 @@ static void get_max_pfn()
 
 	for(mmap ;mmap < end;mmap++) {
 		if(mmap->type == 1) {
-			last = mmap->addr + mmap->len;
+			if (last < mmap->addr + mmap->len)
+				last = mmap->addr + mmap->len;
 		}
 	}
-	max_pfn = PFN(last);
+	max_pfn = last >> PAGE_SHIFT;
 #ifndef	CONFIG_PAE
 	if(max_pfn >= 0x100000) {
 		max_pfn = 0x100000;
@@ -182,7 +185,7 @@ static int is_page_aval(int pfn)
 
 	uint64_t last = 0;
 
-	if (pfn < PFN(0x100000))
+	if (pfn < PFN(v2p(base)))
 		return 0;
 
 	if (pfn >= max_pfn)
@@ -209,9 +212,15 @@ static void mempage_init()
 {
 	int i;
 	for(i = 0 ;i < max_pfn;i++) {
+		memset(&mempage[i],0,sizeof(struct page));
+		
 		if(is_page_aval(i)) {
-			memset(&mempage[i],0,sizeof(struct page));
 			mempage[i].flags = _pg_free;
+			mempage[i].order = -1;
+			INIT_LIST_HEAD(&mempage[i].list);
+		} else {
+			mempage[i].flags = _pg_reserved;
+			mempage[i].order = -1;
 			INIT_LIST_HEAD(&mempage[i].list);
 		}
 	}
@@ -318,12 +327,13 @@ static void bootmm_init()
 
 	mempage = alloc_bootmm_pages(num);//分配page数组
 
-	memset(mempage,0xFF,num * PAGE_SIZE);
+	assert(mempage);
 
 	mempage_init();
 
 	//初始化伙伴分配系统 mm/zone.c
 	zone_init();
+
 }
 
 static void printmapp()
