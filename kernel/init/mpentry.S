@@ -58,12 +58,13 @@ tset_ap_lock:
 	pause
 	jc 	tset_ap_lock
 
-	movl	$(mpstacktop),%esp
+	addl	$1,ncpu
+	movl	$mpstacktop,%esp
 	movl    $0x0, %ebp       # nuke frame pointer
 	
-	//movl    $find_next_cpu_stack, %eax
-	//call    *%eax
-	//movl    $mpentry_kstack,%esp
+	movl    $find_next_cpu_stack, %eax
+	call    *%eax
+	movl    mpentry_kstack,%esp
 
 	movl    $mp_main, %eax
 	call    *%eax
@@ -72,21 +73,20 @@ spin:
 	jmp     spin
 
 
-# Bootstrap GDT
 	.p2align 2				# force 4 byte alignment
 gdt:
 	SEG_NULL				# null seg
 	SEG(STA_X|STA_R, 0x0, 0xffffffff)	# code seg
 	SEG(STA_W, 0x0, 0xffffffff)		# data seg
-
 gdtdesc:
 	.word   0x17				# sizeof(gdt) - 1
 	.long   MPBOOTPHYS(gdt)			# address gdt
-
 	.globl mpentry_end
 mpentry_end:
-	nop
-.data
+
+
+
+	.data
 mpstack:
-	.space		KERNEL_STKSIZE	
+	.space		KERNEL_STKSIZE
 mpstacktop:

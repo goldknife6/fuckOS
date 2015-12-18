@@ -7,7 +7,7 @@ megs: 40
 romimage: file=$BXSHARE/BIOS-bochs-legacy, address=0xffff0000
 vgaromimage: file=$BXSHARE/VGABIOS-lgpl-latest 
 
-cpu: count=2 ,model=corei5_lynnfield_750
+cpu: count=4 ,model=corei5_lynnfield_750
 
 
 

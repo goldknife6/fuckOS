@@ -98,4 +98,5 @@ void lapic_init()
 	//outb(0x23, inb(0x23) | 1);  // Mask external interrupts.
 
 	lapicw(LAPIC_TPR, 0);
+
 }

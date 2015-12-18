@@ -94,6 +94,8 @@ struct pidmap
 
 
 extern struct task_struct* task_pidmap[];
+extern struct task_struct *init_task;
 
 
+extern void task_init();
 #endif/*_MINIOS_TASK_H*/
