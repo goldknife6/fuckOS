@@ -36,6 +36,12 @@
  *	USER_STACKBOTT---------------------------------------->0xBF400000
  *
  *
+ *	USER_UNNAME_ZONE-------------------------------------->0x40000000
+ *
+ *
+ *
+ *
+ *
  *
  */
 #define	KERNEL_NORMAL		(0xF0000000)
@@ -51,6 +57,11 @@
 #define KERNEL_MMIO_LIMIT	(0xFFC00000)
 
 #define NORMAL_ADDR		(KERNEL_NORMAL - KERNEL_BASE_ADDR)
+
+
+
+#define	USER_UNNAME_ZONE	(0x40000000)
+
 
 #define	PT_SIZE			(PAGE_SIZE << 10)
 

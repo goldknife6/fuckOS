@@ -64,10 +64,11 @@ void os_entry(void* ginfo,uint32_t gmagic)
 
 	console_init(0xB8000);
 
+	//初始化全局描述符表
 	gdt_init_percpu();
 
 	//检测内存映射信息，然后计算关于物理页的各种信息 bootmm.c
-	//初始化伙伴系统
+	//初始化伙伴系统，slab分配器
 	bootmm(ginfo);
 
 	//slab_check();
@@ -76,15 +77,23 @@ void os_entry(void* ginfo,uint32_t gmagic)
 
 	lapic_init();
 
+	//中断向量表初始化
 	trap_init();
 
+	//AP初始化
 	lapic_startup();
 }
-
+void init()
+{
+	while(1) {
+		
+	}
+}
 void find_next_cpu_stack()
 {
 	mpentry_kstack = percpu_kstacks[ncpu] + KERNEL_STKSIZE;
 }
+
 void mp_main()
 {
 	lcr3(pgd2p(kpgd));
@@ -99,7 +108,6 @@ void mp_main()
 
 	printk("SMP:%d start up ncpu:%d\n",get_cpuid(),ncpu);
 
-	
 }
 struct node
 {

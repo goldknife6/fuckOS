@@ -11,7 +11,7 @@
 #include <errno.h>
 
 #include <fuckOS/list.h>
-//#include <fuckOS/rbtree.h>
+#include <fuckOS/rbtree.h>
 
 #include <asm/atomic.h>
 
@@ -25,14 +25,11 @@ enum {
 };
 
 
-
-
-
 struct vm_area_struct
 {
 	struct mm_struct* vm_mm;
 	struct vm_area_struct* vm_next;
-	//struct rb_node vm_rb;
+	struct rb_node vm_rb;
 
 	viraddr_t vm_start;
 	viraddr_t vm_end;
@@ -42,7 +39,7 @@ struct vm_area_struct
 struct mm_struct
 {
 	struct vm_area_struct* mmap;
-	//struct rb_root mm_rb;
+	struct rb_root mm_rb;
 	pgd_t* mm_pgd;
 
 	viraddr_t free_area_cache;
@@ -62,4 +59,5 @@ struct mm_struct
 	int mm_count;
 	spinlock_t page_table_lock;
 };
+extren struct mm_struct* alloc_mm();
 #endif/*_MM_H_*/

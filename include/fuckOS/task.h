@@ -6,8 +6,9 @@
 #include <mm/mm.h>
 
 #include <sys/system.h>
-#include <fuckOS/list.h>
 
+#include <fuckOS/list.h>
+#include <fuckOS/cpu.h>
 
 /* max pid, equal to 2^15=32768 */
 #define PID_MAX_DEFAULT 0x8000
@@ -47,21 +48,20 @@ struct thread_info
 {
 	uint32_t esp;
 	uint32_t eip;
-	struct frame *trapframe;
 };
 
 struct task_struct
 {
-	struct thread_info thread_info;
+	struct thread_info* thread_info;
 	struct task_struct* child;
+	struct mm_struct* mm;
+
+	pgd_t* task_pgd;
 	pid_t pid;			
 	pid_t ppid;
 	int32_t  task_cpunum;
 	int32_t  task_status;
 	int32_t  task_type;
-	struct mm_struct* mm;
-	pgd_t* task_pgd;
-
 
 	int32_t timeslice;
 	int32_t prio;
@@ -95,7 +95,7 @@ struct pidmap
 
 extern struct task_struct* task_pidmap[];
 extern struct task_struct *init_task;
-
+extern struct task_struct *alloc_task();
 
 extern void task_init();
 #endif/*_MINIOS_TASK_H*/
