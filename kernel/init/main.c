@@ -8,6 +8,8 @@
 #include <fuckOS/lapic.h>
 #include <fuckOS/trap.h>
 #include <fuckOS/sched.h>
+#include <fuckOS/pic_8259A.h>
+
 
 #include <mm/slab.h>
 #include <mm/mmu.h>
@@ -73,6 +75,8 @@ void os_entry(void* ginfo,uint32_t gmagic)
 	bootmm(ginfo);
 
 	schedule_init();
+
+	init_8259A();
 
 	lapic_init();
 

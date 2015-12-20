@@ -196,7 +196,7 @@ pgd_none(pgd_t pgd)
 static inline int32_t 
 pgd_present(pgd_t pgd)
 {
-	return pgd_val(pgd) | _PAGE_PRESENT;
+	return pgd_val(pgd) & _PAGE_PRESENT;
 }
 static inline int32_t 
 pmd_none(pmd_t pmd)
@@ -206,7 +206,7 @@ pmd_none(pmd_t pmd)
 static inline int32_t 
 pmd_present(pmd_t pmd)
 {
-	return pmd_val(pmd) | _PAGE_PRESENT;
+	return pmd_val(pmd) & _PAGE_PRESENT;
 }
 static inline int32_t 
 pte_none(pte_t pte)
@@ -216,7 +216,12 @@ pte_none(pte_t pte)
 static inline int32_t 
 pte_present(pte_t pte)
 {
-	return pte_val(pte) | _PAGE_PRESENT;
+	return pte_val(pte) & _PAGE_PRESENT;
+}
+static inline int32_t 
+pte_write(pte_t pte)
+{
+	return pte_val(pte) & _PAGE_RW;
 }
 
 static inline uint32_t 

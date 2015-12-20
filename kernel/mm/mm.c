@@ -13,7 +13,6 @@
 static void vm_link(struct mm_struct*, struct vm_area_struct*);
 static void vm_link_del(struct mm_struct* , struct vm_area_struct*);
 static struct vm_area_struct* find_vma_prev(struct mm_struct*, viraddr_t);
-static struct vm_area_struct* find_vma(struct mm_struct*, viraddr_t);
 static viraddr_t get_unmapped_vma(struct mm_struct*, viraddr_t, size_t);
 static void vma_unmap_page(struct vm_area_struct* vma);
 
@@ -121,7 +120,7 @@ unlock:
 	return vma;
 }
 
-static struct vm_area_struct*
+struct vm_area_struct*
 find_vma(struct mm_struct* mm, viraddr_t addr)
 {
 	struct rb_node* rb_node = mm->mm_rb.rb_node;

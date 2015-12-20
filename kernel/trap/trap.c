@@ -155,7 +155,6 @@ trap_dispatch(struct frame *tf)
 	case IRQ_IDE : print_frame(tf);break;
 	case IRQ_ERROR : print_frame(tf);break;
 
-	// Unexpected trap: The user process or the kernel has a bug.
 	default:{	
 		 print_frame(tf);
 		 if (tf->tf_cs == _KERNEL_CS_) 
@@ -187,9 +186,9 @@ void trap(struct frame *tf)
 		curtask->frame = *tf;
 		tf = &curtask->frame;
 	} else {
+		
 		panic("kernel!\n");
 	}
 	trap_dispatch(tf);
-
 	schedule();
 }
