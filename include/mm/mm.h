@@ -56,8 +56,11 @@ struct mm_struct
 	viraddr_t start_stack;
 
 	int mmap_count;
-	int mm_count;
+	atomic_t mm_count;
 	spinlock_t page_table_lock;
 };
-extren struct mm_struct* alloc_mm();
+extern struct mm_struct* alloc_mm();
+extern void free_mm(struct mm_struct*);
+extern struct vm_area_struct* create_vma(struct mm_struct*,viraddr_t,size_t,uint32_t);
+extern void delete_vma(struct vm_area_struct*);
 #endif/*_MM_H_*/

@@ -8,10 +8,10 @@
 #define NUMCON 3
 #define NUMTTY 3
 
-typedef struct console_struct {
-	uint32_t* display_addr;	
-	uint32_t* original_start_addr;
-	uint32_t* current_start_addr;
+struct console_struct {
+	uint32_t display_addr;	
+	uint32_t original_start_addr;
+	uint32_t current_start_addr;
 	uint32_t cursor;
 	uint32_t dismem_limit;
 
@@ -19,18 +19,18 @@ typedef struct console_struct {
 	uint32_t bgcolor;
 	uint32_t fgcolor;
 	
-	uint32_t conbuf[CONBUFSIZE];	
-}console_t;
+	//uint32_t conbuf[CONBUFSIZE];	
+};
 
 
 typedef struct tty_struct {
 	uint32_t in_buf[TTY_IN_BYTES];
 	uint32_t out_buf[TTY_OUT_BYTES];
-	console_t* console_p;
+	struct console_struct* console_p;
 }tty_t;
 
 
-extern struct console_struct console[];
+extern struct console_struct console[NUMCON];
 extern void console_init(uint32_t);
 extern void console_write_char(uint32_t c);
 extern void console_clear();

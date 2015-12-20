@@ -34,28 +34,14 @@ enum task_type {
 	TASK_TYPE_NS,		// Network server
 };
 
-enum clone_type {
-	CLONE_KTHREAD = 1<<0,
-	CLONE_VM = 1<<1,		
-};
-
-
 enum {
 	_NEED_RESCHED = 1 << 0
 };
 
-struct thread_info
-{
-	uint32_t esp;
-	uint32_t eip;
-};
-
 struct task_struct
 {
-	struct thread_info* thread_info;
-	struct task_struct* child;
 	struct mm_struct* mm;
-
+	struct frame frame;
 	pgd_t* task_pgd;
 	pid_t pid;			
 	pid_t ppid;
@@ -70,8 +56,6 @@ struct task_struct
 	int32_t runnum;
 	struct list_head list;
 	struct list_head wait_list;
-
-	//struct rb_node sched_entry;
 };
 
 
@@ -83,19 +67,17 @@ struct pidmap
 
 #define TASK_PASTE3(x, y, z) x ## y ## z
 
-#define TASK_CREATE(x, type,ppid,store)						\
+#define TASK_CREATE(x, type)						\
 	do {									\
 		extern uint8_t TASK_PASTE3(_binary_, x, _start)[];		\
-		task_create(TASK_PASTE3(_binary_, x, _start),			\
-			   type,ppid,store);					\
+		task_create(TASK_PASTE3(_binary_, x, _start),type);		\
 	} while (0)
 
 #define curtask	 	(thiscpu->cpu_task)
 
 
 extern struct task_struct* task_pidmap[];
-extern struct task_struct *init_task;
-extern struct task_struct *alloc_task();
 
-extern void task_init();
+extern int task_create(uint8_t *, enum task_type );
+extern int task_run(struct task_struct *);
 #endif/*_MINIOS_TASK_H*/

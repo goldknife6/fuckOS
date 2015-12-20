@@ -29,7 +29,7 @@ GRUB		:= grub-mkrescue
 IOSDIR		:= iso
 
 #
-OBJFILE 	:= init mm tty task blkdrv fs 
+OBJFILE 	:=  init mm tty  syscall  fs trap
 OBJFILE 	:=  $(patsubst %,kernel/%/*.S,$(OBJFILE)) $(patsubst %,kernel/%/*.c,$(OBJFILE))
 OBJFILE 	:= $(wildcard $(OBJFILE))
 OBJFILE 	:= $(patsubst kernel/%,$(ROOTDIR)/$(OBJDIR)/%,$(OBJFILE))

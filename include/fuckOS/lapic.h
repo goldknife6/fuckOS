@@ -103,7 +103,7 @@
 extern physaddr_t lapicaddr;
 
 extern void lapic_init(void);
-extern void lapic_startup(void);
+extern void ap_startup(void);
 extern volatile uint32_t *lapic;
 extern void lapicw(uint32_t index, uint32_t value);
 extern uint32_t lapicr(int32_t index);

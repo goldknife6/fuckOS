@@ -14,8 +14,7 @@ libobj := $(patsubst %.c,$(ROOTDIR)/$(OBJDIR)/lib/%.o,$(libobj))
 libobj := $(patsubst %.S,$(ROOTDIR)/$(OBJDIR)/lib/%.o,$(libobj))
 
 .PHONY: all
-all:$(objects) 
-#$(ROOTDIR)/$(OBJDIR)/$(CURDIR)/libOS.a
+all:$(objects) $(ROOTDIR)/$(OBJDIR)/$(CURDIR)/libOS.a
 	
 $(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%.o:%.c
 	@echo + cc $(CURDIR)/$<

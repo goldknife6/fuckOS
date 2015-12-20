@@ -34,14 +34,12 @@ _alltraps:
 
 	pushl %esp  /* trap(%esp) */
         call trap
-	subl $-4,%esp
-
+	addl $4,%esp
 	popal
 	popl %es
 	popl %ds
-	subl $-8,%esp/*errnum and trapno*/
+	addl $8,%esp
 	iret
-
 
 
 TRAPHANDLER_NOEC(thdlr0, 0)

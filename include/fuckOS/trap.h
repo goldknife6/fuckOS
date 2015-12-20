@@ -1,6 +1,9 @@
 #ifndef _MINIOS_TRAP_H
 #define _MINIOS_TRAP_H
 
+#include <sys/system.h>
+
+
 #define T_DIVIDE     0		// divide error
 #define T_DEBUG      1		// debug exception
 #define T_NMI        2		// non-maskable interrupt
@@ -32,8 +35,7 @@
 #define IRQ_KBD          (IRQ1_VECTOR)
 #define IRQ_SERIAL       (IRQ4_VECTOR)
 #define IRQ_SPURIOUS     (IRQ7_VECTOR)
-#define IRQ_IDE0         (IRQ14_VECTOR)
-#define IRQ_IDE1         (IRQ15_VECTOR)
+#define IRQ_IDE         (IRQ14_VECTOR)
 #define IRQ_ERROR	 (IRQ19_VECTOR)
 
 
@@ -74,5 +76,5 @@
 
 extern void trap_init();
 extern void trap_init_percpu();
-
+extern void print_frame(struct frame *);
 #endif/*_MINIOS_TRAP_H*/

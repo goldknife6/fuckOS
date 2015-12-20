@@ -80,13 +80,13 @@ out:
 	return page;
 }
 
-void refresh_tlb(struct mm_struct* mm, viraddr_t va)
+void refresh_tlb(pgd_t *pgd, viraddr_t va)
 {
 	// Flush the entry only if we're modifying the current address space.
 	//if (!curenv || curenv->env_pgdir == pgdir)
 	invlpg((void*)va);
-	//int cr3 = rcr3();
-	//lcr3(cr3);
+	int cr3 = rcr3();
+	lcr3(cr3);
 }
 
 void page_decref(struct page* page)
@@ -97,14 +97,14 @@ void page_decref(struct page* page)
 }
 
 struct page* 
-page_lookup(struct mm_struct* mm, 
+page_lookup(pgd_t *pgd, 
 		viraddr_t va, pte_t **pte_store)
 {
 #ifdef CONFIG_DEBUG
-	assert(mm);
+	assert(pgd);
 	assert(va);
 #endif
-	pte_t* pte = page_walk(mm, va, false);
+	pte_t* pte = page_walk(pgd, va, false);
 	if( pte == NULL ) 
 		return NULL;
 	if(pte_none(*pte)) 
@@ -114,16 +114,16 @@ page_lookup(struct mm_struct* mm,
 	return virt2page(pte_page_vaddr(*pte));
 }
 
-void page_remove(struct mm_struct* mm, viraddr_t va) 
+void page_remove(pgd_t *pgd, viraddr_t va) 
 {
 	struct page *page;
 	pte_t *pte_store;
 
 #ifdef CONFIG_DEBUG
-	assert(mm);
+	assert(pgd);
 	assert(va);
 #endif
-	page = page_lookup(mm, va, &pte_store);
+	page = page_lookup(pgd, va, &pte_store);
 
 	if( page == NULL ) return;
 	
@@ -131,29 +131,28 @@ void page_remove(struct mm_struct* mm, viraddr_t va)
 
 	pte_set(pte_store,0,0);
 
-	refresh_tlb(mm, va);
+	refresh_tlb(pgd, va);
 }
 
-int page_insert(struct mm_struct* mm, 
-			struct page *page,viraddr_t va, uint32_t perm)
+int page_insert(pgd_t *pgd, struct page *page,viraddr_t va, uint32_t perm)
 {
 #ifdef CONFIG_DEBUG
-	assert(mm);
+	assert(pgd);
 	assert(page);
 	assert(va);
 #endif
-	pte_t* pte = page_walk(mm, va,true);
+	pte_t* pte = page_walk(pgd, va,true);
 
 	if (!pte) return -ENOMEM;
 
 	atomic_inc(&page->nref);
 
 	if (pte_present(*pte)) 
-		page_remove(mm, va);	
+		page_remove(pgd, va);	
 	
 	pte_set(pte, page2phys(page) , perm);
 
-	refresh_tlb(mm, va);
+	refresh_tlb(pgd, va);
 	return 0;
 }
 
@@ -189,11 +188,11 @@ static int get_pte(pmd_t *pmd,int perm)
 /*
 *page_walk - look up a pte_t from a user-virtual address
 */
-pte_t *page_walk(struct mm_struct* mm,
+pte_t *page_walk(pgd_t *pgdp,
 			viraddr_t address,bool create)
 {
 #ifdef CONFIG_DEBUG
-	assert(mm);
+	assert(pgdp);
 	assert(address);
 #endif
 
@@ -202,28 +201,25 @@ pte_t *page_walk(struct mm_struct* mm,
 	pmd_t * pmd = NULL;
 	struct page *page = NULL;
 
-	spin_lock(&mm->page_table_lock);
 
-	pgd =  pgd_offset (mm->mm_pgd, address);
+	pgd =  pgd_offset(pgdp, address);
 
 	if (pgd_none(*pgd) && !create)
-		goto unlock;
+		return NULL;
 	else if (pgd_none(*pgd)) {
 		if( get_pmd(pgd,_PAGE_PRESENT | _PAGE_RW | _PAGE_USER) < 0)
-			goto unlock;
-		pgd =  pgd_offset (mm->mm_pgd, address);
+			return NULL;
+		pgd =  pgd_offset(pgd, address);
 	}
 	pmd =  pmd_offset (pgd, address);
 	if (pmd_none(*pmd) && !create)
-		goto unlock;
+		return NULL;
 	else if (pmd_none(*pmd)) {
 		if( get_pte(pmd,_PAGE_PRESENT | _PAGE_RW | _PAGE_USER) < 0)
-			goto unlock;
+			return NULL;
 		pmd =  pmd_offset (pgd, address);
 	}
 	pte = pte_offset(pmd, address);
-unlock:
-	spin_unlock(&mm->page_table_lock);
 	return pte;
 }
 

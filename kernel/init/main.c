@@ -7,6 +7,7 @@
 #include <fuckOS/tty.h>
 #include <fuckOS/lapic.h>
 #include <fuckOS/trap.h>
+#include <fuckOS/sched.h>
 
 #include <mm/slab.h>
 #include <mm/mmu.h>
@@ -71,24 +72,28 @@ void os_entry(void* ginfo,uint32_t gmagic)
 	//初始化伙伴系统，slab分配器
 	bootmm(ginfo);
 
-	//slab_check();
-
-	task_init();
+	schedule_init();
 
 	lapic_init();
 
 	//中断向量表初始化
 	trap_init();
 
+
+	//调度队列初始化
+	schedule_init();
+
 	//AP初始化
-	lapic_startup();
+	//ap_startup();
+
+
+	TASK_CREATE(hello, TASK_TYPE_USER);
+
+	
+	schedule();
 }
-void init()
-{
-	while(1) {
-		
-	}
-}
+
+
 void find_next_cpu_stack()
 {
 	mpentry_kstack = percpu_kstacks[ncpu] + KERNEL_STKSIZE;
@@ -104,27 +109,15 @@ void mp_main()
 
 	trap_init_percpu();
 	
+	schedule_init();
+
 	ap_lock = 0;
 
 	printk("SMP:%d start up ncpu:%d\n",get_cpuid(),ncpu);
 
+	schedule();
 }
-struct node
-{
-	char a[999];
-};
-void slab_check()
-{
-	struct node* n;
-	int count = 0;
-	while(1){
-		n = kmalloc(sizeof(struct node));
-		if(!n) break;
-		memset(n,0xFF,sizeof(struct node));
-		count++;
-	}
-	printk("count:%d\n",count);
-}
+
 
 static void 
 gdt_init_percpu()

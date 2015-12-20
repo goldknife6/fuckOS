@@ -12,7 +12,6 @@
 
 physaddr_t lapicaddr; 
 volatile uint32_t *lapic;
-extern void * mmio_map_region(physaddr_t, size_t);
 
 void lapicw(uint32_t index, uint32_t value)
 {
@@ -41,7 +40,7 @@ microdelay(int us)
 		;
 }
 
-void lapic_startup()
+void ap_startup()
 {
 	void *code;
 	extern unsigned char mpentry_start[], mpentry_end[];
@@ -64,9 +63,9 @@ void lapic_startup()
 
 void lapic_init()
 {
-	lapicaddr = 0xFEE00000;
-	lapic = mmio_map_region(lapicaddr, 4096);
-
+	static char *base = (char*)KERNEL_MMIO;
+	lapic = (uint32_t *)base;
+	base += PAGE_SIZE;
 	lapicw(LAPIC_SVR , LAPIC_SVR_ENABLE | IRQ_SPURIOUS);
 
 	if(!bootcpu) {
@@ -79,7 +78,7 @@ void lapic_init()
 
 	lapicw(LAPIC_TIMER_DIVIDE, X1);
 	lapicw(LAPIC_TIMER, PERIODIC | (IRQ_TIMER));
-	lapicw(LAPIC_TIMER_INIT, 100000); 
+	lapicw(LAPIC_TIMER_INIT, 10000000); 
 
 	lapicw(LAPIC_LINT1, MASKED);
 

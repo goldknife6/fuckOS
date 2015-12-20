@@ -346,6 +346,7 @@ extern struct page* page_alloc(gfp_t);
 extern struct page* pages_alloc(gfp_t,uint8_t);
 extern void page_free(struct page* );
 extern void pages_free(struct page*,uint8_t);
-extern pte_t *page_walk(struct mm_struct*,viraddr_t ,bool );
-extern int page_insert(struct mm_struct* ,struct page *,viraddr_t , uint32_t );
+extern pte_t *page_walk(pgd_t *,viraddr_t ,bool );
+extern int page_insert(pgd_t *,struct page *,viraddr_t , uint32_t );
+extern void page_remove(pgd_t *, viraddr_t );
 #endif/*!_MINIOS_PAGES_H_*/

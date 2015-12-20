@@ -189,7 +189,7 @@ static int is_page_aval(int pfn)
 
 	uint64_t last = 0;
 
-	if (pfn < PFN(v2p(base)))
+	if (pfn <= PFN(v2p(base)))
 		return 0;
 
 	if (pfn >= max_pfn)
@@ -304,45 +304,37 @@ static void boot_map_region(pgd_t *pgdir, viraddr_t va,
 	}
 	
 }
-void * mmio_map_region(physaddr_t pa, size_t size)
-{
-	static viraddr_t base = KERNEL_MMIO;
-	viraddr_t result = base;
-	size = PAGE_ALIGN(size);
 
-	if( base + size < KERNEL_MMIO_LIMIT ){
-		uint32_t i;
-		for ( i = 0; i < size; i += PAGE_SIZE ) {
-			pte_t* pte = page_walk(init_task->mm,base + i, true);
-			assert(pte);
-			pte_set(pte, pa + i, _PAGE_PRESENT|_PAGE_PCD|_PAGE_PWT|_PAGE_RW);
-		}
-	} else 
-		panic("Overflowing MMIO\n");
-
-	base = base + size;
-	return (void *) result;
-}
 
 extern void page_check();
 extern void zone_init();
-
+extern uint8_t percpu_kstacks[CPUNUMS][KERNEL_STKSIZE];
 static void bootmm_init()
 {
 	int num;
+	int i;
 
 	//分配内核页目录
 	kpgd = alloc_bootmm_pages(1);
 	memset(kpgd,0,PAGE_SIZE);
 
-	
 	//映射内核页目录 0xc0000000 ~ 0xf0000000 = 0x00000000 ~ 0x30000000
 	boot_map_region(kpgd, KERNEL_BASE_ADDR, NORMAL_ADDR, 0, _PAGE_RW | _PAGE_PRESENT);
 	
 	//映射内核VAG映射区
 	boot_map_region(kpgd, KERNEL_VIDEO, PT_SIZE, 0xb8000, _PAGE_RW | _PAGE_PRESENT);
 	
-	
+	//映射LAPIC区域
+	for(i = 0;i < CPUNUMS; i++) {
+		boot_map_region(kpgd, KERNEL_MMIO + i*PAGE_SIZE, PAGE_SIZE, 0xFEE00000,
+					 _PAGE_PRESENT|_PAGE_PCD|_PAGE_PWT|_PAGE_RW);
+	}
+	//映射内核栈区域
+	for(i = 0;i < CPUNUMS; i++) {
+		boot_map_region(kpgd, KERNEL_STACK_TOP -KERNEL_STKSIZE - (KERNEL_STKSIZE + PAGE_SIZE) * i, 
+			KERNEL_STKSIZE, v2p(percpu_kstacks[i] + KERNEL_STKSIZE),_PAGE_PRESENT|_PAGE_RW);
+	}
+
 	lcr3(pgd2p(kpgd));
 	
 	updata_display_addr(KERNEL_VIDEO);
@@ -353,10 +345,13 @@ static void bootmm_init()
 
 	assert(mempage);
 
+
+	//初始化page数组
 	mempage_init();
 
 	//初始化伙伴分配系统 mm/zone.c
 	zone_init();
+
 }
 
 static void printmapp()
