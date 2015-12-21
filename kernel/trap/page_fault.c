@@ -38,7 +38,7 @@ void page_fault_handler(struct frame *tf)
 	vma = find_vma(curtask->mm, va);
 
 	if (!vma || vma->vm_start > va) {
-		panic("page_fault exit\n");
+		panic("page_fault exit:%x\n",va);
 		return;
 	}
 	
@@ -76,13 +76,17 @@ handle_pte_fault(struct mm_struct *mm, struct vm_area_struct *vma,
 		if (vma->vm_start == USER_STACKBOTT) {
 			struct page *new = page_alloc(_GFP_ZERO);
 			if (!new) {
-				panic("page_fault !new\n");
+				panic("pte_fault !new STACK\n");
 			}
 			
 			page_insert(mm->mm_pgd, new,address, _PAGE_PRESENT | _PAGE_RW | _PAGE_USER );
 
-		} else {
-			panic("page_fault !exit\n");
+		} else if (vma->vm_start == mm->start_brk) {
+			struct page *new = page_alloc(_GFP_ZERO);
+			if (!new) {
+				panic("pte_fault !new brk\n");
+			}
+			page_insert(mm->mm_pgd, new,address, _PAGE_PRESENT | _PAGE_RW | _PAGE_USER );
 		}
 		
 	}

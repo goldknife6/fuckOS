@@ -86,7 +86,7 @@ void os_entry(void* ginfo,uint32_t gmagic)
 	schedule_init();
 
 	//AP初始化
-	ap_startup();
+	//ap_startup();
 
 
 	TASK_CREATE(hello, TASK_TYPE_USER);

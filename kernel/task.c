@@ -67,13 +67,22 @@ load_icode(struct task_struct *task, uint8_t *binary)
 	
 	//用户栈区域
 	vma = create_vma(task->mm, USER_STACKBOTT, USER_STACK_SIZE, VM_READ | VM_WRITE);
-	if (!vma)
-			return -ENOMEM;
-	
+	if (!vma) {
+		panic("vma\n");	
+		return -ENOMEM;
+	}
+
 	//用户堆区域
-	vma = create_vma(task->mm, USER_BRK_ZONE, USER_BRK_SIZE , VM_READ | VM_WRITE);
-	if (!vma)
-			return -ENOMEM;
+	task->mm->start_brk = (task->mm->end_data ? task->mm->end_data : task->mm->end_code);
+	task->mm->start_brk = ROUNDUP(task->mm->start_brk,PAGE_SIZE);
+	task->mm->end_brk = task->mm->start_brk + PAGE_SIZE;
+	vma = create_vma(task->mm, task->mm->start_brk, PAGE_SIZE , VM_READ | VM_WRITE);
+	if (!vma) {
+		panic("vma\n");			
+		return -ENOMEM;
+	}
+
+	
 
 	task->frame.tf_eip = eh->e_entry;
 

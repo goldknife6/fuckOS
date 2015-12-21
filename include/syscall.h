@@ -7,6 +7,7 @@ enum {
 	SYS_EXIT,
 	SYS_EXOFORK,
 	SYS_GETPID,
+	SYS_BRK,
 	NSYSCALLS
 };
 

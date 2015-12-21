@@ -189,6 +189,6 @@ void trap(struct frame *tf)
 		print_frame(tf);
 		panic("kernel!\n");
 	}
-	//trap_dispatch(tf);
+	trap_dispatch(tf);
 	schedule();
 }

@@ -43,3 +43,8 @@ sys_exofork(void)
 	return syscall(SYS_EXOFORK,0,0,0,0,0);
 }
 
+pid_t 
+sys_brk(viraddr_t end_data_segment)
+{
+	return syscall(SYS_BRK,(uint32_t)end_data_segment,0,0,0,0);
+}

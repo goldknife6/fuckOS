@@ -80,6 +80,13 @@ void delete_vma(struct vm_area_struct* vma)
 	spin_unlock(&mm->page_table_lock);
 }
 
+static void 
+vma_debug(struct vm_area_struct* vma)
+{
+	assert(vma);
+	printk("vma:%08x vm_start:0x%08x vm_end:0x%08x\n",vma,vma->vm_start,vma->vm_end);
+}
+
 struct vm_area_struct* 
 create_vma(struct mm_struct* mm, viraddr_t addr, 
 			size_t len, uint32_t flags)
@@ -87,9 +94,9 @@ create_vma(struct mm_struct* mm, viraddr_t addr,
 
 #ifdef CONFIG_DEBUG
 	assert(mm);
-	assert(len);
 #endif
 	
+
 	if(!ROUNDDOWN(addr,PAGE_SIZE))  
 		return NULL;
 
@@ -113,7 +120,6 @@ create_vma(struct mm_struct* mm, viraddr_t addr,
 	vma->vm_flags = flags;
 	vma->vm_next = NULL;
 	vm_link(mm, vma);
-
 unlock:
 	spin_unlock(&mm->page_table_lock);
 

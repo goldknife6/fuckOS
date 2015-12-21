@@ -30,6 +30,15 @@ struct list_head {
           &pos->member != (head);      				  \
           pos = list_entry(pos->member.next, typeof(*pos), member))
 
+
+#define list_next_entry(pos, member) \
+	list_entry((pos)->member.next, typeof(*(pos)), member)
+
+
+#define list_prev_entry(pos, member) \
+	list_entry((pos)->member.prev, typeof(*(pos)), member)
+
+
 static inline void INIT_LIST_HEAD(struct list_head *list)  
 {  
 	list->next = list;  
@@ -86,7 +95,16 @@ static inline int list_empty(const struct list_head *head)
 	return head->next == head;  
 } 
 
+static inline int list_is_last(const struct list_head *list,
+					const struct list_head *head)
+{
+	return list->next == head;
+}
 
-
+static inline int list_is_first(const struct list_head *list,
+					const struct list_head *head)
+{
+	return list->prev == head;
+}
 
 #endif/*_MINIOS_LISH_H*/
