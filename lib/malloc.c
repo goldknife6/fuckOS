@@ -10,6 +10,10 @@
 	(uint8_t*)mc + sizeof(struct malloc_chunk);\
 })
 
+#define MC_STRUCT(data)	({\
+	(struct malloc_chunk *)((uint8_t*)data - sizeof(struct malloc_chunk));\
+})
+
 static struct malloc_chunk *find_malloc(uint32_t);
 static struct malloc_chunk *extend_malloc(uint32_t);
 static void split_malloc(struct malloc_chunk *,uint32_t);
@@ -44,14 +48,25 @@ find_mc:
 	return MC_DATA(mc);
 }
 
+void free(void *obj)
+{
+	struct malloc_chunk *mc;
+	if (!obj)
+		return;
+
+	mc = MC_STRUCT(obj);
+	mc->flag = CHUNK_FREE;
+	merger_malloc(mc);
+}
+
 static struct malloc_chunk *
 find_malloc(uint32_t size)
 {
 	struct malloc_chunk *mc = NULL;
-	list_for_each_entry(mc, &free_list, list) {
+	list_for_each_entry_reverse(mc, &free_list, list) {
 		if(mc->flag == CHUNK_FREE && mc->size >= size)
 			return mc;
-	}
+	}	
 	return NULL;
 }
 
@@ -66,7 +81,7 @@ split_malloc(struct malloc_chunk *mc,uint32_t size)
 	newmc->size = mc->size - size - sizeof(struct malloc_chunk);
 	newmc->flag = CHUNK_FREE;
 	INIT_LIST_HEAD(&newmc->list);
-	list_add_tail(&newmc->list,&mc->list);
+	list_add(&newmc->list,&mc->list);
 
 	mc->size = size;
 }
@@ -89,8 +104,8 @@ merger_malloc(struct malloc_chunk *mc)
 	}
 
 	if (next && next->flag == CHUNK_FREE) {
-		next->size += mc->size + sizeof(struct malloc_chunk);
-		list_del(&mc->list);
+		mc->size += next->size + sizeof(struct malloc_chunk);
+		list_del(&next->list);
 	}
 }
 

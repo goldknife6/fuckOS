@@ -18,7 +18,7 @@ extern pid_t fork(void);
 extern void exit(void);
 extern pid_t getpid(void);
 extern void* malloc(uint32_t);
-
+extern void free(void *);
 
 
 
