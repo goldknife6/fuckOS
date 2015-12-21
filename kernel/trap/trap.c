@@ -160,7 +160,7 @@ trap_dispatch(struct frame *tf)
 		 if (tf->tf_cs == _KERNEL_CS_) 
 			 panic("unhandled trap in kernel");
 		 else {	
-			//panic("unhandled trap in user");
+			panic("unhandled trap in user");
 			 return;	
 		 }
 		 break;
@@ -186,9 +186,9 @@ void trap(struct frame *tf)
 		curtask->frame = *tf;
 		tf = &curtask->frame;
 	} else {
-		
+		print_frame(tf);
 		panic("kernel!\n");
 	}
-	trap_dispatch(tf);
+	//trap_dispatch(tf);
 	schedule();
 }

@@ -1,6 +1,7 @@
 #include <sys/system.h>
 
 #include <asm/x86.h>
+#include <asm/atomic.h>
 
 #include <mm/mm.h>
 #include <mm/pages.h>
@@ -33,7 +34,6 @@ void page_fault_handler(struct frame *tf)
 	struct vm_area_struct *vma;
 	pte_t *pte;
 
-
 	va  = rcr2();
 	vma = find_vma(curtask->mm, va);
 
@@ -49,7 +49,6 @@ void page_fault_handler(struct frame *tf)
 	}
 
 	handle_pte_fault(curtask->mm, vma, va, pte, tf->tf_err);
-
 }
 
 static int 

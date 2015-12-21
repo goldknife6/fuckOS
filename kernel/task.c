@@ -53,6 +53,7 @@ load_icode(struct task_struct *task, uint8_t *binary)
 	
 		if (!vma)
 			return -ENOMEM;
+
 		r = region_alloc(task, ph->p_va, ph->p_memsz,
 				_PAGE_PRESENT | _PAGE_RW |_PAGE_USER);
 		if (r < 0) 
@@ -68,14 +69,13 @@ load_icode(struct task_struct *task, uint8_t *binary)
 	vma = create_vma(task->mm, USER_STACKBOTT, USER_STACK_SIZE, VM_READ | VM_WRITE);
 	if (!vma)
 			return -ENOMEM;
-
+	
 	//用户堆区域
 	vma = create_vma(task->mm, USER_BRK_ZONE, USER_BRK_SIZE , VM_READ | VM_WRITE);
 	if (!vma)
 			return -ENOMEM;
 
 	task->frame.tf_eip = eh->e_entry;
-
 
 	lcr3(pgd2p(kpgd));
 	return 0;
@@ -111,19 +111,20 @@ static int task_set_vm(struct task_struct *task)
 	mm = alloc_mm();
 
 	if (!mm) {
+		assert(0);
 		return -ENOMEM;
 	}
 	
 	pgd = kmalloc(PAGE_SIZE);
 
 	if (!pgd) {
+		assert(0);
 		free_mm(mm);
 		return -ENOMEM;
 	}
 	memset(pgd,0,PAGE_SIZE);
 	task->mm = mm;
 	mm->mm_pgd = pgd;
-	
 	//memmove(task->mm->mm_pgd, kpgd, PAGE_SIZE);
 	task->mm->mm_pgd[3] = kpgd[3];
 	return 0;
@@ -134,10 +135,13 @@ task_alloc(struct task_struct **newenv_store, pid_t parent_id)
 	struct task_struct *task;
 	int reval;
 	task = kmalloc(sizeof(struct task_struct));
-	if (!task)
+	if (!task) {
+		assert(0);
 		return -ENOMEM;
+	}
 	reval = task_set_vm(task);
 	if (reval < 0) {
+		assert(0);
 		kfree(task);
 		return reval;
 	}
@@ -172,14 +176,16 @@ task_create(uint8_t *binary, enum task_type type)
 	int reval;
 	struct task_struct *task;
 	reval = task_alloc(&task, 0);
-	if (reval < 0)	
+	if (reval < 0) {
+		assert(0);		
 		return reval;
-
+	}
 
 	reval = load_icode(task, binary);
-	if (reval < 0)	
+	if (reval < 0) {
+		assert(0);
 		return reval;
-
+	}
 	task->task_type = type;
 
 	schedule_add_task(task);

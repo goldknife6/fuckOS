@@ -42,8 +42,9 @@ get_next()
 {
 	struct task_struct * task;
 
-	if(list_empty(&thisrq->head))
+	if(list_empty(&thisrq->head)) {
 		panic("runqueues is empty! cpu:%d\n",get_cpuid());
+	}
 
 	task = list_entry(thisrq->head.next,struct task_struct,list);
 

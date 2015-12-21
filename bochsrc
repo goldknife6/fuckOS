@@ -2,7 +2,7 @@
 # bochsrc.txt file for DLX Linux disk image. 
 ############################################################### 
 # how much memory the emulated machine will have 
-megs: 40
+megs: 128
 # filename of ROM images 
 romimage: file=$BXSHARE/BIOS-bochs-legacy, address=0xffff0000
 vgaromimage: file=$BXSHARE/VGABIOS-lgpl-latest 

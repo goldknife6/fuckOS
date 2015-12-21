@@ -62,10 +62,6 @@ tset_ap_lock:
 	movl	$mpstacktop,%esp
 	movl    $0x0, %ebp       # nuke frame pointer
 	
-	movl    $find_next_cpu_stack, %eax
-	call    *%eax
-	movl    mpentry_kstack,%esp
-
 	movl    $mp_main, %eax
 	call    *%eax
 spin:

@@ -332,7 +332,7 @@ static void bootmm_init()
 	//映射内核栈区域
 	for(i = 0;i < CPUNUMS; i++) {
 		boot_map_region(kpgd, KERNEL_STACK_TOP -KERNEL_STKSIZE - (KERNEL_STKSIZE + PAGE_SIZE) * i, 
-			KERNEL_STKSIZE, v2p(percpu_kstacks[i] + KERNEL_STKSIZE),_PAGE_PRESENT|_PAGE_RW);
+			KERNEL_STKSIZE, v2p(percpu_kstacks[i]),_PAGE_PRESENT|_PAGE_RW);
 	}
 
 	lcr3(pgd2p(kpgd));

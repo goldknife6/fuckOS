@@ -92,7 +92,7 @@ void refresh_tlb(pgd_t *pgd, viraddr_t va)
 void page_decref(struct page* page)
 {
 	if (atomic_dec_and_test(&page->nref)) {
-		//page_free(pf);
+		page_free(page);
 	}
 }
 
@@ -147,8 +147,8 @@ int page_insert(pgd_t *pgd, struct page *page,viraddr_t va, uint32_t perm)
 
 	atomic_inc(&page->nref);
 
-	if (pte_present(*pte)) 
-		page_remove(pgd, va);	
+	//if (pte_present(*pte)) 
+	//	page_remove(pgd, va);	
 	
 	pte_set(pte, page2phys(page) , perm);
 
@@ -209,9 +209,9 @@ pte_t *page_walk(pgd_t *pgdp,
 	else if (pgd_none(*pgd)) {
 		if( get_pmd(pgd,_PAGE_PRESENT | _PAGE_RW | _PAGE_USER) < 0)
 			return NULL;
-		pgd =  pgd_offset(pgd, address);
+		pgd =  pgd_offset(pgdp, address);
 	}
-	pmd =  pmd_offset (pgd, address);
+	pmd =  pmd_offset(pgd, address);
 	if (pmd_none(*pmd) && !create)
 		return NULL;
 	else if (pmd_none(*pmd)) {
@@ -219,6 +219,7 @@ pte_t *page_walk(pgd_t *pgdp,
 			return NULL;
 		pmd =  pmd_offset (pgd, address);
 	}
+	
 	pte = pte_offset(pmd, address);
 	return pte;
 }

@@ -74,8 +74,6 @@ void os_entry(void* ginfo,uint32_t gmagic)
 	//初始化伙伴系统，slab分配器
 	bootmm(ginfo);
 
-	schedule_init();
-
 	init_8259A();
 
 	lapic_init();
@@ -88,19 +86,18 @@ void os_entry(void* ginfo,uint32_t gmagic)
 	schedule_init();
 
 	//AP初始化
-	//ap_startup();
+	ap_startup();
 
 
 	TASK_CREATE(hello, TASK_TYPE_USER);
 
-	
 	schedule();
 }
 
 
 void find_next_cpu_stack()
 {
-	mpentry_kstack = percpu_kstacks[ncpu] + KERNEL_STKSIZE;
+	mpentry_kstack = percpu_kstacks[get_cpuid()] + KERNEL_STKSIZE;
 }
 
 void mp_main()
@@ -111,6 +108,10 @@ void mp_main()
 	
 	lapic_init();
 
+	find_next_cpu_stack();
+
+	__asm __volatile("movl %0,%%esp" : : "r"(mpentry_kstack));
+
 	trap_init_percpu();
 	
 	schedule_init();
@@ -118,6 +119,10 @@ void mp_main()
 	ap_lock = 0;
 
 	printk("SMP:%d start up ncpu:%d\n",get_cpuid(),ncpu);
+
+	TASK_CREATE(hello, TASK_TYPE_USER);
+	
+	
 
 	schedule();
 }
