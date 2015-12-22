@@ -38,6 +38,8 @@ struct mm_struct* alloc_mm()
 void free_mm(struct mm_struct* mm)
 {
 	
+	if(!mm)
+		return;
 
 	if(!atomic_dec_and_test(&mm->mm_count))
 		return;

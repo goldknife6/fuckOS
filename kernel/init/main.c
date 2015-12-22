@@ -89,7 +89,7 @@ void os_entry(void* ginfo,uint32_t gmagic)
 	//ap_startup();
 
 
-	TASK_CREATE(hello, TASK_TYPE_USER);
+	TASK_CREATE(testexit, TASK_TYPE_USER);
 
 	schedule();
 }

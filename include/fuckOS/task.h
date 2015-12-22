@@ -38,6 +38,15 @@ enum {
 	_NEED_RESCHED = 1 << 0
 };
 
+enum clone_type {
+	CLONE_NONE = 1<<0,
+	CLONE_KTHREAD = 1<<1,
+	CLONE_VM = 1<<2,
+	CLONE_FS = 1<<3,
+	CLONE_VFORK = 1<<4,
+	CLONE_THREAD = 1<<5
+};
+
 struct task_struct
 {
 	struct mm_struct* mm;
@@ -80,4 +89,5 @@ extern struct task_struct* task_pidmap[];
 
 extern int task_create(uint8_t *, enum task_type );
 extern int task_run(struct task_struct *);
+extern int task_set_vm(struct task_struct *);
 #endif/*_MINIOS_TASK_H*/

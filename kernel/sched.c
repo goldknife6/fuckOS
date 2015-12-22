@@ -47,7 +47,8 @@ get_next()
 	}
 
 	task = list_entry(thisrq->head.next,struct task_struct,list);
-
+	schedule_delete_task(task);
+	schedule_add_task(task);
 	return task;
 }
 void 

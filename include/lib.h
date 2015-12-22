@@ -6,7 +6,7 @@
 #include <fuckOS/list.h>
 extern void sys_cputs(const char *s, size_t len);
 extern int sys_exit(pid_t pid);
-extern pid_t sys_exofork(void);
+extern pid_t sys_clone(int ,int (*)(void*));
 extern pid_t sys_getpid(void);
 extern int sys_brk(viraddr_t);
 

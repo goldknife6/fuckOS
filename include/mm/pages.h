@@ -223,6 +223,16 @@ pte_write(pte_t pte)
 {
 	return pte_val(pte) & _PAGE_RW;
 }
+static inline void 
+pte_clearwrite(pte_t *pte)
+{
+	pte->pte_low &= ~_PAGE_RW;
+}
+static inline void 
+pte_mkwrite(pte_t *pte)
+{
+	pte->pte_low |= _PAGE_RW;
+}
 
 static inline uint32_t 
 pgd_index(viraddr_t address)

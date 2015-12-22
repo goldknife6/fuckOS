@@ -28,7 +28,7 @@
  *	KERNEL_NORMAL/KERNEL_STACK---------------------------->0xF0000000
  *								RW/--
  *	KERNEL_BASE_ADDR-------------------------------------->0xC0000000 
- *								
+ *								2*PTSIZE
  *	USER_STACKTOP/USER_TEMPBOTT--------------------------->0xBF800000			      . 
  *				      .				PTSIZE
  *	USER_STACKBOTT---------------------------------------->0xBF400000
@@ -65,7 +65,7 @@
 #define USER_STACKTOP		(0xBF800000)
 #define USER_STACKBOTT		(0xBF400000)
 #define USER_STACK_SIZE		(PT_SIZE)
-
+#define USER_TEMPBOTT		(0xBF800000)
 
 #define	PT_SIZE			(PAGE_SIZE << 10)
 

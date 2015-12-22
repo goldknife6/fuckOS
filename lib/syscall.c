@@ -38,9 +38,9 @@ sys_getpid()
 }
 
 pid_t 
-sys_exofork(void)
+sys_clone(int flag,int (*fn)(void*))
 {
-	return syscall(SYS_EXOFORK,0,0,0,0,0);
+	return syscall(SYS_EXOFORK,flag,(uint32_t)fn,0,0,0);
 }
 
 pid_t 

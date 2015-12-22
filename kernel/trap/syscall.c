@@ -5,10 +5,12 @@
 static int32_t syscall(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
 
 static int sys_exit(pid_t);
-static pid_t sys_exofork();
+static pid_t sys_clone(int ,int (*)(void*));
 static pid_t sys_getpid();
 static void sys_cputs(const char *,size_t );
 static viraddr_t sys_brk(viraddr_t);
+
+
 
 int syscall_handler(struct frame *tf)
 {
@@ -27,25 +29,42 @@ syscall(uint32_t syscallno, uint32_t a1,
 	{
 	case SYS_CPUTS : { sys_cputs((const char*)a1, a2); return 0; }
 	case SYS_EXIT : { sys_exit((pid_t)a1); return 0; }
-	case SYS_EXOFORK:{return sys_exofork();}
+	case SYS_EXOFORK:{return sys_clone((int)a1,(int (*)(void *))a2);}
 	case SYS_GETPID:{return sys_getpid();}
 	case SYS_BRK:{return sys_brk((viraddr_t)a1);}
 	default: return -EINVAL;
 	}
 }
 
+
+
+//	syscall/exit.c
+extern int exit(pid_t);
+
 static int
 sys_exit(pid_t pid)
 {
-
-	return 0;
+	return exit(pid);
 }
+
+
+
+
+//	syscall/fork.c
+extern pid_t do_fork(int,struct frame);
 
 static pid_t
-sys_exofork(void)
+sys_clone(int flag,int (*fn)(void*))
 {
-	return 0;
+	struct frame fra = curtask->frame;
+	if (flag & CLONE_THREAD) {
+		fra.tf_eip = (uint32_t)fn;
+	}
+	return do_fork(flag,fra);
 }
+
+
+
 
 static pid_t 
 sys_getpid(void)  
@@ -54,12 +73,19 @@ sys_getpid(void)
 }
 
 
+
+
+//	syscall/brk.c
 extern int brk(viraddr_t);
+
 static viraddr_t 
 sys_brk(viraddr_t data_seg)  
 {  
        return brk(data_seg);  
 }
+
+
+
 
 static void 
 sys_cputs(const char *s,size_t len)

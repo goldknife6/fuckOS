@@ -12,10 +12,10 @@
 static int load_icode(struct task_struct *, uint8_t *);
 static int region_alloc(struct task_struct *, viraddr_t, size_t ,int );
 static int task_alloc(struct task_struct **, pid_t);
-static int task_set_vm(struct task_struct *task);
 
 extern int alloc_pidmap();
 extern void free_pidmap(pid_t);
+
 static int
 load_icode(struct task_struct *task, uint8_t *binary)
 {
@@ -112,7 +112,7 @@ region_alloc(struct task_struct *task, viraddr_t va, size_t len,int perm)
 	}
 	return 0;
 }
-static int task_set_vm(struct task_struct *task)
+int task_set_vm(struct task_struct *task)
 {
 	struct page *page;
 	struct mm_struct* mm;
@@ -120,22 +120,20 @@ static int task_set_vm(struct task_struct *task)
 	mm = alloc_mm();
 
 	if (!mm) {
-		assert(0);
 		return -ENOMEM;
 	}
 	
-	pgd = kmalloc(PAGE_SIZE);
-
-	if (!pgd) {
-		assert(0);
-		free_mm(mm);
+	page = page_alloc(_GFP_ZERO);
+	if (!page) {
 		return -ENOMEM;
 	}
+	pgd = (pgd_t *)page2virt(page);
+
 	memset(pgd,0,PAGE_SIZE);
 	task->mm = mm;
 	mm->mm_pgd = pgd;
-	//memmove(task->mm->mm_pgd, kpgd, PAGE_SIZE);
-	task->mm->mm_pgd[3] = kpgd[3];
+	task->task_pgd = pgd;
+	memmove(pgd,kpgd,PAGE_SIZE);
 	return 0;
 }
 static int
@@ -215,7 +213,7 @@ task_pop_tf(struct frame *tf)
 		: : "g" (tf) : "memory");
 	panic("iret failed");  /* mostly to placate the compiler */
 }
-
+void print_frame(struct frame *tf);
 int
 task_run(struct task_struct *task)
 {

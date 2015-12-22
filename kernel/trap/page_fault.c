@@ -7,7 +7,7 @@
 #include <mm/pages.h>
 
 #include <types.h>
-
+#include <string.h>
 
 #include <fuckOS/assert.h>
 #include <fuckOS/trap.h>
@@ -35,6 +35,8 @@ void page_fault_handler(struct frame *tf)
 	pte_t *pte;
 
 	va  = rcr2();
+	spin_lock(&curtask->mm->page_table_lock);
+
 	vma = find_vma(curtask->mm, va);
 
 	if (!vma || vma->vm_start > va) {
@@ -49,6 +51,8 @@ void page_fault_handler(struct frame *tf)
 	}
 
 	handle_pte_fault(curtask->mm, vma, va, pte, tf->tf_err);
+
+	spin_unlock(&curtask->mm->page_table_lock);
 }
 
 static int 
@@ -61,34 +65,30 @@ handle_pte_fault(struct mm_struct *mm, struct vm_area_struct *vma,
 	assert(mm);
 
 	if (pte_present(*pte)) {
-
 		if (write_access) {
 			if (!pte_write(*pte)) {
 				return do_wp_fault(mm,vma,address,pte);
+			} else {
+				panic("write_access !\n");
 			}
-			
 		} else {
-		
-			printk("handle_pte_fault not implemented! 1\n");
+			panic("read_access !\n");
 		}
-		
 	} else {
 		if (vma->vm_start == USER_STACKBOTT) {
 			struct page *new = page_alloc(_GFP_ZERO);
 			if (!new) {
-				panic("pte_fault !new STACK\n");
+				panic("extend STACK!\n");
 			}
-			
 			page_insert(mm->mm_pgd, new,address, _PAGE_PRESENT | _PAGE_RW | _PAGE_USER );
 
 		} else if (vma->vm_start == mm->start_brk) {
 			struct page *new = page_alloc(_GFP_ZERO);
 			if (!new) {
-				panic("pte_fault !new brk\n");
+				panic("extend brk!\n");
 			}
 			page_insert(mm->mm_pgd, new,address, _PAGE_PRESENT | _PAGE_RW | _PAGE_USER );
 		}
-		
 	}
 	return 0;
 }
@@ -98,6 +98,22 @@ do_wp_fault(struct mm_struct *mm,
 	struct vm_area_struct *vma,viraddr_t address,pte_t *pte)
 
 {
-	panic("do_wp_fault !\n");
+	struct page *page = virt2page(pte_page_vaddr(*pte));
+
+	if (atomic_read(&page->nref) == 1) {
+		pte_mkwrite(pte);
+	} else {
+		struct page *new = page_alloc(_GFP_ZERO);
+
+		assert(new);
+
+		page_insert(mm->mm_pgd, new,USER_TEMPBOTT, _PAGE_PRESENT | _PAGE_RW | _PAGE_USER );
+
+		memcpy((void*)USER_TEMPBOTT, (void*)ROUNDDOWN(address,PAGE_SIZE), PAGE_SIZE);
+
+		page_insert(mm->mm_pgd, new,address, _PAGE_PRESENT | _PAGE_RW | _PAGE_USER );
+
+		page_remove(mm->mm_pgd, USER_TEMPBOTT);
+	}
 	return 0;
 }
