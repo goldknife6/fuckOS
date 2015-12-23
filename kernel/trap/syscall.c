@@ -1,6 +1,8 @@
 #include <fuckOS/assert.h>
 #include <fuckOS/task.h>
 #include <fuckOS/trap.h>
+#include <fuckOS/sched.h>
+
 #include <syscall.h>
 static int32_t syscall(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
 
@@ -28,7 +30,7 @@ syscall(uint32_t syscallno, uint32_t a1,
 	switch (syscallno) 
 	{
 	case SYS_CPUTS : { sys_cputs((const char*)a1, a2); return 0; }
-	case SYS_EXIT : { sys_exit((pid_t)a1); return 0; }
+	case SYS_EXIT : { sys_exit((pid_t)a1); panic("fuck!\n");return 0; }
 	case SYS_EXOFORK:{return sys_clone((int)a1,(int (*)(void *))a2);}
 	case SYS_GETPID:{return sys_getpid();}
 	case SYS_BRK:{return sys_brk((viraddr_t)a1);}
@@ -39,12 +41,20 @@ syscall(uint32_t syscallno, uint32_t a1,
 
 
 //	syscall/exit.c
-extern int exit(pid_t);
+extern int exit(struct task_struct *);
 
 static int
 sys_exit(pid_t pid)
 {
-	return exit(pid);
+	int retval;
+	struct task_struct *task;
+	if ((retval = pid2task(pid, &task, true)) < 0)
+		return retval;
+	retval = exit(task);
+	if(!retval) {
+		schedule();
+	}
+	return retval;
 }
 
 
@@ -71,7 +81,6 @@ sys_getpid(void)
 {  
        return curtask->pid;  
 }
-
 
 
 

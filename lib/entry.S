@@ -15,7 +15,7 @@ _start:
 
 args_exist:
 	call main
-	//call exit
+	call exit
 L2:	jmp L2
 		
 

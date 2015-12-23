@@ -35,21 +35,7 @@ struct mm_struct* alloc_mm()
 	return mm;
 }
 
-void free_mm(struct mm_struct* mm)
-{
-	
-	if(!mm)
-		return;
 
-	if(!atomic_dec_and_test(&mm->mm_count))
-		return;
-
-	while (mm->mmap) {
-		delete_vma(mm->mmap);
-	}
-
-	kfree(mm);
-}
 
 static void vma_unmap_page(struct vm_area_struct* vma)
 {
@@ -63,6 +49,7 @@ static void vma_unmap_page(struct vm_area_struct* vma)
 		page_remove(pgd, start);
 	
 }
+
 
 void delete_vma(struct vm_area_struct* vma)
 {
@@ -153,7 +140,7 @@ find_vma(struct mm_struct* mm, viraddr_t addr)
 	return vma;
 }
 
-static struct vm_area_struct*
+struct vm_area_struct*
 find_vma_prev(struct mm_struct* mm, viraddr_t addr)
 {
 	struct rb_node* rb_node = mm->mm_rb.rb_node;
@@ -163,7 +150,7 @@ find_vma_prev(struct mm_struct* mm, viraddr_t addr)
 	while (rb_node) {
 		vma_tmp = rb_entry(rb_node, struct vm_area_struct, vm_rb);
 
-		if (vma_tmp->vm_start <= addr) {
+		if (vma_tmp->vm_start < addr) {
 
 			vma = vma_tmp;
 
@@ -265,19 +252,20 @@ vm_link_del(struct mm_struct* mm, struct vm_area_struct* vmp)
 
 	vma = find_vma(mm, vmp->vm_start);
 
-	if (vma != vmp) 
+	if (vma != vmp) {
 		return;
-
+	}
 	tmp = find_vma_prev(mm, vmp->vm_start);
 
 	rbtree_delete(&mm->mm_rb,&vmp->vm_rb);
 
 	mm->mmap_count--;
 
-	if (!tmp)
+	if (!tmp) {
 		mm->mmap = vmp->vm_next;
-	else
+	} else {
+		
 		tmp->vm_next = vma->vm_next;
-
+	}
 	vmp->vm_next = NULL;
 }

@@ -107,8 +107,10 @@ page_lookup(pgd_t *pgd,
 	pte_t* pte = page_walk(pgd, va, false);
 	if( pte == NULL ) 
 		return NULL;
-	if(pte_none(*pte)) 
+	if(!pte_present(*pte)) {
+		//printk("what?:%x %llx\n",va,*pte);
 		return NULL;
+	}
 	if ( NULL != pte_store )
 		*pte_store = pte;
 	return virt2page(pte_page_vaddr(*pte));
@@ -147,8 +149,8 @@ int page_insert(pgd_t *pgd, struct page *page,viraddr_t va, uint32_t perm)
 
 	atomic_inc(&page->nref);
 
-	//if (pte_present(*pte)) 
-	//	page_remove(pgd, va);	
+	if (pte_present(*pte)) 
+		page_remove(pgd, va);	
 	
 	pte_set(pte, page2phys(page) , perm);
 
@@ -163,6 +165,7 @@ static int get_pmd(pgd_t *pgd,int perm)
 	page = pages_alloc(_GFP_ZERO,0);
 	if (!page)
 		return -1;
+	atomic_inc(&page->nref);
 	pa = page2phys(page);
 #ifdef CONFIG_PAE
 	uint32_t pe = perm & ~(_PAGE_RW | _PAGE_USER);
@@ -180,6 +183,7 @@ static int get_pte(pmd_t *pmd,int perm)
 	page = pages_alloc(_GFP_ZERO,0);
 	if (!page)
 		return -1;
+	atomic_inc(&page->nref);
 	pa = page2phys(page);
 	pmd_set(pmd,pa,perm);
 	return 0;

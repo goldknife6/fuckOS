@@ -3,7 +3,7 @@
 #include <lib.h>
 #include <string.h>
 #include <stdio.h>
-#define DEPTH 18	
+#define DEPTH 12
 
 void forktree(const char *cur);
 
@@ -11,21 +11,22 @@ void
 forkchild(const char *cur, char branch)
 {
 	char nxt[DEPTH+1];
-
+	int i;
 	if (strlen(cur) >= DEPTH)
 		return;
 
 	snprintf(nxt, DEPTH+1, "%s%c", cur, branch);
-	if (fork() == 0) {
+	if ((i = fork()) == 0) {
 		forktree(nxt);
 		exit();
-	}
+	} else if (i < 0)
+		;//printf("error\n");
 }
 
 void
 forktree(const char *cur)
 {
-	printf("%08d: I am '%s'\n", getpid(), cur);
+	//printf("%08d: I am '%s'\n", getpid(), cur);
 
 	forkchild(cur, '0');
 	forkchild(cur, '1');
@@ -35,7 +36,7 @@ int
 main(int argc, char **argv)
 {
 	forktree("");
-	printf("forktree over!\n");
+	//printf("forktree over!%d\n",getpid());
 	return 0;
 }
 

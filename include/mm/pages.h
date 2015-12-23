@@ -364,4 +364,5 @@ extern void pages_free(struct page*,uint8_t);
 extern pte_t *page_walk(pgd_t *,viraddr_t ,bool );
 extern int page_insert(pgd_t *,struct page *,viraddr_t , uint32_t );
 extern void page_remove(pgd_t *, viraddr_t );
+extern void page_decref(struct page*);
 #endif/*!_MINIOS_PAGES_H_*/

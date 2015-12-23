@@ -37,13 +37,16 @@ schedule_tick()
 {
 	
 }
+void get_zone_info(struct zone_struct *zone);
 static struct task_struct *
 get_next()
 {
 	struct task_struct * task;
 
 	if(list_empty(&thisrq->head)) {
-		panic("runqueues is empty! cpu:%d\n",get_cpuid());
+		get_zone_info(&zone_normal);
+		while(1);
+		//panic("runqueues is empty! cpu:%d\n",get_cpuid());
 	}
 
 	task = list_entry(thisrq->head.next,struct task_struct,list);

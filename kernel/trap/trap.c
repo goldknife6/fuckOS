@@ -176,13 +176,6 @@ void trap(struct frame *tf)
 	if ((tf->tf_cs & 3) == 3) {
 		
 		assert(curtask);
-		/*
-		if (curenv->env_status == ENV_DYING) {
-			env_free(curenv);
-			curenv = NULL;
-			sched_yield();
-		}*/
-
 		curtask->frame = *tf;
 		tf = &curtask->frame;
 	} else {

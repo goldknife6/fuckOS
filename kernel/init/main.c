@@ -13,7 +13,8 @@
 
 #include <mm/slab.h>
 #include <mm/mmu.h>
-
+#include <mm/pages.h>
+#include <mm/mmzone.h>
 int ap_lock;//AP启动时的锁
 
 int ncpu = 1;
@@ -59,7 +60,7 @@ struct seg_descriptor gdt[CPUNUMS + 5] =
 struct descriptor_addr gdt_pd = {
 	sizeof(gdt) - 1, (unsigned long) gdt
 };
-
+extern void get_zone_info(void*);
 void os_entry(void* ginfo,uint32_t gmagic)
 {
 	//清空BSS段
@@ -86,11 +87,11 @@ void os_entry(void* ginfo,uint32_t gmagic)
 	schedule_init();
 
 	//AP初始化
-	//ap_startup();
-
-
-	TASK_CREATE(testexit, TASK_TYPE_USER);
-
+	ap_startup();
+	TASK_CREATE(forktree, TASK_TYPE_USER);
+	
+	//TASK_CREATE(testexit, TASK_TYPE_USER);
+get_zone_info(&zone_normal);
 	schedule();
 }
 
@@ -117,16 +118,12 @@ void mp_main()
 	schedule_init();
 
 	ap_lock = 0;
-
+	
 	printk("SMP:%d start up ncpu:%d\n",get_cpuid(),ncpu);
-
-	TASK_CREATE(hello, TASK_TYPE_USER);
-	
-	
-
+	TASK_CREATE(forktree, TASK_TYPE_USER);
+	get_zone_info(&zone_normal);
 	schedule();
 }
-
 
 static void 
 gdt_init_percpu()
@@ -140,4 +137,3 @@ gdt_init_percpu()
 	asm volatile("ljmp %0,$1f\n 1:\n" :: "i" (_KERNEL_CS_));
 	lldt(0);
 }
-

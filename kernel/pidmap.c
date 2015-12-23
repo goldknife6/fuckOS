@@ -1,20 +1,11 @@
 #include <asm/atomic.h>
 
+#include <fuckOS/pidmap.h>
+
 #include <types.h>
 
 #include <mm/pages.h>
 STATIC_INIT_SPIN_LOCK(pidlock);
-
-/* max pid, equal to 2^15=32768 */
-#define PID_MAX_DEFAULT 0x8000
-
-
-#define BITS_PER_BYTE 8
-//4k*8 32768
-#define BITS_PER_PAGE (PAGE_SIZE * BITS_PER_BYTE)
-//7fff 
-//0111 1111 1111 1111
-#define BITS_PER_PAGE_MASK (BITS_PER_PAGE - 1)
 
 
 static pid_t last_pid = -1;

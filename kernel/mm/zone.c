@@ -45,7 +45,7 @@ __alloc_buddy(struct zone_struct* zone,
 		size >>= 1UL;
 		list_add(&page[size].list, &area->free_list);  
                 area->nfree++;  
-                page->order = high; 
+                page[size].order = high; 
 	}
 	return page;
 }
@@ -92,8 +92,8 @@ alloc_buddy(struct zone_struct *zone,uint8_t order)
 	return page;
 }
 
-void 
-free_buddy(struct zone_struct *zone,
+static void 
+_free_buddy(struct zone_struct *zone,
 			struct page* page,uint8_t order)
 {
 	struct free_area_struct *area;
@@ -143,6 +143,14 @@ free_buddy(struct zone_struct *zone,
 	zone->free_area[order].nfree++;
 }
 
+void 
+free_buddy(struct zone_struct *zone,
+			struct page* page,uint8_t order)
+{
+	spin_lock(&zone->lock);
+	_free_buddy(zone,page,order);
+	spin_unlock(&zone->lock);
+}
 
 static void 
 free_area_init(struct zone_struct * zone)
@@ -208,4 +216,16 @@ void zone_init()
 
 	free_area_init(&zone_high);
 	
+}
+
+void get_zone_info(struct zone_struct *zone)
+{
+	uint32_t np = zone->free_pages;
+	int i;
+	printk("free pages:%d \n",np);
+	return;
+	for (i = 0; i < MAXORDER; i++) {
+		np = zone->free_area[i].nfree;
+		printk("order:%d np:%d %dMB \n",i,np,(PAGE_SIZE << i)* np/1024/1024);	
+	}
 }

@@ -92,7 +92,7 @@ static void get_max_pfn()
 	struct mmap *mmap = mmapinfo;
 	struct mmap *end = mmapinfo + nr_mmapinfo;
 
-	uint64_t last;
+	uint64_t last = 0;
 
 	for(mmap ;mmap < end;mmap++) {
 		if(mmap->type == 1) {

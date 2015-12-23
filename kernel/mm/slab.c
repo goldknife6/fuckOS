@@ -104,7 +104,7 @@ static void new_slab_init(struct mem_cache *c,struct page* pf)
 	
 	void* start = pf->freelist;
 	void* end = start + c->objects*c->size;
-	void** object;
+	void** object = NULL;
 	for(start ; start < end; start += c->size) {
 		object = start;
 		object[off] = start + c->size;
@@ -438,6 +438,8 @@ get_slab_info()
 			get_slab_info_s(s);
 	}
 }
+
+STATIC_INIT_SPIN_LOCK(slablock);
 void* 
 kmalloc(size_t size)
 {
@@ -449,16 +451,22 @@ kmalloc(size_t size)
 	if(size > PAGE_SIZE)
 		return NULL;
 	c = &kmalloc_caches[size_map[size]];
-	return slab_alloc(c);
+	spin_lock(&slablock);
+	o = slab_alloc(c);
+	spin_unlock(&slablock);
+	return o;
 }
 
 void 
 kfree(void* obj)
 {	
 	if (obj) {
+		
 		struct page* page = get_slab(obj);
 		if (!page) return;
+		spin_lock(&slablock);
 		slab_free(page->slab,obj,page);
+		spin_unlock(&slablock);
 	}	
 }
 

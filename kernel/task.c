@@ -1,5 +1,6 @@
 #include <fuckOS/task.h>
 #include <fuckOS/sched.h>
+#include <fuckOS/pidmap.h>
 
 #include <sys/elf.h>
 
@@ -12,9 +13,11 @@
 static int load_icode(struct task_struct *, uint8_t *);
 static int region_alloc(struct task_struct *, viraddr_t, size_t ,int );
 static int task_alloc(struct task_struct **, pid_t);
+struct task_struct* task_pidmap[PID_MAX_DEFAULT];
 
-extern int alloc_pidmap();
-extern void free_pidmap(pid_t);
+
+
+
 
 static int
 load_icode(struct task_struct *task, uint8_t *binary)
@@ -71,7 +74,7 @@ load_icode(struct task_struct *task, uint8_t *binary)
 		panic("vma\n");	
 		return -ENOMEM;
 	}
-
+	
 	//用户堆区域
 	task->mm->start_brk = (task->mm->end_data ? task->mm->end_data : task->mm->end_code);
 	task->mm->start_brk = ROUNDUP(task->mm->start_brk,PAGE_SIZE);
@@ -114,25 +117,20 @@ region_alloc(struct task_struct *task, viraddr_t va, size_t len,int perm)
 }
 int task_set_vm(struct task_struct *task)
 {
-	struct page *page;
-	struct mm_struct* mm;
+	struct page *page = NULL;
 	pgd_t *pgd;
-	mm = alloc_mm();
+	task->mm = alloc_mm();
 
-	if (!mm) {
+	if (!task->mm)
 		return -ENOMEM;
-	}
 	
 	page = page_alloc(_GFP_ZERO);
 	if (!page) {
+		kfree(task->mm);
 		return -ENOMEM;
 	}
 	pgd = (pgd_t *)page2virt(page);
-
-	memset(pgd,0,PAGE_SIZE);
-	task->mm = mm;
-	mm->mm_pgd = pgd;
-	task->task_pgd = pgd;
+	task->task_pgd = task->mm->mm_pgd = pgd;
 	memmove(pgd,kpgd,PAGE_SIZE);
 	return 0;
 }
@@ -148,13 +146,14 @@ task_alloc(struct task_struct **newenv_store, pid_t parent_id)
 	}
 	reval = task_set_vm(task);
 	if (reval < 0) {
-		assert(0);
-		kfree(task);
+		assert(0);	
 		return reval;
 	}
 
 	task->pid = alloc_pidmap();
-
+	if (task->pid < 0) {
+		return -EMPROC;
+	}
 	// Set the basic status variables.
 	task->ppid = parent_id;
 	task->task_type = TASK_TYPE_USER;
@@ -194,7 +193,7 @@ task_create(uint8_t *binary, enum task_type type)
 		return reval;
 	}
 	task->task_type = type;
-
+	task_pidmap[task->pid] = task;
 	schedule_add_task(task);
 	return 0;
 }
@@ -203,7 +202,7 @@ void
 task_pop_tf(struct frame *tf)
 {
 	// Record the CPU we are running on for user-space debugging
-
+	
 	__asm __volatile("movl %0,%%esp\n"
 		"\tpopal\n"
 		"\tpopl %%es\n"
@@ -213,7 +212,9 @@ task_pop_tf(struct frame *tf)
 		: : "g" (tf) : "memory");
 	panic("iret failed");  /* mostly to placate the compiler */
 }
+
 void print_frame(struct frame *tf);
+
 int
 task_run(struct task_struct *task)
 {
@@ -223,6 +224,8 @@ task_run(struct task_struct *task)
 	curtask->task_status = TASK_RUNNING;
 
 	lcr3(pgd2p(curtask->mm->mm_pgd));
+	//printk("%d\n",task->pid);
+	//print_frame(&task->frame);
 	task_pop_tf(&task->frame);
 	return 0;
 }
@@ -233,4 +236,33 @@ task_free(struct task_struct *task)
 	
 }
 
+int 
+pid2task(pid_t pid, struct task_struct **taskstore, bool checkperm)
+{
+	int r;
+	assert(pid>=0);
+	assert(pid<PID_MAX_DEFAULT);
+	
+	struct task_struct *task;
+
+	if (pid == 0) {
+		*taskstore = curtask;
+		return 0;
+	}
+
+	task = task_pidmap[pid];
+	
+	if(!task || task->pid != pid) {
+		return -EBADP;
+	}
+
+	if (checkperm && task != curtask && task->ppid != curtask->pid) {
+		*taskstore = 0;
+		return -EBADP;
+	}
+
+	*taskstore = task;
+
+	return 0;
+}
 
