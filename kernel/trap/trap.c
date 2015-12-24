@@ -23,8 +23,8 @@ extern void breakpoint_handler(struct frame *);
 extern int syscall_handler(struct frame *);
 extern void timer_handler(struct frame *);
 extern void kbd_handler(struct frame *);
-
-
+extern void geneprot_handler(struct frame *);
+extern void divzero_handler(struct frame *);
 static const char *trapname(int trapno)
 {
 	static const char * const excnames[] = {
@@ -141,13 +141,15 @@ trap_dispatch(struct frame *tf)
 	switch(tf->tf_trapno) {
 	case T_PGFLT: page_fault_handler(tf); break;
 	case T_BRKPT : breakpoint_handler(tf); break;
-	case T_SYSCALL:	tf->tf_regs.reg_eax = syscall_handler(tf); break;
+	case T_SYSCALL:	syscall_handler(tf); break;
+	case T_GPFLT: geneprot_handler(tf);break;
+	case T_DIVIDE: divzero_handler(tf);break;
 	case IRQ_SPURIOUS: {
 		printk("Spurious interrupt on irq 7\n");
 		print_frame(tf);
 		return;
 	}
-
+	
 
 	case IRQ_TIMER : timer_handler(tf); break;
 	case IRQ_KBD : kbd_handler(tf);break;

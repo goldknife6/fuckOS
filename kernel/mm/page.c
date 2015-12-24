@@ -197,7 +197,7 @@ pte_t *page_walk(pgd_t *pgdp,
 {
 #ifdef CONFIG_DEBUG
 	assert(pgdp);
-	assert(address);
+	//assert(address);
 #endif
 
 	pgd_t * pgd = NULL;

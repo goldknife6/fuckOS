@@ -276,7 +276,7 @@ pgd_offset(pgd_t *pgd, viraddr_t address)
 {
 #ifdef CONFIG_DEBUG
 	assert(pgd);
-	assert(address);
+	//assert(address);
 #endif
 	return pgd + pgd_index(address);
 }
@@ -286,7 +286,7 @@ pmd_offset(pgd_t *pgd, viraddr_t address)
 {
 #ifdef CONFIG_DEBUG
 	assert(pgd);
-	assert(address);
+	//assert(address);
 #endif
 
 #ifdef CONFIG_PAE

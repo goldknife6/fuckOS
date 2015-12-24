@@ -3,6 +3,8 @@
 #include <fuckOS/trap.h>
 #include <fuckOS/sched.h>
 
+#include <mm/pages.h>
+
 #include <syscall.h>
 static int32_t syscall(uint32_t, uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
 
@@ -12,12 +14,15 @@ static pid_t sys_getpid();
 static void sys_cputs(const char *,size_t );
 static viraddr_t sys_brk(viraddr_t);
 
-
+//	syscall/exit.c
+extern int exit(struct task_struct *);
 
 int syscall_handler(struct frame *tf)
 {
 	struct pushregs * regs = &(tf->tf_regs);
-	return syscall(regs->reg_eax, regs->reg_edx, regs->reg_ecx, regs->reg_ebx, regs->reg_edi, regs->reg_esi);
+	int i =  syscall(regs->reg_eax, regs->reg_edx, regs->reg_ecx, regs->reg_ebx, regs->reg_edi, regs->reg_esi);
+	tf->tf_regs.reg_eax = i;
+	return 0;
 }
 
 
@@ -38,10 +43,36 @@ syscall(uint32_t syscallno, uint32_t a1,
 	}
 }
 
+int user_mem_check(struct task_struct *task, const void *va, size_t len, int perm)
+{
+	pte_t* pte;
+	perm = perm | _PAGE_PRESENT;
+	uint32_t top = ROUNDUP((uint32_t) va + len, PAGE_SIZE);
+	uint32_t bottom = ROUNDDOWN((uint32_t)va, PAGE_SIZE);
 
+	for(; bottom < top; bottom += PAGE_SIZE) {
 
-//	syscall/exit.c
-extern int exit(struct task_struct *);
+		if(bottom >= KERNEL_BASE_ADDR || 
+		  (pte = page_walk(task->task_pgd, 
+	          (viraddr_t)bottom, 0)) == NULL ||  
+		  (pte_val(*pte) & perm) != perm) {
+			return -EFAULT;
+			}
+		}
+
+	return 0;
+}
+
+int 
+user_mem_assert(struct task_struct *task, const void *va, size_t len, int perm)
+{
+	if (user_mem_check(task, va, len, perm | _PAGE_USER) < 0) {
+		printk("[%08x] user_mem_check assertion failure\n", task->pid);
+		exit(task);
+		return -EFAULT;
+	}
+	return 0;
+}
 
 static int
 sys_exit(pid_t pid)
@@ -99,6 +130,6 @@ sys_brk(viraddr_t data_seg)
 static void 
 sys_cputs(const char *s,size_t len)
 {
-	//if (!user_mem_assert(curtask, s, len, _PAGE_USER))
+	if (!user_mem_assert(curtask, s, len, _PAGE_USER))
 		printk("%.*s", len, s);
 }

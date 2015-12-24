@@ -19,8 +19,8 @@ $(DEPS):$(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%.d:%.c
 	@mkdir -p $(@D)
 	$(CC) -MT $(patsubst %.d,%.o,$@) $(ROOTDIR)/kernel/$(CURDIR)/$<  -ffreestanding -M $(INC) > $@
 
-
 -include $(DEPS)
+
 
 $(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%.o:%.c $(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%.d
 	@echo + cc $(CURDIR)/$<

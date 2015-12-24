@@ -91,4 +91,5 @@ extern struct task_struct* task_pidmap[];
 extern int task_create(uint8_t *, enum task_type );
 extern int task_run(struct task_struct *);
 extern int pid2task(pid_t, struct task_struct **, bool);
+extern int user_mem_assert(struct task_struct *, const void *, size_t , int );
 #endif/*_MINIOS_TASK_H*/

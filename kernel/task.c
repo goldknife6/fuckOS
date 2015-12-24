@@ -230,11 +230,6 @@ task_run(struct task_struct *task)
 	return 0;
 }
 
-void
-task_free(struct task_struct *task)
-{
-	
-}
 
 int 
 pid2task(pid_t pid, struct task_struct **taskstore, bool checkperm)

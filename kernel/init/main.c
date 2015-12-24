@@ -88,7 +88,8 @@ void os_entry(void* ginfo,uint32_t gmagic)
 
 	//AP初始化
 	//ap_startup();
-	TASK_CREATE(testmalloc, TASK_TYPE_USER);
+	//TASK_CREATE(testmalloc, TASK_TYPE_USER);
+	TASK_CREATE(divzero, TASK_TYPE_USER);
 	
 	get_zone_info(&zone_normal);
 	schedule();
