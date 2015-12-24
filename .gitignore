@@ -2,7 +2,8 @@
 *~
 *.iso
 *.txt
-*.img
+
 kern
 asm.S
 obj
+

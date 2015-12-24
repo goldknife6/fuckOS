@@ -3,22 +3,33 @@
 #include <lib.h>
 
 #include <fuckOS/list.h>
-void *arr[200000]; 
+#define SIZE  0x100000
+#define HIGH	8
+void tree();
+
+void alloc(int cur)
+{
+	if( cur == HIGH)
+		return;
+
+	pid_t pid = fork();
+	if (pid == 0) {
+		tree(cur + 1);
+		char *p = malloc(SIZE);
+		memset(p,0xFF,SIZE);
+		printf("I am child [%d]\n",getpid());
+	}
+}
+
+void tree(int cur)
+{
+	alloc(cur);
+	alloc(cur);
+}
 int main()
 {
-	int i = 0;
-	void *p;
-	for(;i < 200000;i++ ) {
-		p = malloc(0x100);
-		//printf("hello!! pid:%d %d %x\n",getpid(),i,p);
-		memset(p,0,0x100);
-		arr[i] = p;
-	}
+	
+	tree(0);
 
-	for(i = 0;i < 200000;i++ ) {
-		free(arr[i]);
-		//printf("free!! pid:%d %d \n",getpid(),i);
-	}
- printf("free!! pid:%d %d \n",getpid(),i);
 	return 0;
 }

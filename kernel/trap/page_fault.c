@@ -95,7 +95,7 @@ handle_pte_fault(struct mm_struct *mm, struct vm_area_struct *vma,
 		} else if (vma->vm_start == mm->start_brk) {
 			new = page_alloc(_GFP_ZERO);
 			if (!new)
-				panic("extend brk!\n");
+				goto exit;
 			retval = page_insert(mm->mm_pgd, new,address, _PAGE_PRESENT | _PAGE_RW | _PAGE_USER );
 
 			if (retval < 0) {

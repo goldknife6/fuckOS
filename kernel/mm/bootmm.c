@@ -364,4 +364,6 @@ static void printmapp()
 	printk("max_pfn %x ",max_pfn);
 	printk("high_maxpfn:%x ",high_maxpfn);
 	printk("normal_maxpfn:%x \n",normal_maxpfn);
+	printk("totalram_pages:%d \n",totalram_pages);
+	
 }

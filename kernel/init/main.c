@@ -87,11 +87,10 @@ void os_entry(void* ginfo,uint32_t gmagic)
 	schedule_init();
 
 	//AP初始化
-	ap_startup();
-	TASK_CREATE(forktree, TASK_TYPE_USER);
+	//ap_startup();
+	TASK_CREATE(testmalloc, TASK_TYPE_USER);
 	
-	//TASK_CREATE(testexit, TASK_TYPE_USER);
-get_zone_info(&zone_normal);
+	get_zone_info(&zone_normal);
 	schedule();
 }
 
@@ -120,7 +119,7 @@ void mp_main()
 	ap_lock = 0;
 	
 	printk("SMP:%d start up ncpu:%d\n",get_cpuid(),ncpu);
-	TASK_CREATE(forktree, TASK_TYPE_USER);
+	TASK_CREATE(testmalloc, TASK_TYPE_USER);
 	get_zone_info(&zone_normal);
 	schedule();
 }

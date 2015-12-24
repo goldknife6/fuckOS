@@ -12,6 +12,7 @@ extern int exit_mm(struct mm_struct *);
 
 static int copy_task(struct task_struct *,struct task_struct *);
 static int alloc_task(struct task_struct **,pid_t);
+static int task_set_vm(int,struct task_struct *);
 
 pid_t do_fork(int clone_flag,struct frame frame)
 {
@@ -26,7 +27,7 @@ pid_t do_fork(int clone_flag,struct frame frame)
 	child->frame = frame;
 	child->frame.tf_regs.reg_eax = 0;
 
-	retval = task_set_vm(child);
+	retval = task_set_vm(clone_flag,child);
 	if (retval < 0)
 		goto exit_task;
 
@@ -71,6 +72,31 @@ static int alloc_task(struct task_struct **newenv_store,pid_t ppid)
 
 	if(newenv_store)
 		*newenv_store  = task;
+	return 0;
+}
+
+static int task_set_vm(int clone_flag, struct task_struct *task)
+{
+	struct page *page = NULL;
+	pgd_t *pgd;
+	task->mm = alloc_mm();
+
+	if (!task->mm)
+		return -ENOMEM;
+	task->mm->start_brk  = curtask->mm->start_brk;
+	task->mm->end_brk  = curtask->mm->end_brk;
+	task->mm->start_code  = curtask->mm->start_code;
+	task->mm->end_code  = curtask->mm->end_code;
+	task->mm->start_stack  = curtask->mm->start_stack;
+
+	page = page_alloc(_GFP_ZERO);
+	if (!page) {
+		kfree(task->mm);
+		return -ENOMEM;
+	}
+	pgd = (pgd_t *)page2virt(page);
+	task->task_pgd = task->mm->mm_pgd = pgd;
+	memmove(pgd,kpgd,PAGE_SIZE);
 	return 0;
 }
 

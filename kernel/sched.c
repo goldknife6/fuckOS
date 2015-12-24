@@ -44,8 +44,7 @@ get_next()
 	struct task_struct * task;
 
 	if(list_empty(&thisrq->head)) {
-		get_zone_info(&zone_normal);
-		while(1);
+		get_zone_info(&zone_normal);while(1);
 		//panic("runqueues is empty! cpu:%d\n",get_cpuid());
 	}
 
