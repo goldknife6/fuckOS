@@ -6,7 +6,7 @@ export OBJDUMP	:= objdump
 export ROOTDIR 	:= $(shell pwd)
 export OBJDIR 	:= obj
 
-SUBDIRS 	:= kernel lib user 
+SUBDIRS 	:= kernel lib user fs
 LDFLAGS 	:= -m elf_i386 
 KHANDER		:= -I $(ROOTDIR)/include/
 UHANDER 	:= -I $(ROOTDIR)/include/
