@@ -17,7 +17,7 @@ all:$(DEPS) $(objects)
 	
 $(DEPS):$(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%.d:%.c
 	@mkdir -p $(@D)
-	$(CC) -MT $(patsubst %.d,%.o,$@) $(ROOTDIR)/$(CURDIR)/$<  -ffreestanding -M $(INC) > $@
+	$(V)$(CC) -MT $(patsubst %.d,%.o,$@) $(ROOTDIR)/kernel/$(CURDIR)/$<  -ffreestanding -M $(INC) > $@
 
 
 -include $(DEPS)

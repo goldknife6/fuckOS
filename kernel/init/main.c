@@ -9,6 +9,8 @@
 #include <fuckOS/trap.h>
 #include <fuckOS/sched.h>
 #include <fuckOS/pic_8259A.h>
+#include <fuckOS/fs.h>
+#include <fuckOS/pci.h>
 
 
 #include <mm/slab.h>
@@ -86,10 +88,16 @@ void os_entry(void* ginfo,uint32_t gmagic)
 	//调度队列初始化
 	schedule_init();
 
+	buffer_init();
+
+	pci_init();
+
+	ide_init();
+
 	//AP初始化
 	//ap_startup();
-	//TASK_CREATE(testmalloc, TASK_TYPE_USER);
-	TASK_CREATE(divzero, TASK_TYPE_USER);
+	TASK_CREATE(init, TASK_TYPE_USER);
+	//TASK_CREATE(forktree, TASK_TYPE_USER);
 	
 	get_zone_info(&zone_normal);
 	schedule();

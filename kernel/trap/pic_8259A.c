@@ -4,7 +4,7 @@
 #include <fuckOS/trap.h>
 
 
-uint16_t irq_mask_8259A =  0xFFFF;
+uint16_t irq_mask_8259A =  0xFFFF & ~(1<<PIC_CASCADE_IR);
 
 
 

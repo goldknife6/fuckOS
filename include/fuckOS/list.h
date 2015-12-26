@@ -113,4 +113,117 @@ static inline int list_is_first(const struct list_head *list,
 	return list->prev == head;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+struct  hlist_head{
+	struct hlist_node *first;
+};
+
+struct  hlist_node {
+        struct hlist_node *next,**pprev;
+} ;
+
+
+#define HLIST_HEAD(name) struct hlist_head name = {  .first = NULL }
+
+#define INIT_HLIST_HEAD(ptr) ((ptr)->first = NULL)
+
+#define hlist_entry(ptr, type, member) container_of(ptr,type,member)
+
+#define hlist_for_each(pos, head) \
+	for (pos = (head)->first; pos ; pos = pos->next)
+
+#define hlist_entry_safe(ptr, type, member) \
+	({ typeof(ptr) ____ptr = (ptr); \
+	   ____ptr ? hlist_entry(____ptr, type, member) : NULL; \
+	})
+
+/**
+ * hlist_for_each_entry	- iterate over list of given type
+ * @pos:	the type * to use as a loop cursor.
+ * @head:	the head for your list.
+ * @member:	the name of the hlist_node within the struct.
+ */
+#define hlist_for_each_entry(pos, head, member)				\
+	for (pos = hlist_entry_safe((head)->first, typeof(*(pos)), member);\
+	     pos;							\
+	     pos = hlist_entry_safe((pos)->member.next, typeof(*(pos)), member))
+
+
+static inline void INIT_HLIST_NODE(struct hlist_node*h)
+{
+    h->next =NULL;
+    h->pprev =NULL;
+}
+
+static inline void __hlist_del(struct hlist_node *n)   
+{   
+	struct hlist_node *next = n->next;  
+	struct hlist_node **pprev = n->pprev; 
+	*pprev = next;   
+	
+	if (next) 
+		next->pprev = pprev; 
+}  
+static inline void hlist_del(struct hlist_node *n)
+{
+	__hlist_del(n);
+	n->next = NULL;
+	n->pprev = NULL;
+}
+
+static inline int hlist_unhashed(const struct hlist_node *h)
+{
+    return !h->pprev;
+}
+
+static inline int hlist_empty(const struct hlist_head *h)
+{
+	return !h->first;
+}
+
+static inline void hlist_add_head(struct hlist_node *n, struct hlist_head *h)
+{
+	struct hlist_node *first = h->first;
+	n->next = first;
+	if (first)
+		first->pprev = &n->next;
+	h->first = n;
+	n->pprev = &h->first;
+}
+
+/* next must be != NULL */
+static inline void hlist_add_before(struct hlist_node *n,
+					struct hlist_node *next)
+{
+	n->pprev = next->pprev;
+	n->next = next;
+	next->pprev = &n->next;
+	*(n->pprev) = n;
+}
+
+static inline void hlist_add_behind(struct hlist_node *n,
+				    struct hlist_node *prev)
+{
+	n->next = prev->next;
+	prev->next = n;
+	n->pprev = &prev->next;
+
+	if (n->next)
+		n->next->pprev  = &n->next;
+}
 #endif/*_MINIOS_LISH_H*/

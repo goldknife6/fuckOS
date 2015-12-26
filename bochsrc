@@ -14,6 +14,8 @@ cpu: count=4 ,model=corei5_lynnfield_750
 #panic: action=ask
 ata0: enabled=1, ioaddr1=0x1f0, ioaddr2=0x3f0, irq=14 
 ata0-master: type=disk, path=kenrel.iso, mode=flat, biosdetect=auto, translation=auto, model="Generic 1234"
+
+#ata0-slave:  type=disk, mode=flat, path=/dev/sdb
 boot: disk
 
 #debug: action=ask, pci=report

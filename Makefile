@@ -6,7 +6,7 @@ export OBJDUMP	:= objdump
 export ROOTDIR 	:= $(shell pwd)
 export OBJDIR 	:= obj
 
-SUBDIRS 	:= kernel lib user fs
+SUBDIRS 	:= kernel lib user
 LDFLAGS 	:= -m elf_i386 
 KHANDER		:= -I $(ROOTDIR)/include/
 UHANDER 	:= -I $(ROOTDIR)/include/
@@ -23,14 +23,14 @@ export GCC_LIB 	:= $(shell $(CC) $(CFLAGE) -print-libgcc-file-name)
 
 IMAGES		:= kenrel.iso
 BOCHS		:= bochs
-QEMU		:= qemu-system-i386
-QEMUOPTS	:= -m 60M -smp 4	 -hdb kernel/fs/fs.img
+QEMU		:= qemu-system-i386 
+QEMUOPTS	:= -m 60M -smp 4 -hdb kernel/fs/fs.img 
 GRUB		:= grub-mkrescue
 IOSDIR		:= iso
 
 #
-OBJFILE 	:=  init mm tty  syscall  fs trap
-OBJFILE 	:=  $(patsubst %,kernel/%/*.S,$(OBJFILE)) $(patsubst %,kernel/%/*.c,$(OBJFILE))
+OBJFILE 	:=  init mm tty  syscall fs trap block
+OBJFILE 	:= $(patsubst %,kernel/%/*.S,$(OBJFILE)) $(patsubst %,kernel/%/*.c,$(OBJFILE))
 OBJFILE 	:= $(wildcard $(OBJFILE))
 OBJFILE 	:= $(patsubst kernel/%,$(ROOTDIR)/$(OBJDIR)/%,$(OBJFILE))
 OBJFILE 	:= $(patsubst %.S,%.c,$(OBJFILE))
