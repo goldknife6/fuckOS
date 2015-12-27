@@ -6,6 +6,8 @@
 #include <fuckOS/pci.h>
 
 #include <drivers/pcireg.h>
+#include <drivers/sata.h>
+#include <drivers/ide.h>
 
 
 // Flag to do "lspci" at bootup
@@ -28,7 +30,8 @@ struct pci_driver {
 // pci_attach_class matches the class and subclass of a PCI device
 struct pci_driver pci_attach_class[] = {
 	{ PCI_CLASS_BRIDGE, PCI_SUBCLASS_BRIDGE_PCI, &pci_bridge_attach },
-	{ 0, 0, 0 },
+	{ PCI_CLASS_MASS_STORAGE, PCI_SUBCLASS_MASS_STORAGE_SATA, &pci_sata_attach },
+	{ PCI_CLASS_MASS_STORAGE, PCI_SUBCLASS_MASS_STORAGE_IDE, &pci_ide_attach },
 };
 
 // pci_attach_vendor matches the vendor ID and device ID of a PCI device. key1
@@ -158,7 +161,7 @@ pci_scan_bus(struct pci_bus *bus)
 			pci_attach(&af);
 		}
 	}
-
+	//printk("totaldev:%d\n",totaldev);
 	return totaldev;
 }
 

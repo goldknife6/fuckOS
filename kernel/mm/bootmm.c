@@ -305,6 +305,23 @@ static void boot_map_region(pgd_t *pgdir, viraddr_t va,
 	
 }
 
+viraddr_t
+mmio_map_region(physaddr_t pa, size_t size)
+{
+	
+	static viraddr_t base = KERNEL_MMIO;
+
+	size = ROUNDUP(size, PAGE_SIZE);
+	pa = ROUNDDOWN(pa, PAGE_SIZE);
+	
+	if (base+size >= KERNEL_MMIO_LIMIT) 
+		panic("not enough memory");
+	
+	boot_map_region(kpgd, base, size, pa, _PAGE_PRESENT|_PAGE_PCD|_PAGE_PWT|_PAGE_RW);
+	base += size;
+
+	return (base - size);
+}
 
 extern void page_check();
 extern void zone_init();

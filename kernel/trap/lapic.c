@@ -10,8 +10,9 @@
 
 #include <string.h>
 
-physaddr_t lapicaddr; 
+physaddr_t lapicaddr = 0xFEE00000; 
 volatile uint32_t *lapic;
+extern viraddr_t mmio_map_region(physaddr_t, size_t);
 
 void lapicw(uint32_t index, uint32_t value)
 {
@@ -63,9 +64,14 @@ void ap_startup()
 
 void lapic_init()
 {
+/*
 	static char *base = (char*)KERNEL_MMIO;
 	lapic = (uint32_t *)base;
 	base += PAGE_SIZE;
+*/
+
+	lapic = (uint32_t *)mmio_map_region(lapicaddr, PAGE_SIZE);
+
 	lapicw(LAPIC_SVR , LAPIC_SVR_ENABLE | IRQ_SPURIOUS);
 
 	if(!bootcpu) {

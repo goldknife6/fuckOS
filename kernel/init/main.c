@@ -1,6 +1,7 @@
 #include <string.h>
 
 #include <sys/multiboot2.h>
+#include <asm/bitops.h>
 
 
 #include <fuckOS/kernel.h>
@@ -84,16 +85,17 @@ void os_entry(void* ginfo,uint32_t gmagic)
 	//中断向量表初始化
 	trap_init();
 
-
+	
 	//调度队列初始化
 	schedule_init();
 
 	buffer_init();
 
-	pci_init();
+	//pci_init();
 
 	ide_init();
 
+	mount_root();
 	//AP初始化
 	//ap_startup();
 	TASK_CREATE(init, TASK_TYPE_USER);

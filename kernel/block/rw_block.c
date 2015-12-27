@@ -22,10 +22,13 @@ int block_read(struct buffer_head *buf)
 	if ( major >= NR_BLK_DEV ) {
 		panic("Trying to read nonexistent block-device\n\r");
 	}
-	
+	if ( major != 0x3 ) {
+		panic("Trying to read nonexistent block-device\n\r");
+	}
 	blocknr = buf->b_blocknr;
 	startn = minor < MAX_PRIM ? hd_info[drive].primary[minor%NR_PRIM_DRIVE].start_sect :
 		hd_info[drive].logical[logidx].start_sect;
+	printk("read ide startn:%d\n",startn + blocknr*2);
 	retval = ide_read(startn + blocknr*2 ,buf->b_data,drive, 2);
 	if (!retval)
 		buf->b_uptodate = 1;

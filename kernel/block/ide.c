@@ -8,9 +8,10 @@
 
 
 #include <fuckOS/assert.h>
-#include <fuckOS/hd.h>
 #include <fuckOS/fs.h>
 
+#include <drivers/hd.h>
+#include <drivers/ide.h>
 #include <mm/layout.h>
 
 #define IDE_BSY		0x80
@@ -45,6 +46,13 @@ ide_init()
 	sys_setup();
 }
 
+
+int pci_ide_attach(struct pci_func *pcif)
+{
+	pci_func_enable(pcif);
+	return 1;
+}
+
 static void 
 sys_setup(void)
 {
@@ -65,7 +73,10 @@ sys_setup(void)
 		hd_struct[drive].sect = *(uint8_t *) (14+BIOS);
 		BIOS += 16;
 	}
-	
+	char b[512];
+	if(ide_read(0, b , 0 ,1) < 0) {
+		panic("0\n");	
+	}
 
 	if (hd_struct[1].cyl)
 		NR_HD=2;
@@ -92,20 +103,27 @@ static void print_partition()
 		int j;
 		for (j = 0; j < NR_PRIM_DRIVE; j++) {
 			if (hd_info[i].primary[j].nr_sects)
-			printk("primary[%d] start_sect:%d nr_sects:%d\n",j,
+			printk("dev:0x%x primary[%d] start_sect:%d nr_sects:%d\n",MAKE_DEV(0x3,j + i*NR_PRIM_DRIVE),j,
 			hd_info[i].primary[j].start_sect,hd_info[i].primary[j].nr_sects);
-
 			if (hd_info[i].primary[j].sys_ind == EXT_PART) {
 				int k;
 				for (k = 0; k < NR_LOG_DRIVE; k++) {
-					if (hd_info[i].logical[k].nr_sects)
-					printk("       logical[%d] start_sect:%d nr_sects:%d\n",
+					if (hd_info[i].logical[k].nr_sects) {
+					printk("       dev:0x%x logical[%d] start_sect:%d nr_sects:%d ",MAKE_DEV(0x3,k%16 + j*16 + i*64),
 					k,hd_info[i].logical[k].start_sect,hd_info[i].logical[k].nr_sects);
+					int x = MAKE_DEV(0x3,k + j*16 + i*64);
+					printk("k:%d\n",k);
+					}
+					
 				}
 			}
+
 		}
+
+		
 	}
 }
+
 static void partition(int device, int style)
 {
 	int i;
@@ -164,7 +182,7 @@ static int get_part_table(int drive,int secno,struct partable* entry)
 	struct partable *p;
 	retval = ide_read(secno, dst , drive ,1);
 	if (retval < 0) {
-		panic("");
+		panic(" ide_read error:%d\n",retval);
 		return retval;	
 	}
 /*
@@ -184,46 +202,20 @@ static int get_part_table(int drive,int secno,struct partable* entry)
 	return 0;
 }
 
-static void reset_controller(void)
-{
-	int i;
-	outb(HD_CMD,4);
-	for(i = 0; i < 100; i++) ;
-	outb(HD_CMD,hd_struct[0].ctl & 0x0f);
-	
-	if ((i = inb(HD_ERROR)) != 1)
-		printk("HD-controller reset failed: %02x\n\r",i);
-}
+
 
 static int
 ide_wait_ready(bool check_error)
 {
-	int num = 0x10000;
+	
 	int r;
 
-	while (((r = inb(0x1F7)) & (IDE_BSY|IDE_DRDY)) != IDE_DRDY) {
-		if (--num == 0) {
-		
-		if(r & ERR_STAT)
-			printk("ERR_STAT "); 
-		if(r & INDEX_STAT)
-			printk("INDEX_STAT ");
-		if(r & ECC_STAT)
-			printk("ECC_STAT ");
-		if(r & DRQ_STAT)
-			printk("DRQ_STAT ");
-		if(r & SEEK_STAT)
-			printk("SEEK_STAT ");
-		if(r & WRERR_STAT)
-			printk("WRERR_STAT ");
-		if(r & READY_STAT)
-			printk("READY_STAT ");
-		if(r & BUSY_STAT)
-			printk("BUSY_STAT ");
-		}
-	}
-	if (check_error && (r & (IDE_DF|IDE_ERR)) != 0)
+	while (((r = inb(0x1F7)) & (IDE_BSY|IDE_DRDY)) != IDE_DRDY)
+		;
+	
+	if (check_error && (r & (IDE_DF|IDE_ERR)) != 0) {
 		return -1;
+	}
 	return 0;
 }
 
@@ -268,8 +260,6 @@ ide_read(uint32_t secno, void *dst, uint32_t driver ,size_t nsecs)
 	assert(nsecs <= 256);
 	ide_wait_ready(0);
 
-	outb(0x1F6, 0xE0 | (driver << 4) | ((secno >> 24) & 0x0F));
-	outb(0x1F1, 0x00);
 	outb(0x1F2, nsecs);
 	outb(0x1F3, secno & 0xFF);
 	outb(0x1F4, (secno >> 8) & 0xFF);
