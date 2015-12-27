@@ -9,6 +9,7 @@ extern int sys_exit(pid_t pid);
 extern pid_t sys_clone(int ,int (*)(void*));
 extern pid_t sys_getpid(void);
 extern int sys_brk(viraddr_t);
+extern int sys_read(uint32_t fd,char * buf,int count);
 
 extern viraddr_t brk(viraddr_t);
 extern viraddr_t sbrk(viraddr_t);
@@ -19,7 +20,7 @@ extern void exit(void);
 extern pid_t getpid(void);
 extern void* malloc(uint32_t);
 extern void free(void *);
-
+extern int read(uint32_t fd,char * buf,int count);
 
 
 struct malloc_chunk {

@@ -9,7 +9,6 @@
 #define HASH(dev,block) buffer_hash[_HASHFN(dev,block)]
 
 static struct hlist_head *get_hash_table(int, uint32_t);
-static struct buffer_head *buffer_get(int, uint32_t);
 static struct buffer_head *buffer_alloc(int, uint32_t);
 static void buffer_free(struct buffer_head *);
 static void insert_into_hash(struct buffer_head *);
@@ -90,7 +89,7 @@ static void remove_from_hash(struct buffer_head *buf)
 }
 
 
-static struct buffer_head *
+struct buffer_head *
 buffer_get(int dev,uint32_t block)
 {
 	struct buffer_head *tmp = NULL;
@@ -103,6 +102,8 @@ buffer_get(int dev,uint32_t block)
 	
 	if (!tmp)
 		return NULL;
+
+	tmp->b_count = 1;
 
 	insert_into_hash(tmp);
 

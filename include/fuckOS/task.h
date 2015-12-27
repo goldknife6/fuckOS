@@ -10,6 +10,7 @@
 #include <fuckOS/list.h>
 #include <fuckOS/cpu.h>
 #include <fuckOS/pidmap.h>
+#include <fuckOS/fs.h>
 
 /* max pid, equal to 2^15=32768 */
 #define PID_MAX_DEFAULT 0x8000
@@ -51,6 +52,7 @@ enum clone_type {
 struct task_struct
 {
 	struct mm_struct* mm;
+	struct files_struct* files;
 	struct frame frame;
 	pgd_t* task_pgd;
 	pid_t pid;			

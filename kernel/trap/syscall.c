@@ -13,6 +13,8 @@ static pid_t sys_clone(int ,int (*)(void*));
 static pid_t sys_getpid();
 static void sys_cputs(const char *,size_t );
 static viraddr_t sys_brk(viraddr_t);
+static int sys_read(uint32_t,int8_t*,int32_t);
+
 
 //	syscall/exit.c
 extern int exit(struct task_struct *);
@@ -20,7 +22,8 @@ extern int exit(struct task_struct *);
 int syscall_handler(struct frame *tf)
 {
 	struct pushregs * regs = &(tf->tf_regs);
-	int i =  syscall(regs->reg_eax, regs->reg_edx, regs->reg_ecx, regs->reg_ebx, regs->reg_edi, regs->reg_esi);
+	int i = syscall(regs->reg_eax, regs->reg_edx, regs->reg_ecx, 
+			regs->reg_ebx, regs->reg_edi, regs->reg_esi);
 	tf->tf_regs.reg_eax = i;
 	return 0;
 }
@@ -39,6 +42,7 @@ syscall(uint32_t syscallno, uint32_t a1,
 	case SYS_EXOFORK:{return sys_clone((int)a1,(int (*)(void *))a2);}
 	case SYS_GETPID:{return sys_getpid();}
 	case SYS_BRK:{return sys_brk((viraddr_t)a1);}
+	case SYS_READ:{return sys_read((uint32_t)a1,(int8_t*)a2,(int32_t)a3);}
 	default: return -EINVAL;
 	}
 }
@@ -71,6 +75,14 @@ user_mem_assert(struct task_struct *task, const void *va, size_t len, int perm)
 		exit(task);
 		return -EFAULT;
 	}
+	return 0;
+}
+
+extern int read(uint32_t,int8_t *,int32_t);
+static int 
+sys_read(uint32_t fd,int8_t *buf,int32_t count)
+{
+	read(fd,buf,count);
 	return 0;
 }
 

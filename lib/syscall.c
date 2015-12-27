@@ -48,3 +48,8 @@ sys_brk(viraddr_t end_data_segment)
 {
 	return syscall(SYS_BRK,(uint32_t)end_data_segment,0,0,0,0);
 }
+int
+sys_read(uint32_t fd,char * buf,int count)
+{
+	return syscall(SYS_READ,(uint32_t)fd,(uint32_t)buf,(uint32_t)count,0,0);
+}

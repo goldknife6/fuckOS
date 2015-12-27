@@ -11,6 +11,7 @@ static struct super_block *read_super(int );
 static void free_super(struct super_block *);
 static int print_sector(struct buffer_head *);
 static int print_super(struct super_block *);
+static int print_inode(struct m_inode *);
 
 struct super_block *
 get_super(int dev)
@@ -119,17 +120,44 @@ read_super(int dev)
 	s->s_imap[0]->b_data[0] |= 1;
 	s->s_zmap[0]->b_data[0] |= 1;
 
-	print_super(s);
+	list_add(&s->s_list,&super_list);
+
+	
 	//print_sector(s->s_zmap[0]);
 	return s;
+}
+static void test()
+{
+	int i;
+	struct m_inode *inode;
+	struct buffer_head * buf;
+	for (i =1; i < 2; i++) {
+		inode = inode_get(0x307,i);
+		assert(inode);
+		print_inode(inode);
+	}
+
+	i = bmap(inode,0);
+
+	
+	buf = buffer_read(inode->i_dev,i);
+	assert(buf);
+
+	//print_sector(buf);
+	printk("%s\n",buf->b_data);
 }
 
 void mount_root()
 {
 	struct super_block *s;
+	struct m_inode *inode;
 	s = read_super(0x307);
 
 	assert(s);
+	inode = inode_get(0x307,15);
+	assert(inode);
+	test();
+	//print_super(s);
 }
 
 static int print_sector(struct buffer_head *bh)
@@ -143,18 +171,7 @@ static int print_sector(struct buffer_head *bh)
 	}
 	return 0;
 }
-/*
-struct d_super_block {
-	uint16_t s_ninodes;
-	uint16_t s_nzones;
-	uint16_t s_imap_blocks;
-	uint16_t s_zmap_blocks;
-	uint16_t s_firstdatazone;
-	uint16_t s_log_zone_size;
-	uint32_t s_max_size;
-	uint16_t s_magic;
-};
-*/
+
 static int print_super(struct super_block * s)
 {
 	assert(s);
@@ -163,5 +180,15 @@ static int print_super(struct super_block * s)
 	printk("s_imap_blocks:%d s_zmap_blocks:%d\n",s->s_imap_blocks,s->s_zmap_blocks);
 	printk("s_firstdatazone:%d s_log_zone_size:%d\n",s->s_firstdatazone,s->s_log_zone_size);
 	printk("s_max_size:%d s_magic:%x\n",s->s_max_size,s->s_magic);
+	return 0;
+}
+
+static int print_inode(struct m_inode *i)
+{
+	assert(i);
+
+	printk("i_size:%d i_mtim:%d ",i->i_size,i->i_mtime);
+	printk("i_zone[0]:%d i_zone[1]:%x ",i->i_zone[0],i->i_zone[1]);
+	printk("i_zone[2]:%d i_zone[3]:%x\n",i->i_zone[2],i->i_zone[3]);
 	return 0;
 }
