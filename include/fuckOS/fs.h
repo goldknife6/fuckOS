@@ -96,7 +96,7 @@ struct file {
 };
 
 struct files_struct {
-	struct file fd[MAX_FILES];
+	struct file *fd[MAX_FILES];
 };
 
 struct d_super_block {

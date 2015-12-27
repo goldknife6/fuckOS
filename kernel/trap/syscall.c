@@ -82,8 +82,7 @@ extern int read(uint32_t,int8_t *,int32_t);
 static int 
 sys_read(uint32_t fd,int8_t *buf,int32_t count)
 {
-	read(fd,buf,count);
-	return 0;
+	return read(fd,buf,count);
 }
 
 static int

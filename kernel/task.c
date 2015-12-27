@@ -1,6 +1,7 @@
 #include <fuckOS/task.h>
 #include <fuckOS/sched.h>
 #include <fuckOS/pidmap.h>
+#include <fuckOS/fs.h>
 
 #include <sys/elf.h>
 
@@ -13,11 +14,20 @@
 static int load_icode(struct task_struct *, uint8_t *);
 static int region_alloc(struct task_struct *, viraddr_t, size_t ,int );
 static int task_alloc(struct task_struct **, pid_t);
+static int file_alloc(struct task_struct *);
 struct task_struct* task_pidmap[PID_MAX_DEFAULT];
 
 
 
-
+static int file_alloc(struct task_struct *task)
+{
+	assert(task);
+	task->files = kmalloc(sizeof(struct files_struct));
+	if (!task->files)
+		return -ENOMEM;
+	memset(task->files,0,sizeof(struct files_struct));
+	return 0;
+}
 
 static int
 load_icode(struct task_struct *task, uint8_t *binary)
@@ -144,6 +154,13 @@ task_alloc(struct task_struct **newenv_store, pid_t parent_id)
 		assert(0);
 		return -ENOMEM;
 	}
+	reval = file_alloc(task);
+
+	if (reval < 0) {
+		assert(0);	
+		return reval;
+	}
+
 	reval = task_set_vm(task);
 	if (reval < 0) {
 		assert(0);	
