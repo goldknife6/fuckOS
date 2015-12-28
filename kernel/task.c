@@ -14,11 +14,11 @@
 static int load_icode(struct task_struct *, uint8_t *);
 static int region_alloc(struct task_struct *, viraddr_t, size_t ,int );
 static int task_alloc(struct task_struct **, pid_t);
-static int file_alloc(struct task_struct *);
+//static int file_alloc(struct task_struct *);
 struct task_struct* task_pidmap[PID_MAX_DEFAULT];
 
 
-
+/*
 static int file_alloc(struct task_struct *task)
 {
 	assert(task);
@@ -29,6 +29,8 @@ static int file_alloc(struct task_struct *task)
 	task->files->pwd = task->files->root = mount_root();
 	return 0;
 }
+*/
+
 
 static int
 load_icode(struct task_struct *task, uint8_t *binary)
@@ -149,13 +151,13 @@ static int
 task_alloc(struct task_struct **newenv_store, pid_t parent_id)
 {
 	struct task_struct *task;
-	int reval;
+	int reval = 0;
 	task = kmalloc(sizeof(struct task_struct));
 	if (!task) {
 		assert(0);
 		return -ENOMEM;
 	}
-	reval = file_alloc(task);
+	//reval = file_alloc(task);
 
 	if (reval < 0) {
 		assert(0);	

@@ -1,3 +1,8 @@
+#ifndef _MINIOS_MINIXFS_H
+#define _MINIOS_MINIXFS_H
+
+#include <fuckOS/fs.h>
+
 /*
  * This is the original minix inode layout on disk.
  * Note the 8-bit gid and atime and ctime.
@@ -46,6 +51,8 @@ struct minix_superblock {
 	uint32_t s_zones;
 };
 
+
+#define MAX_MINIX_HASH	1024
 struct minix_dir_entry {
 	uint16_t inode;
 	char name[];
@@ -73,3 +80,6 @@ enum {
 	MINIX1_INODES_PER_BLOCK = BLOCK_SIZE / sizeof(struct minix1_inode),
 	MINIX2_INODES_PER_BLOCK = BLOCK_SIZE / sizeof(struct minix2_inode),
 };
+extern struct super_operations minix_super_op;
+
+#endif

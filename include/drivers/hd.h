@@ -82,6 +82,8 @@ struct hd_info
 };
 
 
+extern struct hd_info hd_info[MAX_DRIVES];
+
 
 extern void ide_init(void);
 #endif/*_MINIOS_HD_H*/

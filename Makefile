@@ -24,12 +24,12 @@ export GCC_LIB 	:= $(shell $(CC) $(CFLAGE) -print-libgcc-file-name)
 IMAGES		:= kenrel.iso
 BOCHS		:= bochs
 QEMU		:= qemu-system-i386 
-QEMUOPTS	:= -m 60M -smp 4 -hdb kernel/fs/fs.img 
+QEMUOPTS	:= -m 60M -smp 4 -hdb kernel/file/image.img 
 GRUB		:= grub-mkrescue
 IOSDIR		:= iso
 
 #
-OBJFILE 	:=  init mm tty  syscall fs trap block
+OBJFILE 	:=  init mm tty  syscall file trap block
 OBJFILE 	:= $(patsubst %,kernel/%/*.S,$(OBJFILE)) $(patsubst %,kernel/%/*.c,$(OBJFILE))
 OBJFILE 	:= $(wildcard $(OBJFILE))
 OBJFILE 	:= $(patsubst kernel/%,$(ROOTDIR)/$(OBJDIR)/%,$(OBJFILE))

@@ -33,7 +33,7 @@ uint8_t percpu_kstacks[CPUNUMS][KERNEL_STKSIZE];
 extern void bootmm(void*);
 static void gdt_init_percpu();
 extern void slab_check();
-
+extern void fs_init();
 extern char _BSS_START[],_BSS_END[];
 
 
@@ -89,13 +89,13 @@ void os_entry(void* ginfo,uint32_t gmagic)
 	//调度队列初始化
 	schedule_init();
 
-	buffer_init();
+	//buffer_init();
 
-	pci_init();
+	//pci_init();
 
 	ide_init();
 
-	mount_root();
+	fs_init();
 
 	//AP初始化
 	//ap_startup();

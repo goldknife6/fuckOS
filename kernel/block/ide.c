@@ -98,21 +98,24 @@ sys_setup(void)
 
 static void print_partition()
 {
-	int i ;
+	int i,j,k ;
 	for (i = 0; i < NR_HD; i++) {
-		int j;
 		for (j = 0; j < NR_PRIM_DRIVE; j++) {
-			if (hd_info[i].primary[j].nr_sects)
-			printk("dev:0x%x primary[%d] start_sect:%d nr_sects:%d\n",MAKE_DEV(0x3,j + i*NR_PRIM_DRIVE),j,
-			hd_info[i].primary[j].start_sect,hd_info[i].primary[j].nr_sects);
+			if (hd_info[i].primary[j].nr_sects) {
+				printk("dev:0x%x ",MAKE_DEV(0x3,j + i*NR_PRIM_DRIVE));
+				printk("primary[%d] ",j);
+				printk("start_sect:%d ",hd_info[i].primary[j].start_sect);
+				printk("nr_sects:%d ",hd_info[i].primary[j].nr_sects);
+				printk("sysid:%d\n",hd_info[i].primary[j].sys_ind);
+			}
 			if (hd_info[i].primary[j].sys_ind == EXT_PART) {
-				int k;
 				for (k = 0; k < NR_LOG_DRIVE; k++) {
 					if (hd_info[i].logical[k].nr_sects) {
-					printk("       dev:0x%x logical[%d] start_sect:%d nr_sects:%d ",MAKE_DEV(0x3,k%16 + j*16 + i*64),
-					k,hd_info[i].logical[k].start_sect,hd_info[i].logical[k].nr_sects);
-					int x = MAKE_DEV(0x3,k + j*16 + i*64);
-					printk("k:%d\n",k);
+						printk("	dev:0x%x ",MAKE_DEV(0x3,k%16 + j*16 + i*64));
+						printk("logical[%d] ",k);
+						printk("start_sect:%d ",hd_info[i].logical[k].start_sect);
+						printk("nr_sects:%d ",hd_info[i].logical[k].nr_sects);
+						printk("sysid:%d\n",hd_info[i].logical[k].sys_ind);
 					}
 					
 				}

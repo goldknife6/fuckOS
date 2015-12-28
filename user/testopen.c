@@ -5,7 +5,7 @@ int main()
 {
 	int fd,retval;
 	char buf[512];
-	fd = open("file1/121223/212",0,0);
+	fd = open("file1",0,0);
 	printf("I am user I am openning fd is %d\n",fd);
 
 	retval = read(fd,buf,512);
