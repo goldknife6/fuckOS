@@ -36,27 +36,23 @@ void page_fault_handler(struct frame *tf)
 	pte_t *pte;
 
 	va  = rcr2();
-	//spin_lock(&curtask->mm->page_table_lock);
 
 	vma = find_vma(curtask->mm, va);
 
-	if (!vma || vma->vm_start > va) {
-		//print_frame(tf);
-		panic("page_fault exit va:%x pid:%d eip:%x\n",va,curtask->pid,tf->tf_eip);
-		return;
-	}
+	if (!vma || vma->vm_start > va)
+		goto exit;
 	
 	pte = page_walk(curtask->task_pgd,va,true);
 	
-	if(!pte) {
-		exit(curtask);
-		schedule();
-		panic("page_fault !pte exit\n");
-	}
+	if(!pte)
+		goto exit;
 
 	handle_pte_fault(curtask->mm, vma, va, pte, tf->tf_err);
 
-	//spin_unlock(&curtask->mm->page_table_lock);
+	return;
+exit:
+	exit(curtask);
+	schedule();
 }
 
 static int 
