@@ -17,7 +17,7 @@
 #define ROOT_DEV		0x307
 #define ROOT_INODE		0
 #define INODES_PER_BLOCK 	((BLOCK_SIZE)/(sizeof (struct d_inode)))
-
+#define DIR_ENTRIES_PER_BLOCK 	((BLOCK_SIZE)/(sizeof (struct dir_entry)))
 struct buffer_head {
 	uint8_t b_data[BLOCK_SIZE];		/* pointer to data block (1024 bytes) */
 	uint32_t b_blocknr;			/* block number */
@@ -131,4 +131,5 @@ extern struct m_inode * new_inode(int dev);
 extern struct m_inode *inode_get(int dev,int nr);
 extern int bmap(struct m_inode * inode,int block);
 extern int file_read(struct m_inode *, struct file *, char *, int);
+extern int open_namei(const char * , int , int ,struct m_inode **);
 #endif/*_MINIOS_FS_H*/

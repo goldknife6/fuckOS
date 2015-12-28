@@ -159,7 +159,7 @@ mount_root()
 	assert(rooti);
 	//test();
 	//print_super(s);
-	print_inode(inode);
+	print_inode(rooti);
 	return rooti;
 }
 

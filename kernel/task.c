@@ -26,6 +26,7 @@ static int file_alloc(struct task_struct *task)
 	if (!task->files)
 		return -ENOMEM;
 	memset(task->files,0,sizeof(struct files_struct));
+	task->files->pwd = task->files->root = mount_root();
 	return 0;
 }
 

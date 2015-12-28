@@ -53,3 +53,9 @@ sys_read(uint32_t fd,char * buf,int count)
 {
 	return syscall(SYS_READ,(uint32_t)fd,(uint32_t)buf,(uint32_t)count,0,0);
 }
+int
+sys_open(char *filename,int flags,int mode)
+{
+	return syscall(SYS_OPEN,(uint32_t)filename,(uint32_t)flags,(uint32_t)mode,0,0);
+}
+

@@ -15,16 +15,8 @@ int read(uint32_t fd,char * buf,int count)
 	if (!count)
 		return 0;
 
-	//verify_area(buf,count);
 	inode = file->f_inode;
-/*
-	if (inode->i_pipe)
-		return (file->f_mode&1)?read_pipe(inode,buf,count):-EIO;
-	if (S_ISCHR(inode->i_mode))
-		return rw_char(READ,inode->i_zone[0],buf,count,&file->f_pos);
-	if (S_ISBLK(inode->i_mode))
-		return block_read(inode->i_zone[0],&file->f_pos,buf,count);
-*/
+
 	//if (S_ISDIR(inode->i_mode) || S_ISREG(inode->i_mode)) {
 		if (count + file->f_pos > inode->i_size) {
 			count = inode->i_size - file->f_pos;

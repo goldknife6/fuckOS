@@ -9,6 +9,7 @@ enum {
 	SYS_GETPID,
 	SYS_BRK,
 	SYS_READ,
+	SYS_OPEN,
 	NSYSCALLS
 };
 
