@@ -95,7 +95,7 @@ void os_entry(void* ginfo,uint32_t gmagic)
 
 	ide_init();
 
-	fs_init();
+	filesystem_init();
 
 	//AP初始化
 	//ap_startup();

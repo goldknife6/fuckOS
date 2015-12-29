@@ -1,3 +1,6 @@
+#ifndef _MINIOS_DCHCHE_H
+#define _MINIOS_DCHCHE_H
+
 #include <fuckOS/list.h>
 #include <fuckOS/fs.h>
 
@@ -7,7 +10,7 @@
 struct dentry;
 
 struct dentry_operations {
-    int (*d_hash)(const struct dentry *, const char*,int);
+    uint32_t (*d_hash)(const struct dentry *, const char*,int);
 };
 
 
@@ -18,6 +21,8 @@ struct dentry {
 	const struct dentry_operations *d_op;
 	struct inode *d_inode;
 	struct super_block *d_sb;
+	char* d_name;
+	int d_len;
 };
 
 static inline uint32_t _hash(const char* str,int len)
@@ -28,3 +33,12 @@ static inline uint32_t _hash(const char* str,int len)
 	return hash;
 }
 
+
+extern struct dentry *lookup_dentry(struct dentry *,const char *,int);
+
+extern struct dentry *alloc_dentry(struct dentry *,char* ,
+		struct dentry_operations *,struct inode *,
+		struct super_block *,int);
+
+
+#endif/*!_MINIOS_DCHCHE_H*/

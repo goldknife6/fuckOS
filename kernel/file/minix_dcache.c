@@ -1,7 +1,7 @@
 #include <fuckOS/dcache.h>
 #include <fuckOS/list.h>
 
-static int minix_dentry_hash(const struct dentry *, const char *,int);
+static uint32_t minix_dentry_hash(const struct dentry *, const char *,int);
 
 
 
@@ -13,7 +13,7 @@ struct dentry_operations minix_dentry_op =
 
 
 
-static int 
+static uint32_t 
 minix_dentry_hash(const struct dentry *parent,const char* str,int len)
 {
 	int hash = _hash(str,len);

@@ -158,15 +158,13 @@ task_alloc(struct task_struct **newenv_store, pid_t parent_id)
 		return -ENOMEM;
 	}
 	//reval = file_alloc(task);
-
+	task->fs = kmalloc(sizeof(struct fs_struct));
 	if (reval < 0) {
-		assert(0);	
 		return reval;
 	}
 
 	reval = task_set_vm(task);
 	if (reval < 0) {
-		assert(0);	
 		return reval;
 	}
 

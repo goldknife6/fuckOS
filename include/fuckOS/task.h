@@ -53,6 +53,7 @@ struct task_struct
 {
 	struct mm_struct* mm;
 	struct files_struct* files;
+	struct fs_struct* fs;
 	struct frame frame;
 	pgd_t* task_pgd;
 	pid_t pid;			

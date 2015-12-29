@@ -13,7 +13,7 @@ static struct super_block *mount_root_super(int );
 static int print_super(struct minix_superblock* s);
 
 struct inode *
-alloc_inode(struct super_block *sb)
+get_inode(struct super_block *sb)
 {
 	assert(sb);
 	assert(sb->s_op);
@@ -49,6 +49,10 @@ void fs_init()
 
 }
 
+void insert_super(struct super_block *sb)
+{
+	list_add(&sb->s_list, &super_list);
+}
 
 int read_inode(struct super_block *sb,struct inode *inode)
 {
@@ -87,8 +91,8 @@ mount_root_super(int dev)
 		return NULL;
 
 
-	sb = alloc_super(dev,msb->s_magic,&minix_super_op,msb,
-			1024*(msb->s_log_zone_size << 1),msb->s_max_size);
+	//sb = alloc_super(dev,msb->s_magic,&minix_super_op,msb,
+	//		1024*(msb->s_log_zone_size << 1),msb->s_max_size);
 
 	assert(sb);
 
@@ -96,7 +100,7 @@ mount_root_super(int dev)
 }
 
 struct super_block*
-alloc_super(int dev,uint16_t magic,
+alloc_super_block(int dev,uint16_t magic,
 		const struct super_operations *op,void *super,
 			int blocksize,int max_size)
 {
@@ -116,7 +120,6 @@ alloc_super(int dev,uint16_t magic,
 	sb->s_max_size = max_size;
 	return sb;
 }
-
 
 static int print_super(struct minix_superblock* s)
 {

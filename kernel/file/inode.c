@@ -11,11 +11,13 @@
 #define inode_hash(dev,num) inode_table[inode_hashfn(dev,num)]
 
 
+static struct dentry* find_dentry(struct dentry *,char *,int);
+
 
 
 struct hlist_head inode_table[MAX_HASH_INODE];
 
-struct inode *get_inode(struct inode_operations *op,
+struct inode *alloc_inode(struct inode_operations *op,
 			struct super_block *sb,int num,
 			int dev,void *i)
 {
@@ -67,3 +69,56 @@ void delete_inode(struct inode *inode)
 	hlist_del(&inode->i_hash);
 }
 
+struct dentry* path_lookup(char *pathname,int namelen)
+{
+	char* thisname;
+	char c;
+	struct dentry *root, *dir;
+	struct inode *inode;
+	int len;
+
+	if (namelen <= 0)
+		return NULL;
+	
+	if (!curtask->fs->root)
+		panic("No root inode");
+	if (!curtask->fs->pwd)
+		panic("No cwd inode");
+
+	root = curtask->fs->pwd;
+	//inode = (struct inode *)root->d_inode;
+
+	if (pathname[0] == '/')
+		root = curtask->fs->root;
+	dir = root;
+	while (1) {
+		thisname = pathname;
+
+		for(len=0; (c = *(pathname++)) && (c != '/'); len++)
+			/* nothing */ ;
+
+		if (!c)
+			return dir;
+
+		dir = find_dentry(dir,thisname,len);
+		if (!dir)
+			return NULL;
+	}
+
+
+	return NULL;
+}
+
+static struct dentry* 
+find_dentry(struct dentry *parent,
+			char *name,int len)
+{
+	struct dentry *dir;
+	struct inode *inode;
+	dir = lookup_dentry(parent,name,len);
+	if (dir)
+		return dir;
+	inode = parent->d_inode;
+	
+	return inode->i_op->lookup(name,parent,len);
+}

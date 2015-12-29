@@ -3,6 +3,7 @@
 
 #include <fuckOS/fs.h>
 
+
 /*
  * This is the original minix inode layout on disk.
  * Note the 8-bit gid and atime and ctime.
@@ -52,12 +53,6 @@ struct minix_superblock {
 };
 
 
-#define MAX_MINIX_HASH	1024
-struct minix_dir_entry {
-	uint16_t inode;
-	char name[];
-};
-
 /* Believe it or not, but mount.h has this one #defined */
 #undef BLOCK_SIZE
 
@@ -79,7 +74,18 @@ enum {
 	INODE_SIZE2             = sizeof(struct minix2_inode),
 	MINIX1_INODES_PER_BLOCK = BLOCK_SIZE / sizeof(struct minix1_inode),
 	MINIX2_INODES_PER_BLOCK = BLOCK_SIZE / sizeof(struct minix2_inode),
+	MINIX1_NAME_LEN		= 30
 };
-extern struct super_operations minix_super_op;
 
+#define DIR_ENTRIES_PER_BLOCK	(BLOCK_SIZE / sizeof(struct minix1_dir_entry))
+
+#define MAX_MINIX_HASH	1024
+struct minix1_dir_entry {
+	uint16_t inode;
+	char name[MINIX1_NAME_LEN];
+};
+
+
+extern struct super_operations minix_super_op;
+extern struct dentry_operations minix_dentry_op;
 #endif

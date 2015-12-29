@@ -4,12 +4,11 @@
 
 #include <mm/slab.h>
 
-
+#include <string.h>
 static void destroy_minix_inode(struct inode *);
 static struct inode *alloc_minix_inode(struct super_block *);
 static int read_minix_inode(struct inode *);
 static int read_minix_super(struct super_block *);
-
 
 struct super_operations minix_super_op = 
 {
@@ -19,8 +18,7 @@ struct super_operations minix_super_op =
 	.read_super = read_minix_super,
 };
 
-
-static int read_minix_super(struct super_block *sb)
+int read_minix_super(struct super_block *sb)
 {
 	struct minix_superblock* msb = NULL;
 	struct buffer_head *buf = NULL;
@@ -31,23 +29,10 @@ static int read_minix_super(struct super_block *sb)
 	msb = (struct minix_superblock *)buf->b_data;
 
 	if (msb->s_magic != 0x138F)
-		panic("msb->s_magic != 0x138F");
+		return -1;
 
 	*(struct minix_superblock *)sb->s_super = *msb;
 	
-	return 0;
-}
-
-static struct super_block *get_minix_super(int dev)
-{
-	struct super_block *sb;
-	struct minix_superblock* msb = NULL;
-	sb = get_super(dev);
-	if (sb)
-		return sb;
-	msb = kmalloc(sizeof(struct minix_superblock));
-	sb = alloc_super(dev, 0x138F ,&minix_super_op,(void *)msb,
-				1024*(msb->s_log_zone_size << 1),msb->s_max_size);
 	return 0;
 }
 
@@ -74,7 +59,6 @@ static int read_minix_inode(struct inode *inode)
 
 	*(struct minix1_inode *)inode->i_inode = 
 		((struct minix1_inode *)buf->b_data)[inode->i_num % MINIX1_INODES_PER_BLOCK];
-	//printk("num:%d dev:%x block:%d\n",inode->i_num,inode->i_dev,block);
 	return 0;
 }
 
