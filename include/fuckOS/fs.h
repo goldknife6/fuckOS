@@ -42,6 +42,7 @@ struct inode {
 	struct super_block *i_sb;
 	int i_num;
 	int i_dev;
+	int i_mode;
 	struct hlist_node i_hash;
 	void* i_inode;
 };
@@ -59,6 +60,7 @@ struct super_block {
 	int32_t s_dev;
 	const struct super_operations *s_op;
 	void* s_super;
+	struct dentry *s_root;
 };
 
 struct super_operations {
@@ -76,16 +78,31 @@ struct file {
 	uint32_t f_pos;
 };
 
-struct file_struct{
+struct file_struct {
 	struct file* fd[MAX_FILE];
 };
 
-struct fs_struct{
+struct fs_struct {
 	struct dentry *root;
 	struct dentry *pwd;
 };
 
+struct vfsmount {
+	struct vfsmount *mnt_parent;
+	struct dentry *mnt_mountpoint;
+	struct dentry *mnt_root;
+	struct super_block *mnt_sb;
+	struct list_head mnt_mounts;
+	struct list_head mnt_child;
+	const char *mnt_devname;
+	spinlock_t mnt_lock;
+	int mnt_count;
+};
+
+
+
 extern void ide_init();
+struct vfsmount *alloc_vfsmnt(const char* );
 extern void filesystem_init();
 extern struct super_block *get_super(int );
 extern void insert_super(struct super_block *);
@@ -93,10 +110,11 @@ extern struct super_block* alloc_super_block(int ,uint16_t ,const struct super_o
 extern int read_inode(struct super_block *,struct inode *);
 extern struct buffer_head *buffer_get(int ,uint32_t );
 extern struct buffer_head *buffer_read(int ,uint32_t );
-extern struct inode *alloc_inode(struct inode_operations *,struct super_block *,int ,int ,void *);
+extern struct inode *alloc_inode(struct inode_operations *,struct super_block *,int ,int ,void *,int);
 extern struct inode *find_inode(int ,int );
 extern void insert_inode(struct inode *);
 extern int register_filesystem(struct file_system_type * );
 extern struct super_block *get_super_block(struct file_system_type *,int );
 extern struct super_block *find_super_block(struct file_system_type *,int );
+extern struct dentry* path_lookup(char *pathname,int namelen);
 #endif/*_MINIOS_FS_H*/

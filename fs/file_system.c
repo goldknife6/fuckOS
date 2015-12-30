@@ -12,10 +12,12 @@ struct list_head file_system = LIST_HEAD_INIT(file_system);
 
 STATIC_INIT_SPIN_LOCK(file_systems_lock);
 
+extern struct file_system_type root_fs;
 extern struct file_system_type minix_fs;
 
 struct file_system_type *filesystem [] = 
 {
+	&root_fs,
 	&minix_fs,
 	NULL
 };

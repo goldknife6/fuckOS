@@ -1,4 +1,3 @@
-#include <fuckOS/fs.h>
 #include <fuckOS/minixfs.h>
 #include <fuckOS/assert.h>
 

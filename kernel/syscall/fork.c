@@ -1,5 +1,7 @@
 #include <fuckOS/task.h>
 #include <fuckOS/sched.h>
+#include <fuckOS/fs.h>
+
 #include <mm/pages.h>
 #include <mm/slab.h>
 #include <errno.h>
@@ -12,6 +14,7 @@ extern int exit_mm(struct mm_struct *);
 
 static int copy_task(struct task_struct *,struct task_struct *);
 static int alloc_task(struct task_struct **,pid_t);
+int alloc_file(struct task_struct *);
 static int task_set_vm(int,struct task_struct *);
 
 pid_t do_fork(int clone_flag,struct frame frame)
@@ -51,7 +54,7 @@ exit_task:
 
 }
 
-static int alloc_task(struct task_struct **newenv_store,pid_t ppid)
+int alloc_task(struct task_struct **newenv_store,pid_t ppid)
 {
 	struct task_struct *task;
 	task = kmalloc(sizeof(struct task_struct));
@@ -74,6 +77,24 @@ static int alloc_task(struct task_struct **newenv_store,pid_t ppid)
 		*newenv_store  = task;
 	return 0;
 }
+
+
+int alloc_file(struct task_struct *task)
+{
+	assert(task);
+	task->files = kmalloc(sizeof(struct file_struct));
+	if (!task->files)
+		return -ENOMEM;
+
+	task->fs = kmalloc(sizeof(struct fs_struct));
+	if (!task->fs)
+		return -ENOMEM;
+	memset(task->files,0,sizeof(struct file_struct));
+	memset(task->fs,0,sizeof(struct fs_struct));
+	//task->files->pwd = task->files->root = mount_root();
+	return 0;
+}
+
 
 static int task_set_vm(int clone_flag, struct task_struct *task)
 {

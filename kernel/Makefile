@@ -1,5 +1,4 @@
-SUBDIRS := init mm tty  syscall file trap block
-
+SUBDIRS := init mm tty  syscall trap block
 
 CURDIR := $(notdir $(shell pwd))
 

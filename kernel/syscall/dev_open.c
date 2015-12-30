@@ -7,6 +7,7 @@
 #include <mm/slab.h>
 
 #include <errno.h>
+#include <string.h>
 
 static int file_fd(struct inode *);
 
@@ -16,8 +17,9 @@ int open(char * filename,int flag,int mode)
 	struct file * f;
 	int retval,fd = -1;
 
+	path_lookup(filename,strlen(filename));
 
-
+	printk("what?\n");
 	return fd;
 }
 

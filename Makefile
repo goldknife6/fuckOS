@@ -6,7 +6,7 @@ export OBJDUMP	:= objdump
 export ROOTDIR 	:= $(shell pwd)
 export OBJDIR 	:= obj
 
-SUBDIRS 	:= kernel lib user
+SUBDIRS 	:= fs kernel lib user 
 LDFLAGS 	:= -m elf_i386 
 KHANDER		:= -I $(ROOTDIR)/include/
 UHANDER 	:= -I $(ROOTDIR)/include/
@@ -24,15 +24,16 @@ export GCC_LIB 	:= $(shell $(CC) $(CFLAGE) -print-libgcc-file-name)
 IMAGES		:= kenrel.iso
 BOCHS		:= bochs
 QEMU		:= qemu-system-i386 
-QEMUOPTS	:= -m 60M -smp 4 -hdb kernel/file/image.img 
+QEMUOPTS	:= -m 60M -smp 4 -hdb fs/image.img 
 GRUB		:= grub-mkrescue
 IOSDIR		:= iso
 
 #
-OBJFILE 	:=  init mm tty  syscall file trap block
-OBJFILE 	:= $(patsubst %,kernel/%/*.S,$(OBJFILE)) $(patsubst %,kernel/%/*.c,$(OBJFILE))
+OBJFILE 	:= kernel/init kernel/mm kernel/tty kernel/syscall\
+		kernel/trap kernel/block fs/minix1fs fs/rootfs fs/ramfs fs kernel
+OBJFILE 	:= $(patsubst %,%/*.S,$(OBJFILE)) $(patsubst %,%/*.c,$(OBJFILE))
 OBJFILE 	:= $(wildcard $(OBJFILE))
-OBJFILE 	:= $(patsubst kernel/%,$(ROOTDIR)/$(OBJDIR)/%,$(OBJFILE))
+OBJFILE 	:= $(patsubst %,$(ROOTDIR)/$(OBJDIR)/%,$(OBJFILE))
 OBJFILE 	:= $(patsubst %.S,%.c,$(OBJFILE))
 OBJFILE 	:= $(patsubst %.c,%.o,$(OBJFILE)) 
 
@@ -42,8 +43,6 @@ USEROBJ 	:= $(patsubst %.c,%,$(USEROBJ))
 USEROBJ 	:= $(notdir $(USEROBJ))
 USEROBJ 	:= $(patsubst %,$(OBJDIR)/user/%.bin,$(USEROBJ))
 
-
-OBJFILE		+= $(patsubst %.c,$(ROOTDIR)/$(OBJDIR)/%.o,$(wildcard kernel/*.c)) $(patsubst %.S,$(ROOTDIR)/$(OBJDIR)/%.o,$(wildcard kernel/*.S))
 OBJFILE 	+= obj/lib/string.o obj/lib/printfmt.o
 
 # Eliminate default suffix rules

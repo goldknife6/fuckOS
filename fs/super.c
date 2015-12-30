@@ -35,19 +35,6 @@ struct super_block *get_super(int dev)
 
 	return NULL;
 }
-struct inode* get_minix_inode(int num,struct super_block *sb);
-void print_minix_inode(struct inode* inode);
-void fs_init()
-{
-	struct inode* inode;
-	struct super_block *rootsb;
-	rootsb = mount_root_super(0x307);
-	if (rootsb)
-		list_add(&rootsb->s_list,&super_list);
-	else
-		panic("fs_init\n");
-
-}
 
 void insert_super(struct super_block *sb)
 {

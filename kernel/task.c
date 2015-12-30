@@ -11,6 +11,8 @@
 #include <errno.h>
 #include <string.h>
 
+
+extern int alloc_file(struct task_struct *);
 static int load_icode(struct task_struct *, uint8_t *);
 static int region_alloc(struct task_struct *, viraddr_t, size_t ,int );
 static int task_alloc(struct task_struct **, pid_t);
@@ -128,6 +130,7 @@ region_alloc(struct task_struct *task, viraddr_t va, size_t len,int perm)
 	}
 	return 0;
 }
+
 int task_set_vm(struct task_struct *task)
 {
 	struct page *page = NULL;
@@ -157,7 +160,9 @@ task_alloc(struct task_struct **newenv_store, pid_t parent_id)
 		assert(0);
 		return -ENOMEM;
 	}
-	//reval = file_alloc(task);
+	reval = alloc_file(task);
+	assert(reval >= 0);
+
 	task->fs = kmalloc(sizeof(struct fs_struct));
 	if (reval < 0) {
 		return reval;

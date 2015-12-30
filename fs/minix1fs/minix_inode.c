@@ -42,7 +42,7 @@ struct inode* get_minix_inode(int num,struct super_block *sb)
 		return NULL;
 	memset(i,0,sizeof(struct minix1_inode));
 	
-	inode = alloc_inode(&minix_inode_op,sb,num,sb->s_dev,(void *)i);
+	inode = alloc_inode(&minix_inode_op,sb,num,sb->s_dev,(void *)i,0);
 
 	if (!inode) {
 		kfree(i);

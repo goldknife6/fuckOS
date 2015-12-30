@@ -19,7 +19,7 @@ struct hlist_head inode_table[MAX_HASH_INODE];
 
 struct inode *alloc_inode(struct inode_operations *op,
 			struct super_block *sb,int num,
-			int dev,void *i)
+			int dev,void *i,int mode)
 {
 	struct inode *inode;
 	inode = kmalloc(sizeof(struct inode));
@@ -35,6 +35,7 @@ struct inode *alloc_inode(struct inode_operations *op,
 	inode->i_num = num;
 	inode->i_dev = dev;
 	inode->i_inode = i;
+	inode->i_mode = mode;
 	return inode;
 }
 
