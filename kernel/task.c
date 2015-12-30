@@ -20,18 +20,6 @@ static int task_alloc(struct task_struct **, pid_t);
 struct task_struct* task_pidmap[PID_MAX_DEFAULT];
 
 
-/*
-static int file_alloc(struct task_struct *task)
-{
-	assert(task);
-	task->files = kmalloc(sizeof(struct files_struct));
-	if (!task->files)
-		return -ENOMEM;
-	memset(task->files,0,sizeof(struct files_struct));
-	task->files->pwd = task->files->root = mount_root();
-	return 0;
-}
-*/
 
 
 static int
@@ -162,11 +150,6 @@ task_alloc(struct task_struct **newenv_store, pid_t parent_id)
 	}
 	reval = alloc_file(task);
 	assert(reval >= 0);
-
-	task->fs = kmalloc(sizeof(struct fs_struct));
-	if (reval < 0) {
-		return reval;
-	}
 
 	reval = task_set_vm(task);
 	if (reval < 0) {

@@ -78,7 +78,6 @@ int alloc_task(struct task_struct **newenv_store,pid_t ppid)
 	return 0;
 }
 
-
 int alloc_file(struct task_struct *task)
 {
 	assert(task);
@@ -91,7 +90,9 @@ int alloc_file(struct task_struct *task)
 		return -ENOMEM;
 	memset(task->files,0,sizeof(struct file_struct));
 	memset(task->fs,0,sizeof(struct fs_struct));
-	//task->files->pwd = task->files->root = mount_root();
+	task->fs->pwd = root_dentry;
+	task->fs->root = root_dentry;
+	printk("task->fs:%x\n",task->fs);
 	return 0;
 }
 

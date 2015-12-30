@@ -3,10 +3,9 @@
 
 #include <fuckOS/list.h>
 #include <fuckOS/fs.h>
+#include <fuckOS/namei.h>
 
-#define DNAME_LEN_MIN 36
-
-
+#include <asm/atomic.h>
 struct dentry;
 
 struct dentry_operations {
@@ -21,8 +20,8 @@ struct dentry {
 	const struct dentry_operations *d_op;
 	struct inode *d_inode;
 	struct super_block *d_sb;
-	char* d_name;
-	int d_len;
+	struct qstr d_name;
+	atomic_t d_count;
 };
 
 static inline uint32_t _hash(const char* str,int len)
@@ -32,13 +31,30 @@ static inline uint32_t _hash(const char* str,int len)
 		hash = hash + (hash << 5) + str[i];
 	return hash;
 }
+static inline struct dentry *dget(struct dentry *dentry)
+{
+	if (dentry) {
+		atomic_inc(&dentry->d_count);
+	}
+	return dentry;
+}
+
+static inline void print_dentry(struct dentry *dentry)
+{
+	if (dentry) {
+		printk("name:");
+		print_qsrt(&dentry->d_name);
+		printk("count:%d ",atomic_read(&dentry->d_count));
+		printk("sb:%x ",dentry->d_sb);
+		printk("inode:%x",dentry->d_inode);
+		printk("\n");
+	}
+}
 
 
-extern struct dentry *lookup_dentry(struct dentry *,const char *,int);
 
-extern struct dentry *alloc_dentry(struct dentry *,char* ,
-		struct dentry_operations *,struct inode *,
-		struct super_block *,int);
 
+extern struct dentry *d_alloc_root(struct inode * root_inode);
+extern struct dentry *root_dentry;
 
 #endif/*!_MINIOS_DCHCHE_H*/

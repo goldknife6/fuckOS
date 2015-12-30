@@ -14,7 +14,7 @@ struct super_operations minix_super_op =
 	.alloc_inode = alloc_minix_inode,
 	.destroy_inode = destroy_minix_inode,
 	.read_inode = read_minix_inode,
-	.read_super = read_minix_super,
+	//.read_super = read_minix_super,
 };
 
 int read_minix_super(struct super_block *sb)

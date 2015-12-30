@@ -2,20 +2,11 @@
 #include <mm/slab.h>
 #include <string.h>
 
-/*
-struct vfsmount {
-	struct vfsmount *mnt_parent;
-	struct dentry *mnt_mountpoint;
-	struct dentry *mnt_root;
-	struct super_block *mnt_sb;
-	struct list_head mnt_mounts;
-	struct list_head mnt_child;
-	const char *mnt_devname;
-	spinlock_t mnt_lock;
-	int mnt_count;
-};
+#define MAX_VFSMNT_HASH 1024
 
-*/
+static struct hlist_head vfsmnt_hashtable[MAX_VFSMNT_HASH];
+STATIC_INIT_SPIN_LOCK(vfsmnt_lock);
+
 struct vfsmount *alloc_vfsmnt(const char* name)
 {
 	struct vfsmount *mnt;
@@ -25,6 +16,18 @@ struct vfsmount *alloc_vfsmnt(const char* name)
 	mnt->mnt_devname = name;
 	INIT_LIST_HEAD(&mnt->mnt_mounts);
 	INIT_LIST_HEAD(&mnt->mnt_child);
+	INIT_HLIST_NODE(&mnt->mnt_hash);
 	SPIN_LOCK_INIT(&mnt->mnt_lock);
 	return mnt;
+}
+
+void insert_vfsmnt(struct dentry *parent,struct vfsmount *mnt)
+{
+	uint32_t hash;
+	if (parent) {
+		hash = (uint32_t)parent ^ (uint32_t)mnt->mnt_parent;
+		hash <<= 5;
+		struct hlist_head *hlist = &vfsmnt_hashtable[hash%MAX_VFSMNT_HASH];
+		hlist_add_head(&mnt->mnt_hash, hlist);
+	}
 }

@@ -1,11 +1,12 @@
 #include <fuckOS/rootfs.h>
+#include <fuckOS/ramfs.h>
 #include <fuckOS/assert.h>
 
 #include <mm/slab.h>
 #include <sys/stat.h>
 #include <string.h>
 
-static int root_read_super(struct super_block *);
+static int root_read_super(struct super_block *,void*,int);
 
 struct super_operations root_super_op = 
 {
@@ -13,10 +14,23 @@ struct super_operations root_super_op =
 };
 
 
-int root_read_super(struct super_block *sb)
+static int root_read_super(struct super_block *sb,
+				void* data,int slient)
 {
+	struct dentry *root;
 	struct inode *inode = NULL;
-	inode = alloc_inode(&root_inode_op,sb,0,sb->s_dev,NULL,S_IFDIR);
+	struct vfsmount* mnt = (struct vfsmount*)data;
+	inode = ramfs_get_inode(sb, S_IFDIR, sb->s_dev);
 	assert(inode);
+	root = d_alloc_root(inode);
+	assert(root);
+
+	printk("alloc root dentry 0x%x ",root);
+
+	mnt->mnt_sb = sb;
+	mnt->mnt_mountpoint = root;
+	mnt->mnt_root = root;
+	mnt->mnt_parent = mnt;
+	insert_vfsmnt(root,mnt);
 	return 0;
 }

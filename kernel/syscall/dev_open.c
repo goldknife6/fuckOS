@@ -11,15 +11,21 @@
 
 static int file_fd(struct inode *);
 
-int open(char * filename,int flag,int mode)
+
+int open(char *filename,int flag,int mode)
 {
 	struct inode *inode;
 	struct file * f;
 	int retval,fd = -1;
+	struct nameidata nd;
 
-	path_lookup(filename,strlen(filename));
+	nd.flags = flag;
+	nd.dentry = NULL;
+	nd.mnt = NULL;
 
-	printk("what?\n");
+	retval = path_lookup(filename,flag,&nd);
+
+	printk("user call retval:%d\n",retval);
 	return fd;
 }
 

@@ -8,7 +8,18 @@
 
 #include <string.h>
 
-struct inode_operations root_inode_op = 
+struct dentry *rootfs_lookup(struct inode *,struct dentry *, struct nameidata*);
+
+struct inode_operations rootfs_inode_op = 
 {
-	
+	.lookup = rootfs_lookup,
 };
+
+
+struct dentry *rootfs_lookup(struct inode *dir, 
+			struct dentry *dentry,struct nameidata* nd)
+{
+	struct dentry *d;
+	
+	return NULL;
+}

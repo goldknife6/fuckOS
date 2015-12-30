@@ -8,63 +8,52 @@
 
 #define MAX_DENTRY_INODE	1024
 
-
 static struct hlist_head dentry_hashtable[MAX_DENTRY_HASH];
+STATIC_INIT_SPIN_LOCK(dcache_lock)
+struct dentry *root_dentry;
 
+static struct dentry * d_alloc(struct dentry * , const struct qstr *);
 
-void insert_dentry(struct dentry *d)
+struct dentry *d_alloc_root(struct inode * root_inode)
 {
-	struct hlist_head *ht;
-	uint32_t hash;
-
-	hash = d->d_op->d_hash(d->d_parent,d->d_name,d->d_len);
-	
-	ht = &dentry_hashtable[hash % MAX_DENTRY_HASH];
-	
-}
-
-
-struct dentry *alloc_dentry(struct dentry *p,char* name,
-		struct dentry_operations *op,struct inode *inode,
-		struct super_block *sb,int len)
-{
-	struct dentry *d;
-	d = kmalloc(sizeof(struct dentry));
-	if (!d)
-		return NULL;
-
-	memset(d,0,sizeof(struct dentry));
-	INIT_HLIST_NODE(&d->d_hash);
-	INIT_LIST_HEAD(&d->d_subdirs);
-	d->d_parent = p;
-	d->d_op = op;
-	d->d_inode = inode;
-	d->d_sb = sb;
-	strncpy(d->d_name,name,len);
-	d->d_len = len;
-	return d;
-}
-
-struct dentry *lookup_dentry(struct dentry *parent,
-				const char *name,int len)
-{
-	uint32_t hash;
-	struct dentry *d;
-	struct hlist_head* hlist;
-	assert(parent);
-	assert(name);
-	if (len <= 0)
-		return NULL;
-	
-	hash = parent->d_op->d_hash(parent,name,len);
-	hlist = &dentry_hashtable[hash % MAX_DENTRY_HASH];
-
-	hlist_for_each_entry(d, hlist, d_hash) {
-		if (!strncmp(d->d_name,name,len))
-			return d;
+	struct dentry *res = NULL;
+	if (root_inode) {
+		res = d_alloc(NULL, &(const struct qstr) { "/", 1});
+		if (res) {
+			res->d_sb = root_inode->i_sb;
+			res->d_parent = res;
+			res->d_inode = root_inode;
+			root_dentry = res;
+		}
 	}
+	return res;
+}
 
-	return NULL;
+struct dentry* dentry_lookup(struct dentry *parent)
+{
+	
 }
 
 
+static struct dentry * 
+d_alloc(struct dentry * parent, const struct qstr *name)
+{
+	struct dentry *dentry;
+	char * str;
+	dentry = kmalloc(sizeof(struct dentry));
+	if (!dentry)
+		return NULL;
+	dentry->d_name = *name;
+	dentry->d_sb = NULL;
+	dentry->d_parent = parent;
+	dentry->d_inode = NULL;
+	dentry->d_op = NULL;
+	INIT_LIST_HEAD(&dentry->d_subdirs);
+	INIT_HLIST_NODE(&dentry->d_hash);
+	atomic_set(&dentry->d_count, 1);
+	if (parent) {
+		dentry->d_parent = dget(dentry);
+		dentry->d_sb = parent->d_sb;
+	}
+	return dentry;
+}

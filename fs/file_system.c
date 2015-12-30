@@ -14,9 +14,11 @@ STATIC_INIT_SPIN_LOCK(file_systems_lock);
 
 extern struct file_system_type root_fs;
 extern struct file_system_type minix_fs;
+extern struct file_system_type ramfs_fs;
 
 struct file_system_type *filesystem [] = 
 {
+	&ramfs_fs,
 	&root_fs,
 	&minix_fs,
 	NULL
@@ -66,12 +68,6 @@ find_filesystem(const char *name, unsigned len)
         return NULL;
 }
 
-
-struct super_block*
-get_super_block(struct file_system_type *fs,int dev)
-{
-	return fs->get_super(fs,dev);
-}
 
 struct super_block *
 find_super_block(struct file_system_type *fs,int dev)
