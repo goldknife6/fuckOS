@@ -11,6 +11,7 @@ extern pid_t sys_getpid(void);
 extern int sys_brk(viraddr_t);
 extern int sys_read(uint32_t fd,char * buf,int count);
 extern int sys_open(char *filename,int flags,int mode);
+extern int sys_create(char *filename,int len,int mode);
 
 extern viraddr_t brk(viraddr_t);
 extern viraddr_t sbrk(viraddr_t);
@@ -23,6 +24,8 @@ extern void* malloc(uint32_t);
 extern void free(void *);
 extern int read(uint32_t fd,char * buf,int count);
 extern int open(char *filename,int flags,int mode);
+extern int create(char *filename,int mode);
+
 
 struct malloc_chunk {
 	uint32_t size;

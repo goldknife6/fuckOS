@@ -12,7 +12,6 @@ static struct hlist_head dentry_hashtable[MAX_DENTRY_HASH];
 STATIC_INIT_SPIN_LOCK(dcache_lock)
 struct dentry *root_dentry;
 
-static struct dentry * d_alloc(struct dentry * , const struct qstr *);
 
 struct dentry *d_alloc_root(struct inode * root_inode)
 {
@@ -29,13 +28,33 @@ struct dentry *d_alloc_root(struct inode * root_inode)
 	return res;
 }
 
-struct dentry* dentry_lookup(struct dentry *parent)
+struct dentry* dentry_lookup(struct dentry *parent,char* name,int len)
 {
-	
+	uint32_t h;
+	struct hlist_head *hlist;
+	struct dentry *d;
+	h = hash(parent,name,len);
+	hlist = &dentry_hashtable[h%MAX_DENTRY_HASH];
+
+	hlist_for_each_entry(d, hlist, d_hash){
+		if (!strncmp(d->d_name.name,name,len)) {
+			return d;
+		}
+	}
+	return NULL;
 }
 
+void dentry_insert(struct dentry *parent,struct dentry *dentry)
+{
+	uint32_t h;
+	struct hlist_head *hlist;
+	h = hash(parent,dentry->d_name.name,dentry->d_name.len);
+	hlist = &dentry_hashtable[h%MAX_DENTRY_HASH];
 
-static struct dentry * 
+	hlist_add_head(&dentry->d_hash, hlist);
+}
+
+struct dentry * 
 d_alloc(struct dentry * parent, const struct qstr *name)
 {
 	struct dentry *dentry;

@@ -68,7 +68,7 @@ ramfs_create(struct inode *dir,
 		struct dentry *dentry, int mode, 
 				struct nameidata *nd)  
 {  
-    return ramfs_mknod(dir, dentry, mode | S_IFREG, 0);  
+	return ramfs_mknod(dir, dentry, mode | S_IFREG, 0);  
 } 
 
 static int 

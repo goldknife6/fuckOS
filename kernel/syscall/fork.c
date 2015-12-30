@@ -81,14 +81,14 @@ int alloc_task(struct task_struct **newenv_store,pid_t ppid)
 int alloc_file(struct task_struct *task)
 {
 	assert(task);
-	task->files = kmalloc(sizeof(struct file_struct));
+	task->files = kmalloc(sizeof(struct files_struct));
 	if (!task->files)
 		return -ENOMEM;
 
 	task->fs = kmalloc(sizeof(struct fs_struct));
 	if (!task->fs)
 		return -ENOMEM;
-	memset(task->files,0,sizeof(struct file_struct));
+	memset(task->files,0,sizeof(struct files_struct));
 	memset(task->fs,0,sizeof(struct fs_struct));
 	task->fs->pwd = root_dentry;
 	task->fs->root = root_dentry;

@@ -26,11 +26,19 @@ struct dentry {
 
 static inline uint32_t _hash(const char* str,int len)
 {
-	uint32_t i,hash;
+	uint32_t i,hash = 0;
 	for (i = 0; i < len; i++)
 		hash = hash + (hash << 5) + str[i];
 	return hash;
 }
+static inline uint32_t hash(struct dentry *parent,char* name,int len)
+{
+	uint32_t hash = _hash(name,len);
+	hash  = (uint32_t)parent ^ hash;
+
+	return hash << 5;
+}
+
 static inline struct dentry *dget(struct dentry *dentry)
 {
 	if (dentry) {
@@ -56,5 +64,7 @@ static inline void print_dentry(struct dentry *dentry)
 
 extern struct dentry *d_alloc_root(struct inode * root_inode);
 extern struct dentry *root_dentry;
-
+extern struct dentry* dentry_lookup(struct dentry *parent,char*,int);
+extern struct dentry * d_alloc(struct dentry * , const struct qstr *);
+extern void dentry_insert(struct dentry *,struct dentry *);
 #endif/*!_MINIOS_DCHCHE_H*/

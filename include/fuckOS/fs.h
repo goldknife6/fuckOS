@@ -90,13 +90,14 @@ struct file {
 	uint32_t f_count;
 	struct inode *f_inode;
 	uint32_t f_pos;
+	struct file_operations *f_op;
 };
 
 struct file_operations {
-
-
+	int (*read)(struct file * ,char*, int ,int);
 };
-struct file_struct {
+
+struct files_struct {
 	struct file* fd[MAX_FILE];
 };
 
@@ -134,10 +135,13 @@ extern void filesystem_init();
 extern struct super_block *find_super_block(struct file_system_type *,int);
 //fs/inode.c
 extern struct inode * new_inode(struct super_block *);
-extern int  path_lookup(const char *, uint32_t , struct nameidata *) ;
+extern int  path_lookup(char *, int,uint32_t , struct nameidata *) ;
 
 //fs/super.c
 extern struct super_block* get_sb_nodev(struct file_system_type *,int ,void *);
 
 
+//fs/file.c
+extern int get_empty_file(struct file **);
+extern int find_file(int,struct file **,int);
 #endif/*_MINIOS_FS_H*/

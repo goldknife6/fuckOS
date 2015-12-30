@@ -58,13 +58,14 @@ struct inode *new_inode(struct super_block *sb)
 }
 
 
-int  path_lookup(const char *name,uint32_t flags, 
+int  path_lookup(char *name,int len,uint32_t flags, 
 				struct nameidata *nd) 
 {
 	struct inode* inode;
-	struct dentry *curdir;
+	struct dentry *curdir,*dir;
+	int namelen;
+	char * thisname;
 	char c;
-	const char * thisname;
 	if ( (c = *name == '/') ) {
 		name++;
 		curdir = curtask->fs->root;
@@ -79,7 +80,22 @@ int  path_lookup(const char *name,uint32_t flags,
 		if (!S_ISDIR(inode->i_mode)) {
 			return -ENOENT;
 		}
-		
+
+		for(namelen=0;(c = *(name++)) && (c!='/'); namelen++) {
+			nd->last.name[namelen] = c;
+		}
+		nd->last.name[namelen] = 0;
+		nd->last.len = namelen;
+
+		if (!c) {
+			nd->dentry = curdir;
+			return 0;
+		}
+		curdir = dentry_lookup(curdir,thisname,namelen);
+		if (!curdir) {
+			return -ENOENT;
+		}
+		inode = curdir->d_inode;
 	}
 	return 0;
 }

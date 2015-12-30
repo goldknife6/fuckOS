@@ -59,3 +59,8 @@ sys_open(char *filename,int flags,int mode)
 	return syscall(SYS_OPEN,(uint32_t)filename,(uint32_t)flags,(uint32_t)mode,0,0);
 }
 
+int
+sys_create(char *filename,int mode)
+{
+	return syscall(SYS_CREATE,(uint32_t)filename,(uint32_t)mode,0,0,0);
+}

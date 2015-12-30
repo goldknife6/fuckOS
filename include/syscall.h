@@ -10,6 +10,7 @@ enum {
 	SYS_BRK,
 	SYS_READ,
 	SYS_OPEN,
+	SYS_CREATE,
 	NSYSCALLS
 };
 
