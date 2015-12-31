@@ -11,6 +11,7 @@ enum {
 	SYS_READ,
 	SYS_OPEN,
 	SYS_CREATE,
+	SYS_MKDIR,
 	NSYSCALLS
 };
 

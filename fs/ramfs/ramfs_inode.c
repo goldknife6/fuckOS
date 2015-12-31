@@ -1,4 +1,4 @@
-#include <fuckOS/fs.h>
+#include <fuckOS/ramfs.h>
 #include <fuckOS/assert.h>
 
 #include <sys/stat.h>
@@ -17,7 +17,7 @@ static int ramfs_mkdir(struct inode *, struct dentry * , int);
 static struct inode_operations ramfs_dir_inode_operations = 
 {  
     .create     = ramfs_create,  
-    //.lookup     = simple_lookup,  
+    .lookup     = simple_lookup,  
     .mkdir      = ramfs_mkdir,  
     //.rmdir      = simple_rmdir,  
     .mknod      = ramfs_mknod,  

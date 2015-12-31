@@ -3,9 +3,10 @@
 #include <fuckOS/hd.h>
 #include <mm/slab.h>
 
-
+extern struct vfsmount *root_vfsmnt;
 static int rootfs_init(void*);
 static struct super_block *rootfs_get_super(struct file_system_type *,int ,void *);
+
 struct file_system_type root_fs = 
 {
 	.name = "rootfs",
@@ -24,6 +25,7 @@ static int rootfs_init(void *v)
 	int res;
 	mnt = alloc_vfsmnt(root_fs.name);
 	assert(mnt);
+	root_vfsmnt = mnt;
 	sb = root_fs.get_super(&root_fs,0,NULL);
 
 	assert(sb);

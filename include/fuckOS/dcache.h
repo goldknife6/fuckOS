@@ -22,6 +22,7 @@ struct dentry {
 	struct super_block *d_sb;
 	struct qstr d_name;
 	atomic_t d_count;
+	int d_mounted;
 };
 
 static inline uint32_t _hash(const char* str,int len)
@@ -64,7 +65,8 @@ static inline void print_dentry(struct dentry *dentry)
 
 extern struct dentry *d_alloc_root(struct inode * root_inode);
 extern struct dentry *root_dentry;
-extern struct dentry* dentry_lookup(struct dentry *parent,char*,int);
+extern struct dentry* dentry_lookup(struct dentry *parent,struct qstr *);
 extern struct dentry * d_alloc(struct dentry * , const struct qstr *);
 extern void dentry_insert(struct dentry *,struct dentry *);
+extern int d_mountpoint(struct dentry *);
 #endif/*!_MINIOS_DCHCHE_H*/

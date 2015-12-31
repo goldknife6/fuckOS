@@ -99,7 +99,7 @@ void os_entry(void* ginfo,uint32_t gmagic)
 
 	//AP初始化
 	//ap_startup();
-	TASK_CREATE(testcreate, TASK_TYPE_USER);
+	TASK_CREATE(testmkdir, TASK_TYPE_USER);
 	//TASK_CREATE(forktree, TASK_TYPE_USER);
 	
 	schedule();

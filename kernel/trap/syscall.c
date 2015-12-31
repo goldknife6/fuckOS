@@ -14,8 +14,9 @@ static pid_t sys_getpid();
 static void sys_cputs(const char *,size_t );
 static viraddr_t sys_brk(viraddr_t);
 static int sys_read(uint32_t,int8_t*,int32_t);
-static int sys_open(char * ,int ,int );
+static int sys_open(char * ,int ,int, int);
 static int sys_create(char * ,int,int);
+static int sys_mkdir(char *filename, int len,int mode);
 
 //	syscall/exit.c
 extern int exit(struct task_struct *);
@@ -44,8 +45,9 @@ syscall(uint32_t syscallno, uint32_t a1,
 	case SYS_GETPID:{return sys_getpid();}
 	case SYS_BRK:{return sys_brk((viraddr_t)a1);}
 	case SYS_READ:{return sys_read((uint32_t)a1,(int8_t*)a2,(int32_t)a3);}
-	case SYS_OPEN:{return sys_open((char *)a1,(int)a2,(int)a3);}
+	case SYS_OPEN:{return sys_open((char *)a1,(int)a2,(int)a3,(int)a4);}
 	case SYS_CREATE:{return sys_create((char *)a1,(int)a2,(int)a3);}
+	case SYS_MKDIR:{return sys_mkdir((char *)a1,(int)a2,(int)a3);}
 	default: return -EINVAL;
 	}
 }
@@ -82,12 +84,12 @@ user_mem_assert(struct task_struct *task, const void *va, size_t len, int perm)
 }
 
 
-extern int open(char * ,int ,int);
+extern int open(char * ,int ,int ,int);
 
 static int 
-sys_open(char *filename ,int flags,int mode)
+sys_open(char *filename ,int len, int flags,int mode)
 {	
-	return open(filename,flags,mode);
+	return open(filename,len, flags,mode);
 }
 
 
@@ -101,12 +103,17 @@ sys_create(char *filename, int len,int mode)
 	return create(filename,len,mode);
 }
 
+extern int mkdir(char * ,int,int);
 
+static int 
+sys_mkdir(char *filename, int len,int mode)
+{
+	return mkdir(filename,len,mode);
+}
 
 
 extern int read(uint32_t,int8_t *,int32_t);
-static int 
-sys_read(uint32_t fd,int8_t *buf,int32_t count)
+static int sys_read(uint32_t fd,int8_t *buf,int32_t count)
 {
 	return read(fd,buf,count);
 }

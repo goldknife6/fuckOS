@@ -6,6 +6,10 @@
 #include <mm/slab.h>
 #include <errno.h>
 #include <string.h>
+
+extern struct vfsmount *root_vfsmnt;
+
+
 extern int alloc_pidmap();
 extern void free_pidmap(pid_t);
 
@@ -92,7 +96,8 @@ int alloc_file(struct task_struct *task)
 	memset(task->fs,0,sizeof(struct fs_struct));
 	task->fs->pwd = root_dentry;
 	task->fs->root = root_dentry;
-	printk("task->fs:%x\n",task->fs);
+	task->fs->mnt_pwd = root_vfsmnt;
+	task->fs->mnt_root = root_vfsmnt;
 	return 0;
 }
 

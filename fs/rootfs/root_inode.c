@@ -28,12 +28,13 @@ static int rootfs_inode_create(struct inode *dir,
 {
 	return 0;
 }
+
 struct dentry *rootfs_lookup(struct inode *dir, 
 			struct dentry *dentry,struct nameidata* nd)
 {
-	struct dentry *d;
+	struct dentry *d = NULL;
 	
-	return NULL;
+	return d;
 }
 
 static int rootfs_file_read(struct file *file,

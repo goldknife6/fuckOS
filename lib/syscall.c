@@ -54,13 +54,19 @@ sys_read(uint32_t fd,char * buf,int count)
 	return syscall(SYS_READ,(uint32_t)fd,(uint32_t)buf,(uint32_t)count,0,0);
 }
 int
-sys_open(char *filename,int flags,int mode)
+sys_open(char *filename,int len,int flags,int mode)
 {
-	return syscall(SYS_OPEN,(uint32_t)filename,(uint32_t)flags,(uint32_t)mode,0,0);
+	return syscall(SYS_OPEN,(uint32_t)filename,(uint32_t)len,(uint32_t)flags,(uint32_t)mode,0);
 }
 
 int
-sys_create(char *filename,int mode)
+sys_create(char *filename,int len,int mode)
 {
-	return syscall(SYS_CREATE,(uint32_t)filename,(uint32_t)mode,0,0,0);
+	return syscall(SYS_CREATE,(uint32_t)filename,(uint32_t)len,(uint32_t)mode,0,0);
+}
+
+int
+sys_mkdir(char *filename,int len,int mode)
+{
+	return syscall(SYS_MKDIR,(uint32_t)filename,(uint32_t)len,(uint32_t)mode,0,0);
 }

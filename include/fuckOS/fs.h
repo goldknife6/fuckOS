@@ -103,7 +103,9 @@ struct files_struct {
 
 struct fs_struct {
 	struct dentry *root;
+	struct vfsmount *mnt_root;
 	struct dentry *pwd;
+	struct vfsmount *mnt_pwd;
 };
 
 struct vfsmount {
@@ -123,8 +125,8 @@ extern void ide_init();
 
 //fs/vfsmount.c
 extern struct vfsmount *alloc_vfsmnt(const char*);
-extern void insert_vfsmnt(struct dentry *,struct vfsmount *);
-
+extern void insert_vfsmnt(struct vfsmount *,struct dentry *);
+extern struct vfsmount *lookup_vfsmnt(struct vfsmount *,struct dentry*);
 
 //fs/buffer.c
 extern struct buffer_head *buffer_read(int,uint32_t);

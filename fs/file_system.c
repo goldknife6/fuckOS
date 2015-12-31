@@ -15,6 +15,7 @@ STATIC_INIT_SPIN_LOCK(file_systems_lock);
 extern struct file_system_type root_fs;
 extern struct file_system_type minix_fs;
 extern struct file_system_type ramfs_fs;
+extern struct file_system_type ttyfs_fs;
 
 struct file_system_type *filesystem [] = 
 {
