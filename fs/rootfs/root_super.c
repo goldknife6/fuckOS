@@ -31,6 +31,5 @@ static int root_read_super(struct super_block *sb,
 	mnt->mnt_mountpoint = root;
 	mnt->mnt_root = root;
 	mnt->mnt_parent = mnt;
-	//insert_vfsmnt(root,mnt);
 	return 0;
 }

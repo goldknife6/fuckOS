@@ -41,7 +41,7 @@ enum {
 static inline void print_qsrt(struct qstr *str)
 {
 	if (str)
-		printk("%.*s %d",str->len,str->name,str->len);
+		printk("%.*s %d\n",str->len,str->name,str->len);
 }
 
 static inline char* get_last(char *pathname,int len)

@@ -1,10 +1,11 @@
 #include <fuckOS/ramfs.h>
 #include <fuckOS/assert.h>
-
+#include <fuckOS/libfs.h>
 #include <sys/stat.h>
 
 #include <string.h>
 #include <errno.h>
+
 
 static struct super_operations ramfs_ops;
 static struct inode_operations ramfs_file_inode_operations;
@@ -23,6 +24,21 @@ static struct inode_operations ramfs_dir_inode_operations =
     .mknod      = ramfs_mknod,  
     //.rename     = simple_rename,  
 };  
+
+static struct inode_operations ramfs_file_inode_operations = 
+{  
+    .create     = ramfs_create,  
+    .lookup     = simple_lookup,  
+    .mkdir      = ramfs_mkdir,  
+    //.rmdir      = simple_rmdir,  
+    .mknod      = ramfs_mknod,  
+    //.rename     = simple_rename,  
+}; 
+
+static struct file_operations ramfs_dir_operations = 
+{  
+    
+}; 
 
 struct inode *
 ramfs_get_inode(struct super_block *sb,
