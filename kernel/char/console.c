@@ -4,17 +4,18 @@
 
 #include <mm/layout.h>
 
-struct console_struct console[NUMCON];
+struct console_struct console;
 static void vga_graphic_putc(uint32_t c);
 static void vga_text_putc(uint32_t c);
 
 void console_init(viraddr_t dispmem)
 {
-	int i = 0;
-	console[NUMCON - 1].display_addr = dispmem;
-	console[NUMCON - 1].original_start_addr = dispmem;
-	console[NUMCON - 1].current_start_addr = dispmem;
-	console[NUMCON - 1].cursor = 0;
+	int i;
+	console.display_addr = dispmem;
+	console.original_start_addr = dispmem;
+	console.current_start_addr = dispmem;
+	console.cursor = 0;
+	memset(&tty,0,sizeof(tty));
 	console_clear();
 }
 
@@ -25,26 +26,16 @@ void console_write_char(uint32_t c)
 
 void updata_display_addr(uint32_t addr)
 {
-	console[NUMCON-1].display_addr = addr;
+	console.display_addr = addr;
 }
 
-static void vga_graphic_putc(uint32_t c)
-{
-	
-}
-
-
-void con_write(struct tty_struct * tty)
-{
-	
-}
 
 #define CRT_ROWS	25
 #define CRT_COLS	80
 #define CRT_SIZE	(CRT_ROWS * CRT_COLS)
-#define crt_pos 	console[NUMCON - 1].cursor
+#define crt_pos 	console.cursor
 
-#define crt_buf  	((uint16_t *)console[NUMCON - 1].display_addr)
+#define crt_buf  	((uint16_t *)console.display_addr)
 
 void console_clear()
 {
@@ -91,7 +82,6 @@ static void vga_text_putc(uint32_t c)
 			crt_buf[i] = 0x0700 | ' ';
 		crt_pos -= CRT_COLS;
 	}
-
 }
 
 

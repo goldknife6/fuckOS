@@ -4,8 +4,8 @@
 #include <sys/stat.h>
 
 #include <errno.h>
-extern struct file_operations rootfs_file_op;
-int read(uint32_t fd,char *buf,int count)
+
+int read(int fd,char *buf,int count)
 {
 	struct file *file;
 	struct inode * inode;
@@ -13,8 +13,8 @@ int read(uint32_t fd,char *buf,int count)
 	retval = find_file(fd,&file,0);
 	if (retval < 0)
 		return retval;
-	
-	inode = file->f_inode;
-
-	return rootfs_file_op.read(file,buf,count,0);
+	if (file->f_op->read)
+		return file->f_op->read(file,buf,count,0);
+	else
+		return -1;	
 }

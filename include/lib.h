@@ -24,12 +24,14 @@ extern void exit(void);
 extern pid_t getpid(void);
 extern void* malloc(uint32_t);
 extern void free(void *);
-extern int read(uint32_t fd,char * buf,int count);
+extern int read(uint32_t fd,void* buf,int count);
 extern int write(uint32_t fd,char * buf,int count);
 extern int open(char *filename,int flags,int mode);
 extern int create(char *filename,int mode);
 extern int mkdir(char *filename,int mode);
-
+extern int getchar();
+extern int putchar(char);
+extern char *readline(const char *);
 struct malloc_chunk {
 	uint32_t size;
 	int flag;

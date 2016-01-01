@@ -54,5 +54,6 @@ extern int errno;
 #define	EBADP		35	/* Bad process */
 #define	ENOTHING	36	// Unspecified or unknown problem
 #define	EMPROC		37	/* Too many processes */
-#define	MAXERROR	38
+#define	EEOF		38	/* Too many processes */
+#define	MAXERROR	39
 #endif/*_ERRNO_H*/

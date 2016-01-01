@@ -1,7 +1,7 @@
 #include <fuckOS/fs.h>
 #include <fuckOS/dcache.h>
 #include <fuckOS/assert.h>
-
+#include <fuckOS/tty.h>
 #include <mm/slab.h>
 
 #include <sys/stat.h>
@@ -28,14 +28,13 @@ struct file_operations ttyfs_file_op =
 static int ttyfs_file_write(struct file *file,
 			char* buf, int count,int offset)
 {
-	printk("%.*s",count,buf);
-	return 0;
+	return tty_write(0, buf, count);
 }
 
 static int ttyfs_file_read(struct file *file,
 			char* buf, int count,int offset)
 {
-	return 0;
+	return tty_read(0, (int*)buf, count);
 }
 
 static int ttyfs_file_open(struct inode *inode,struct file *file)

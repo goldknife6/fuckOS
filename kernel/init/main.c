@@ -12,7 +12,7 @@
 #include <fuckOS/pic_8259A.h>
 #include <fuckOS/fs.h>
 #include <fuckOS/pci.h>
-
+#include <fuckOS/keyboard.h>
 
 #include <mm/slab.h>
 #include <mm/mmu.h>
@@ -93,12 +93,14 @@ void os_entry(void* ginfo,uint32_t gmagic)
 
 	//pci_init();
 
+	keyboard_init();
 	ide_init();
 
 	filesystem_init();
 
 	//AP初始化
 	//ap_startup();
+	//TASK_CREATE(idle, TASK_TYPE_USER);
 	TASK_CREATE(testwrite, TASK_TYPE_USER);
 	//TASK_CREATE(forktree, TASK_TYPE_USER);
 	
