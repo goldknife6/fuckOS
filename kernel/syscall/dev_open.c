@@ -9,44 +9,52 @@
 #include <errno.h>
 #include <string.h>
 
-static int file_fd(struct inode *);
+static struct file *_open(struct dentry *,int,int,struct vfsmount *);
 
-
-int open(char *pathname,int len,int flag,int mode)
+int open(char *pathname,int len,int flags,int mode)
 {
 	struct inode *inode;
 	struct dentry *parent,*d;
-	struct file *f;
+	struct file *file;
 	int retval,fd = -1;
 	struct nameidata nd;
 
+	fd = get_unused_fd();
+	if (fd < 0)
+		return fd;
 
-	retval = path_lookup(pathname,LOOKUP_OPEN|LOOKUP_FOLLOW,flag,&nd);
+	retval = path_lookup(pathname,0,LOOKUP_OPEN|LOOKUP_FOLLOW,&nd);
 
 	if (retval < 0)
 		return retval;
-
-	inode = nd.dentry->d_inode;
-		
-	if (S_ISREG(inode->i_mode)) {
-		fd = get_empty_file(&f);
-		f->f_mode = mode;
-		f->f_flags = flag;
-		f->f_count = 1;
-		f->f_inode = inode;
-		f->f_pos = 0;
-	} else {
-		return -EISDIR;
-	}
-	return fd;
-}
-static int _open(struct inode *inode)
-{
-	return 0;
-}
-static int file_fd(struct inode *inode)
-{
-	int retval,fd = -1,i;
 	
+	file = _open(nd.dentry,mode,flags,nd.mnt);
+	
+	if (file)
+		curtask->files->fd[fd] = file;
+	else
+		fd = -1;
+
 	return fd;
 }
+
+
+static struct file * 
+_open(struct dentry *dentry,int mode,int flags,struct vfsmount *mnt)
+{
+	struct file *file = alloc_file_struct();
+	struct inode *inode = dentry->d_inode;
+	int res;
+	if (file) {
+		file->f_mode = mode;
+		file->f_flags = flags;
+		file->f_dentry = dentry;
+		file->f_vfsmnt = mnt;
+		file->f_op = inode->i_fop;
+		if (file->f_op->open) {
+			res = file->f_op->open(inode,file);
+		}
+	}
+	return file;
+}
+

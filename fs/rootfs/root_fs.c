@@ -1,6 +1,7 @@
 #include <fuckOS/rootfs.h>
+#include <fuckOS/libfs.h>
 #include <fuckOS/assert.h>
-#include <fuckOS/hd.h>
+#include <sys/stat.h>
 #include <mm/slab.h>
 
 extern struct vfsmount *root_vfsmnt;
@@ -35,6 +36,9 @@ static int rootfs_init(void *v)
 	assert(res == 0);
 
 	print_dentry(root_dentry);
+
+	res = create_node(root_dentry, &(struct qstr) { "dev", 3},S_IFDIR,NULL,NULL);
+	assert(res >= 0);
 	return 0;
 }
 
@@ -45,7 +49,7 @@ rootfs_get_super(struct file_system_type *fs_type,int dev,void *data)
 	s = find_super_block(fs_type,dev);
 	if (s)
 		return s;
-	s = get_sb_nodev(fs_type,dev,data);
+	s = new_sb(fs_type,dev,data);
 	s->s_op = &root_super_op;
 	s->s_blocksize = PAGE_SIZE;
 	s->s_magic = ROOTFS_MAGIC;

@@ -150,6 +150,7 @@ link_path_lookup(char* name, struct nameidata *nd)
 			goto return_reval;
 		nd->mnt = next.mnt;
 		nd->dentry = next.dentry;
+		
 	}
 last_with_slashes:
 	res =  0;
@@ -158,7 +159,6 @@ last_component:
 	if (lookup_flags & LOOKUP_PARENT)
         	goto lookup_parent;
 	
-
 	if (this.name[0] == '.') switch (this.len) {
 			default:
 	       			break;
@@ -179,7 +179,7 @@ last_component:
 
 	//follow link!!!!
 
-	//inode = next.dentry->d_inode;
+	inode = next.dentry->d_inode;
 
 	nd->mnt = next.mnt;
 	nd->dentry = next.dentry;
@@ -189,7 +189,7 @@ lookup_parent:
 	nd->last = this;
 	nd->last_type = LAST_NORM;
 	res = 0;
-
+	
 	if (this.name[0] != '.')
 		goto return_reval;
 	if (this.len == 1)

@@ -17,7 +17,7 @@ static int sys_read(uint32_t,int8_t*,int32_t);
 static int sys_open(char * ,int ,int, int);
 static int sys_create(char * ,int,int);
 static int sys_mkdir(char *filename, int len,int mode);
-
+static int sys_write(int, char *,int);
 //	syscall/exit.c
 extern int exit(struct task_struct *);
 
@@ -44,7 +44,8 @@ syscall(uint32_t syscallno, uint32_t a1,
 	case SYS_EXOFORK:{return sys_clone((int)a1,(int (*)(void *))a2);}
 	case SYS_GETPID:{return sys_getpid();}
 	case SYS_BRK:{return sys_brk((viraddr_t)a1);}
-	case SYS_READ:{return sys_read((uint32_t)a1,(int8_t*)a2,(int32_t)a3);}
+	case SYS_READ:{return sys_read((uint32_t)a1,(int8_t*)a2,(int)a3);}
+	case SYS_WRITE:{return sys_write((int)a1,(char*)a2,(int)a3);}
 	case SYS_OPEN:{return sys_open((char *)a1,(int)a2,(int)a3,(int)a4);}
 	case SYS_CREATE:{return sys_create((char *)a1,(int)a2,(int)a3);}
 	case SYS_MKDIR:{return sys_mkdir((char *)a1,(int)a2,(int)a3);}
@@ -96,17 +97,13 @@ sys_open(char *filename ,int len, int flags,int mode)
 
 
 extern int create(char * ,int,int);
-
-static int 
-sys_create(char *filename, int len,int mode)
+static int sys_create(char *filename, int len,int mode)
 {
 	return create(filename,len,mode);
 }
 
 extern int mkdir(char * ,int,int);
-
-static int 
-sys_mkdir(char *filename, int len,int mode)
+static int sys_mkdir(char *filename, int len,int mode)
 {
 	return mkdir(filename,len,mode);
 }
@@ -116,6 +113,13 @@ extern int read(uint32_t,int8_t *,int32_t);
 static int sys_read(uint32_t fd,int8_t *buf,int32_t count)
 {
 	return read(fd,buf,count);
+}
+
+
+extern int write(uint32_t fd,char *buf,int count);
+static int sys_write(int fd,char *buf,int count)
+{
+	return write(fd,buf,count);
 }
 
 static int

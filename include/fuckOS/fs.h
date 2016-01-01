@@ -90,11 +90,15 @@ struct file {
 	uint32_t f_count;
 	struct inode *f_inode;
 	uint32_t f_pos;
-	struct file_operations *f_op;
+	const struct file_operations *f_op;
+	struct dentry *f_dentry;
+	struct vfsmount *f_vfsmnt;
 };
 
 struct file_operations {
 	int (*read)(struct file * ,char*, int ,int);
+	int (*write)(struct file * ,char*, int ,int);
+	int (*open)(struct inode *,struct file *);
 };
 
 struct files_struct {
@@ -140,10 +144,11 @@ extern struct inode * new_inode(struct super_block *);
 extern int  path_lookup(char *, int,uint32_t , struct nameidata *) ;
 
 //fs/super.c
-extern struct super_block* get_sb_nodev(struct file_system_type *,int ,void *);
-
+extern struct super_block* new_sb(struct file_system_type *,int ,void *);
 
 //fs/file.c
 extern int get_empty_file(struct file **);
 extern int find_file(int,struct file **,int);
+extern int get_unused_fd();
+extern struct file *alloc_file_struct();
 #endif/*_MINIOS_FS_H*/

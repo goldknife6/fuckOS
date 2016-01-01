@@ -11,7 +11,7 @@ static struct super_block *alloc_sb();
 
 
 struct super_block* 
-get_sb_nodev(struct file_system_type *fs,
+new_sb(struct file_system_type *fs,
 				int dev,void *data)
 {
 	struct super_block* sb;
@@ -22,10 +22,6 @@ get_sb_nodev(struct file_system_type *fs,
 	sb = alloc_sb();
 	return sb;
 }
-
-
-
-
 
 
 static struct super_block* alloc_sb()

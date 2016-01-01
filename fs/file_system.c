@@ -19,9 +19,8 @@ extern struct file_system_type tty_fs;
 
 struct file_system_type *filesystem [] = 
 {
-	&ramfs_fs,
 	&root_fs,
-	&minix_fs,
+	&ramfs_fs,
 	&tty_fs,
 	NULL
 };

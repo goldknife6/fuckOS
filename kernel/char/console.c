@@ -34,6 +34,11 @@ static void vga_graphic_putc(uint32_t c)
 }
 
 
+void con_write(struct tty_struct * tty)
+{
+	
+}
+
 #define CRT_ROWS	25
 #define CRT_COLS	80
 #define CRT_SIZE	(CRT_ROWS * CRT_COLS)

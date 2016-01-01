@@ -12,6 +12,7 @@ enum {
 	SYS_OPEN,
 	SYS_CREATE,
 	SYS_MKDIR,
+	SYS_WRITE,
 	NSYSCALLS
 };
 

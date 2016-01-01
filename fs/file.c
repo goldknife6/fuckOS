@@ -34,6 +34,21 @@ int get_empty_file(struct file **file)
 	curtask->files->fd[fd] = f;
 	return fd;
 }
+
+int get_unused_fd()
+{
+	int i,fd = -1;
+	for (fd = 0;fd < MAX_FILE; fd++) {
+		if (!curtask->files->fd[fd]) {
+			break;
+		}
+	}
+	if (fd >= MAX_FILE)
+		return -EMFILE;
+	else
+		return fd;
+}
+
 int find_file(int fd,struct file **file,int mode)
 {
 	if (curtask->files->fd[fd]) {
@@ -43,4 +58,15 @@ int find_file(int fd,struct file **file,int mode)
 		return -ENOENT;
 	}
 	return 0;
+}
+
+struct file *alloc_file_struct()
+{
+	struct file *file;
+
+	file = kmalloc(sizeof(struct file));
+	if (!file)
+		return NULL;
+	memset(file,0,sizeof(struct file));
+	return file;
 }

@@ -70,3 +70,9 @@ sys_mkdir(char *filename,int len,int mode)
 {
 	return syscall(SYS_MKDIR,(uint32_t)filename,(uint32_t)len,(uint32_t)mode,0,0);
 }
+
+int
+sys_write(int fd,char * buf,int count)
+{
+	return syscall(SYS_WRITE,(uint32_t)fd,(uint32_t)buf,(uint32_t)count,0,0);
+}

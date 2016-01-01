@@ -1,4 +1,4 @@
-#include <fuckOS/fs.h>
+#include <fuckOS/libfs.h>
 #include <fuckOS/assert.h>
 #include <sys/stat.h>
 
@@ -7,29 +7,6 @@
 #include <string.h>
 
 
-static int simple_dir_read(struct file * ,char* , int , int);
-static int simple_file_read(struct file * ,char* , int , int);
-
-static struct dentry * simple_dir_inode_lookup(struct inode *,struct dentry *, struct nameidata* );
-static int simple_dir_inode_create(struct inode *,struct dentry *, int ,struct nameidata* );
-static int simple_dir_inode_mkdir(struct inode *,struct dentry *,int );
-static int simple_dir_inode_rmdir(struct inode *,struct dentry *);
-static int simple_dir_inode_mknod(struct inode *,struct dentry *,int ,int );
-static int simple_dir_inode_rename(struct inode *, struct dentry *,struct inode *, struct dentry *);
-
-
-static struct dentry *simple_file_inode_lookup(struct inode *,struct dentry *, struct nameidata* );
-static int simple_file_inode_create(struct inode *,struct dentry *, int ,struct nameidata* );
-static int simple_file_inode_mkdir(struct inode *,struct dentry *,int );
-static int simple_file_inode_rmdir(struct inode *,struct dentry *);
-static int simple_file_inode_mknod(struct inode *,struct dentry *,int ,int );
-static int simple_file_inode_rename(struct inode *, struct dentry *,struct inode *, struct dentry *);
-
-
-static struct inode *simple_super_alloc_inode(struct super_block *);
-static void simple_super_destroy_inode(struct inode *);
-static int simple_super_read_inode(struct inode *);
-static int simple_super_read_super(struct super_block * , void *, int );
 
 struct file_operations simple_dir_operations = 
 {
@@ -37,7 +14,7 @@ struct file_operations simple_dir_operations =
 };
 
 
-static int simple_dir_read(struct file *file ,
+int simple_dir_read(struct file *file ,
 		char* buf, int count,int offset)
 {
 	panic("simple_dir_read not implemented!\n");
@@ -57,7 +34,7 @@ struct file_operations simple_file_operations =
 	.read = simple_file_read
 };
 
-static int simple_file_read(struct file *file ,
+int simple_file_read(struct file *file ,
 		char* buf, int count,int offset)
 {
 	panic("simple_file_read not implemented!\n");
@@ -84,42 +61,57 @@ struct inode_operations simple_dir_inode_operations =
 	.rename = simple_dir_inode_rename,
 };
 
-static struct dentry * 
+struct dentry * 
 simple_dir_inode_lookup(struct inode *inode
 		,struct dentry *dentry, struct nameidata* nd)
 {
 	return NULL;
 }
 
-static int 
-simple_dir_inode_create(struct inode *inode
+int 
+simple_dir_inode_create(struct inode *dir
 			,struct dentry *dentry, 
 			int mode,struct nameidata* nd)
 {
-	return 0;
+	return simple_dir_inode_mknod(dir, dentry, 
+					mode | S_IFREG, 0);
 }
 
-static int 
-simple_dir_inode_mkdir(struct inode *inode
+int 
+simple_dir_inode_mkdir(struct inode *dir
 			,struct dentry *dentry,int mode)
 {
-	return 0;
+	int retval = simple_dir_inode_mknod(dir, dentry, 
+					mode | S_IFDIR, 0);  
+	if (!retval)  
+		dir->i_nlink++;
+	return retval; 
 }
-static int 
+
+int 
 simple_dir_inode_rmdir(struct inode *inode
 				,struct dentry *dentry)
 {
+	panic("simple_dir_inode_rmdir!\n");
 	return 0;
 }
 
-static int 
-simple_dir_inode_mknod(struct inode *inode
+int 
+simple_dir_inode_mknod(struct inode *dir
 			,struct dentry *dentry,
-				int flags,int mode)
+				int mode,int dev)
 {
-	return 0;
+	struct inode * inode = simple_get_inode(dir->i_sb, mode, dev);  
+	int error = -ENOSPC;  
+
+	if (inode) {  
+		dentry->d_inode = inode;
+		atomic_set(&dentry->d_count,1);
+		error = 0;  
+	}  
+	return error; 
 }
-static int 
+int 
 simple_dir_inode_rename(struct inode *iscr, 
 			struct dentry *dscr,
 			struct inode *ides, 
@@ -150,7 +142,7 @@ struct inode_operations simple_file_inode_operations =
 	.rename = simple_file_inode_rename,
 };
 
-static struct dentry * 
+struct dentry * 
 simple_file_inode_lookup(struct inode *inode
 		,struct dentry *dentry, struct nameidata* nd)
 {
@@ -158,7 +150,7 @@ simple_file_inode_lookup(struct inode *inode
 	return NULL;
 }
 
-static int 
+int 
 simple_file_inode_create(struct inode *inode
 			,struct dentry *dentry, 
 			int mode,struct nameidata* nd)
@@ -167,14 +159,14 @@ simple_file_inode_create(struct inode *inode
 	return 0;
 }
 
-static int 
+int 
 simple_file_inode_mkdir(struct inode *inode
 			,struct dentry *dentry,int mode)
 {
 	panic("simple_file_inode_mkdir called\n");
 	return 0;
 }
-static int 
+int 
 simple_file_inode_rmdir(struct inode *inode
 				,struct dentry *dentry)
 {
@@ -182,7 +174,7 @@ simple_file_inode_rmdir(struct inode *inode
 	return 0;
 }
 
-static int 
+int 
 simple_file_inode_mknod(struct inode *inode
 			,struct dentry *dentry,
 				int flags,int mode)
@@ -190,7 +182,7 @@ simple_file_inode_mknod(struct inode *inode
 	panic("simple_file_inode_mknod called\n");
 	return 0;
 }
-static int 
+int 
 simple_file_inode_rename(struct inode *iscr, 
 			struct dentry *dscr,
 			struct inode *ides, 
@@ -219,14 +211,14 @@ struct super_operations simple_super_operations =
 	.read_super = simple_super_read_super,
 };
 
-static struct inode *
+struct inode *
 simple_super_alloc_inode(struct super_block *sb)
 {
 	panic("simple_super_alloc_inode called\n");
 	return NULL;
 }
 
-static void
+void
 simple_super_destroy_inode(struct inode *inode)
 {
 	if (inode)
@@ -245,3 +237,55 @@ int simple_super_read_super(struct super_block * sb,
 	panic("simple_super_read_super called\n");
 	return 0;
 }
+
+struct inode *
+simple_get_inode(struct super_block *sb,
+				int mode, int dev)
+{
+	struct inode *inode = new_inode(sb);
+	
+	if (inode) {
+		switch (mode & S_IFMT) {
+		case S_IFREG:  
+			inode->i_op = &simple_file_inode_operations;  
+			inode->i_fop = &simple_file_operations;  
+			break;
+		case S_IFDIR:  
+			inode->i_op = &simple_dir_inode_operations;  
+			inode->i_fop = &simple_dir_operations; 
+			break;
+		}
+		inode->i_mode = mode;
+		inode->i_sb = sb;
+		
+	}
+	return inode;
+}
+
+int create_node(struct dentry *parent, 
+			struct qstr *name,int mode,
+				struct file_operations *fop,
+				struct inode_operations *iop)
+{
+	int res = -ENOMEM;
+	struct inode *inode;
+	struct dentry *dentry;
+	struct super_block *sb;
+	if (parent) {
+		sb = parent->d_sb;
+		inode = simple_get_inode(sb, mode, sb->s_dev);
+		assert(inode);
+		if (iop)
+			inode->i_op = iop;
+		if (fop)
+			inode->i_fop = fop;
+		dentry = d_alloc(parent, name);
+		assert(dentry);
+		dentry->d_inode = inode;
+		dentry_insert(parent,dentry);
+		res = 0;
+		printk("create node:%.*s %o\n",name->len,name->name,mode);
+	}
+	return res;
+}
+

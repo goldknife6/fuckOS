@@ -1,6 +1,7 @@
 #ifndef _MINIOS_TTY_H
 #define _MINIOS_TTY_H
 #include <types.h>
+#include <fuckOS/task.h>
 
 #define TTY_IN_BYTES 256
 #define TTY_OUT_BYTES 256
@@ -18,16 +19,21 @@ struct console_struct {
 
 	uint32_t bgcolor;
 	uint32_t fgcolor;
-	
-	//uint32_t conbuf[CONBUFSIZE];	
 };
 
+struct tty_queue {
+	uint32_t data;
+	uint32_t head;
+	uint32_t tail;
+	struct task_struct *proc_list;
+	char buf[TTY_BUF_SIZE];
+};
 
-typedef struct tty_struct {
-	uint32_t in_buf[TTY_IN_BYTES];
-	uint32_t out_buf[TTY_OUT_BYTES];
-	struct console_struct* console_p;
-}tty_t;
+struct tty_struct {
+	struct tty_queue read_q;
+	struct tty_queue write_q
+	void (*write)(struct tty_struct * tty);
+};
 
 
 extern struct console_struct console[NUMCON];
