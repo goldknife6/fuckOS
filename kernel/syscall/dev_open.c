@@ -42,7 +42,7 @@ int open(char *pathname,int len,int flags,int mode)
 static struct file * 
 _open(struct dentry *dentry,int mode,int flags,struct vfsmount *mnt)
 {
-	struct file *file = alloc_file_struct();
+	struct file *file = alloc_file();
 	struct inode *inode = dentry->d_inode;
 	int res;
 	if (file) {
@@ -51,6 +51,7 @@ _open(struct dentry *dentry,int mode,int flags,struct vfsmount *mnt)
 		file->f_dentry = dentry;
 		file->f_vfsmnt = mnt;
 		file->f_op = inode->i_fop;
+		file->f_count = 1;
 		if (file->f_op->open) {
 			res = file->f_op->open(inode,file);
 		}

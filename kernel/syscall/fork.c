@@ -16,9 +16,9 @@ extern void free_pidmap(pid_t);
 extern int exit_task(struct task_struct *);
 extern int exit_mm(struct mm_struct *);
 
+static int copy_files(struct task_struct *task,int flags);
 static int copy_task(struct task_struct *,struct task_struct *);
 static int alloc_task(struct task_struct **,pid_t);
-int alloc_file(struct task_struct *);
 static int task_set_vm(int,struct task_struct *);
 
 pid_t do_fork(int clone_flag,struct frame frame)
@@ -38,6 +38,11 @@ pid_t do_fork(int clone_flag,struct frame frame)
 	if (retval < 0)
 		goto exit_task;
 
+	retval = copy_files(child,clone_flag);
+	if (retval < 0)
+		goto exit_files;
+
+
 	if (clone_flag & CLONE_VM) {
 		panic("clone_vm not imp! clone_flag:%x\n",clone_flag);
 	} else {
@@ -52,6 +57,7 @@ pid_t do_fork(int clone_flag,struct frame frame)
 
 exit_mm:
 	exit_mm(child->mm);
+exit_files:
 exit_task:
 	exit_task(child);
 	return retval;
@@ -81,26 +87,41 @@ int alloc_task(struct task_struct **newenv_store,pid_t ppid)
 		*newenv_store  = task;
 	return 0;
 }
+/*
 
-int alloc_file(struct task_struct *task)
+struct files_struct {
+	struct file* fd[MAX_FILE];
+};
+
+struct fs_struct
+*/
+
+static int 
+copy_files(struct task_struct *task,int flags)
 {
-	assert(task);
-	task->files = kmalloc(sizeof(struct files_struct));
-	if (!task->files)
+	struct fs_struct *fs;
+	struct files_struct *files;
+	int i;
+	fs = kmalloc(sizeof(struct fs_struct));
+	if (!fs)
 		return -ENOMEM;
-
-	task->fs = kmalloc(sizeof(struct fs_struct));
-	if (!task->fs)
+	*fs = *curtask->fs;
+	
+	files = kmalloc(sizeof(struct files_struct));
+	if (!files) {
+		kfree(fs);
 		return -ENOMEM;
-	memset(task->files,0,sizeof(struct files_struct));
-	memset(task->fs,0,sizeof(struct fs_struct));
-	task->fs->pwd = root_dentry;
-	task->fs->root = root_dentry;
-	task->fs->mnt_pwd = root_vfsmnt;
-	task->fs->mnt_root = root_vfsmnt;
+	}
+	*files = *curtask->files;
+	for (i = 0; i< MAX_FILE; i++) {
+		if (files->fd[i]) {
+			files->fd[i]->f_count++;
+		}	
+	}
+	task->fs = fs;
+	task->files = files;
 	return 0;
 }
-
 
 static int task_set_vm(int clone_flag, struct task_struct *task)
 {
@@ -174,5 +195,3 @@ unlock:
 	spin_unlock(&src->mm->page_table_lock);
 	return retval;
 }
-
-

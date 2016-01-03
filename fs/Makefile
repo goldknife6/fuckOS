@@ -1,4 +1,4 @@
-SUBDIRS := minix1fs ramfs rootfs ttyfs
+SUBDIRS := minix1fs ramfs rootfs ttyfs pipefs
 
 
 CURDIR := $(notdir $(shell pwd))

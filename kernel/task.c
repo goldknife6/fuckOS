@@ -12,13 +12,13 @@
 #include <string.h>
 
 
-extern int alloc_file(struct task_struct *);
+//extern int alloc_file(struct task_struct *);
 static int load_icode(struct task_struct *, uint8_t *);
 static int region_alloc(struct task_struct *, viraddr_t, size_t ,int );
 static int task_alloc(struct task_struct **, pid_t);
 //static int file_alloc(struct task_struct *);
 struct task_struct* task_pidmap[PID_MAX_DEFAULT];
-
+static int alloc_files_struct(struct task_struct *);
 
 
 
@@ -138,6 +138,28 @@ int task_set_vm(struct task_struct *task)
 	memmove(pgd,kpgd,PAGE_SIZE);
 	return 0;
 }
+
+static int alloc_files_struct(struct task_struct *task)
+{
+	assert(task);
+	task->files = kmalloc(sizeof(struct files_struct));
+	if (!task->files)
+		return -ENOMEM;
+
+	task->fs = kmalloc(sizeof(struct fs_struct));
+	if (!task->fs)
+		return -ENOMEM;
+	memset(task->files,0,sizeof(struct files_struct));
+	memset(task->fs,0,sizeof(struct fs_struct));
+
+	task->fs->pwd = root_dentry;
+	task->fs->root = root_dentry;
+	task->fs->mnt_pwd = root_vfsmnt;
+	task->fs->mnt_root = root_vfsmnt;
+
+	return 0;
+}
+
 static int
 task_alloc(struct task_struct **newenv_store, pid_t parent_id)
 {
@@ -148,8 +170,13 @@ task_alloc(struct task_struct **newenv_store, pid_t parent_id)
 		assert(0);
 		return -ENOMEM;
 	}
-	reval = alloc_file(task);
+	reval = alloc_files_struct(task);
 	assert(reval >= 0);
+
+	task->fs->pwd = root_dentry;
+	task->fs->root = root_dentry;
+	task->fs->mnt_pwd = root_vfsmnt;
+	task->fs->mnt_root = root_vfsmnt;
 
 	reval = task_set_vm(task);
 	if (reval < 0) {

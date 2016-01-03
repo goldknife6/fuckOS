@@ -1,7 +1,6 @@
 #ifndef _FCNTL_H
 #define _FCNTL_H
 
-#include <types.h>
 
 /* open/fcntl - NOCTTY, NDELAY isn't implemented yet */
 #define O_ACCMODE	00003
@@ -14,6 +13,6 @@
 #define O_TRUNC		01000	/* not fcntl */
 #define O_APPEND	02000
 #define O_NONBLOCK	04000	/* not fcntl */
-#define O_NDELAY	O_NONBLOCK
+//#define O_NDELAY	O_NONBLOCK
 
 #endif/*!_FCNTL_H*/

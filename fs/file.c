@@ -1,17 +1,8 @@
 #include <fuckOS/fs.h>
 #include <fuckOS/task.h>
-
 #include <mm/slab.h>
 #include <string.h>
-/*
-struct file {
-	uint32_t f_mode;
-	uint32_t f_flags;
-	uint32_t f_count;
-	struct inode *f_inode;
-	uint32_t f_pos;
-};
-*/
+
 int get_empty_file(struct file **file)
 {
 	int i,fd = -1;
@@ -25,11 +16,9 @@ int get_empty_file(struct file **file)
 	if (fd < 0)
 		return -EMFILE;
 
-	f = kmalloc(sizeof(struct file));
+	f = alloc_file();
 	if (!f)
 		return -ENOMEM;
-	
-	memset(f,0,sizeof(struct file));
 	*file = f;
 	curtask->files->fd[fd] = f;
 	return fd;
@@ -55,12 +44,33 @@ int find_file(int fd,struct file **file,int mode)
 		*file = curtask->files->fd[fd];
 	} else {
 		*file = NULL;
-		return -ENOENT;
+		return -EBADF;
 	}
 	return 0;
 }
 
-struct file *alloc_file_struct()
+void deref_file(int fd)
+{
+	struct file *file = curtask->files->fd[fd];
+	if (!file)
+		panic("deref_file\n");
+	file->f_count--;
+	if (!file->f_count) {
+		if (file->f_op && file->f_op->release)
+			file->f_op->release(NULL,file);
+		free_file(file);
+	}
+	curtask->files->fd[fd] = NULL;
+}
+
+void free_file(struct file *file)
+{
+	if (file)
+		kfree(file);
+}
+
+
+struct file *alloc_file()
 {
 	struct file *file;
 

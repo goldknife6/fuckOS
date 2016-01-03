@@ -101,16 +101,12 @@ void os_entry(void* ginfo,uint32_t gmagic)
 	//AP初始化
 	//ap_startup();
 	//TASK_CREATE(idle, TASK_TYPE_USER);
-	TASK_CREATE(testwrite, TASK_TYPE_USER);
+	TASK_CREATE(testpipe, TASK_TYPE_USER);
 	//TASK_CREATE(forktree, TASK_TYPE_USER);
 	
 	schedule();
 }
 
-void kthread_create()
-{
-
-}
 
 void find_next_cpu_stack()
 {
