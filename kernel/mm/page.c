@@ -196,7 +196,7 @@ pte_t *page_walk(pgd_t *pgdp,
 			viraddr_t address,bool create)
 {
 #ifdef CONFIG_DEBUG
-	assert(pgdp);
+	//assert(pgdp);
 	//assert(address);
 #endif
 

@@ -7,7 +7,8 @@
 
 extern int exit_mm(struct mm_struct *);
 extern int exit_task(struct task_struct *);
-
+extern int exit_notify(struct task_struct *);
+extern int exit_files(struct task_struct *);
 
 int exit(struct task_struct *task)
 {
@@ -17,8 +18,37 @@ int exit(struct task_struct *task)
 		lcr3(pgd2p(kpgd));
 	
 	schedule_delete_task(task);
+	exit_notify(task);
 	exit_mm(task->mm);
 	exit_task(task);
+
+	if (task == curtask) {
+		curtask = NULL;
+		schedule();
+	}
+	return 0;
+}
+
+int exit_notify(struct task_struct *t)
+{
+	struct task_struct *p;
+	int ret;
+	if (!t)
+		return 0;
+	
+
+	if (t->pwait) {
+		ret = pid2task(t->ppid, &p, 0);
+		assert(ret == 0);
+		p->task_status = TASK_RUNNING;
+		schedule_add_task(p);
+	}
+	return 0;
+}
+
+int exit_files(struct task_struct *task)
+{
+	
 	return 0;
 }
 

@@ -12,11 +12,9 @@
 #include <string.h>
 
 
-//extern int alloc_file(struct task_struct *);
 static int load_icode(struct task_struct *, uint8_t *);
 static int region_alloc(struct task_struct *, viraddr_t, size_t ,int );
 static int task_alloc(struct task_struct **, pid_t);
-//static int file_alloc(struct task_struct *);
 struct task_struct* task_pidmap[PID_MAX_DEFAULT];
 static int alloc_files_struct(struct task_struct *);
 
@@ -191,7 +189,7 @@ task_alloc(struct task_struct **newenv_store, pid_t parent_id)
 	task->ppid = parent_id;
 	task->task_type = TASK_TYPE_USER;
 	task->task_status = TASK_RUNNING;
-
+	task->timeslice = 10;
 
 	memset(&task->frame, 0, sizeof(struct frame));
 
@@ -251,14 +249,9 @@ void print_frame(struct frame *tf);
 int
 task_run(struct task_struct *task)
 {
-	//if (curtask != NULL ) 
-	//	curenv->env_status = TASK_INTERRUPTIBLE;
 	curtask = task;
-	curtask->task_status = TASK_RUNNING;
-
+	
 	lcr3(pgd2p(curtask->mm->mm_pgd));
-	//printk("%d\n",task->pid);
-	//print_frame(&task->frame);
 	task_pop_tf(&task->frame);
 	return 0;
 }

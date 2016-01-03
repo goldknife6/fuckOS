@@ -100,10 +100,10 @@ void os_entry(void* ginfo,uint32_t gmagic)
 
 	//AP初始化
 	//ap_startup();
-	//TASK_CREATE(idle, TASK_TYPE_USER);
+	TASK_CREATE(idle, TASK_TYPE_USER);
 	TASK_CREATE(testpipe, TASK_TYPE_USER);
+	//TASK_CREATE(testwait, TASK_TYPE_USER);
 	//TASK_CREATE(forktree, TASK_TYPE_USER);
-	
 	schedule();
 }
 

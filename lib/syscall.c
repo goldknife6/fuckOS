@@ -34,6 +34,12 @@ pid_t sys_getpid()
 	return syscall(SYS_GETPID,0,0,0,0,0);
 }
 
+extern int wait(pid_t pid);
+int sys_wait(pid_t pid)
+{
+	return syscall(SYS_WAIT,(uint32_t)pid,0,0,0,0);
+}
+
 pid_t sys_clone(int flag,int (*fn)(void*))
 {
 	return syscall(SYS_EXOFORK,flag,(uint32_t)fn,0,0,0);

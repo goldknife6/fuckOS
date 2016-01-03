@@ -38,9 +38,7 @@ schedule_tick()
 	curtask->timeslice--;
 	if (curtask->timeslice <= 0) {
 		curtask->flags |= _NEED_RESCHED;
-		curtask->timeslice = 3;
-		schedule_delete_task(curtask);
-		schedule_add_task(curtask);
+		curtask->timeslice = 10;
 	}
 }
 
@@ -49,6 +47,8 @@ get_next()
 {
 	struct task_struct *task;
 	if (curtask && (curtask->flags & _NEED_RESCHED)) {
+		schedule_delete_task(curtask);
+		schedule_add_task(curtask);
 		curtask->flags &= ~_NEED_RESCHED;
 	}
 
@@ -57,6 +57,7 @@ get_next()
 	}
 
 	task = list_entry(thisrq->head.next,struct task_struct,list);
+	
 	return task;
 }
 

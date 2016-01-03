@@ -1,9 +1,8 @@
-#include <fuckOS/fs.h>
+#include <fuckOS/pipe.h>
 #include <fuckOS/assert.h>
 #include <sys/stat.h>
 #include <mm/slab.h>
 
-#include "pipe.h"
 static int pipefs_init(void*);
 static struct super_block *pipefs_get_super(struct file_system_type *,int ,void *);
 
@@ -21,7 +20,19 @@ struct file_system_type pipe_fs =
 
 static int pipefs_init(void *data)
 {
+	struct super_block *sb;
+	struct vfsmount *mnt;
+	int res;
+
 	printk("registering %s file system!\n",pipe_fs.name);
+	
+	mnt = alloc_vfsmnt(pipe_fs.name);
+	assert(mnt);
+	pipe_mnt = mnt;
+	sb = pipe_fs.get_super(&pipe_fs,0,NULL);
+
+	list_add(&sb->s_list,&pipe_fs.fs_supers);
+	res = sb->s_op->read_super(sb,mnt,0);
 	return 0;
 }
 

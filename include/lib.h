@@ -17,6 +17,7 @@ extern int sys_mkdir(char *filename,int len,int mode);
 extern int sys_dup(int fd);
 extern void sys_close(int fd);
 extern int sys_pipe(int fd[2],int flags);
+extern int sys_wait(pid_t pid);
 
 extern viraddr_t brk(viraddr_t);
 extern viraddr_t sbrk(viraddr_t);
@@ -28,7 +29,9 @@ extern pid_t getpid(void);
 extern void* malloc(uint32_t);
 extern void free(void *);
 extern int read(uint32_t fd,void* buf,int count);
+extern int readn(int fd, void *buf, int n);
 extern int write(uint32_t fd,char * buf,int count);
+extern int writen(int fd, void *buf, int n);
 extern int open(char *filename,int flags,int mode);
 extern int pipe(int fd[2],int flags);
 extern int create(char *filename,int mode);
@@ -38,6 +41,7 @@ extern int dup(int fd);
 extern int getchar();
 extern int putchar(char);
 extern char *readline(const char *);
+extern int wait(pid_t pid);
 
 struct malloc_chunk {
 	uint32_t size;

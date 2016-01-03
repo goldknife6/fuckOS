@@ -3,7 +3,9 @@
 #include <lib.h>
 #include <string.h>
 #include <stdio.h>
-#define DEPTH 377
+#include <fcntl.h>
+
+#define DEPTH 50
 
 void forktree(const char *cur);
 
@@ -19,7 +21,8 @@ forkchild(const char *cur, char branch)
 	if ((i = fork()) == 0) {
 		forktree(nxt);
 		exit();
-	}
+	} else if (i < 0)
+		printf("forktree fork error! pid :%d err:%d\n",getpid(),i);
 }
 
 void
@@ -34,6 +37,7 @@ forktree(const char *cur)
 int
 main(int argc, char **argv)
 {
+	open("/dev/tty",O_RDWR,0);
 	forktree("");
 	//printf("forktree over!%d\n",getpid());
 	return 0;

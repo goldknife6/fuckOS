@@ -69,6 +69,7 @@ struct task_struct
 	int32_t runnum;
 	struct list_head list;
 	struct list_head wait_list;
+	int pwait;
 };
 
 

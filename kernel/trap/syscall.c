@@ -21,6 +21,7 @@ static int sys_write(int, char *,int);
 static int sys_dup(int);
 static void sys_close(int);
 static int sys_pipe(int fd[2],int flags);
+static int sys_wait(pid_t pid);
 
 //	syscall/exit.c
 extern int exit(struct task_struct *);
@@ -56,6 +57,7 @@ syscall(uint32_t syscallno, uint32_t a1,
 	case SYS_DUP:{return sys_dup((int)a1);}
 	case SYS_PIPE:{return sys_pipe((int*)a1,(int)a2);}
 	case SYS_CLOSE:{sys_close((int)a1);}
+	case SYS_WAIT:{return sys_wait((pid_t)a1);}
 	default: return -EINVAL;
 	}
 }
@@ -96,6 +98,13 @@ static int
 sys_pipe(int fd[2],int flags)
 {	
 	return pipe(fd,flags);
+}
+
+extern int wait(pid_t pid);
+static int 
+sys_wait(pid_t pid)
+{	
+	return wait(pid);
 }
 
 
@@ -153,9 +162,10 @@ sys_exit(pid_t pid)
 	if ((retval = pid2task(pid, &task, true)) < 0)
 		return retval;
 	retval = exit(task);
-	if(!retval) {
+	
+	//if(!retval) {
 		schedule();
-	}
+	//}
 	return retval;
 }
 
@@ -164,7 +174,6 @@ sys_exit(pid_t pid)
 
 //	syscall/fork.c
 extern pid_t do_fork(int,struct frame);
-
 static pid_t
 sys_clone(int flag,int (*fn)(void*))
 {
@@ -188,7 +197,6 @@ sys_getpid(void)
 
 //	syscall/brk.c
 extern int brk(viraddr_t);
-
 static viraddr_t 
 sys_brk(viraddr_t data_seg)  
 {  

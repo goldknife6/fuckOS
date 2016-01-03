@@ -16,6 +16,7 @@ enum {
 	SYS_WRITE,
 	SYS_DUP,
 	SYS_PIPE,
+	SYS_WAIT,
 	NSYSCALLS
 };
 

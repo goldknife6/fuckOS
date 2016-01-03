@@ -16,12 +16,14 @@ extern struct file_system_type root_fs;
 extern struct file_system_type minix_fs;
 extern struct file_system_type ramfs_fs;
 extern struct file_system_type tty_fs;
+extern struct file_system_type pipe_fs;
 
 struct file_system_type *filesystem [] = 
 {
 	&root_fs,
 	&ramfs_fs,
 	&tty_fs,
+	&pipe_fs,
 	NULL
 };
 

@@ -1,4 +1,4 @@
-#include <fuckOS/fs.h>
+#include <fuckOS/pipe.h>
 #include <fuckOS/assert.h>
 #include <mm/slab.h>
 
@@ -6,7 +6,6 @@
 
 #include <string.h>
 
-#include "pipe.h"
 static int pipefs_file_read(struct file *,char*,int,int);
 static int pipefs_file_write(struct file *,char*,int,int);
 static int pipefs_file_open(struct inode *,struct file *);
@@ -29,13 +28,52 @@ struct file_operations pipefs_file_op =
 static int pipefs_file_write(struct file *file,
 			char* buf, int count,int offset)
 {
-	return 0;
+	struct inode *inode;
+	struct pipe_inode_info *info;
+	int i;
+	char *start;
+
+	inode = file->f_inode;
+	info = (struct pipe_inode_info *)inode->i_pipe;
+
+	start = (char*)page2virt(info->p_page);
+
+
+	for (i = 0; i < count; i++) {
+		if (info->p_wpos >= info->p_rpos + PAGE_SIZE) {
+			return i;
+		}
+
+		start[info->p_wpos % PAGE_SIZE] = buf[i];
+		info->p_wpos++;
+	}
+
+	return i;
 }
 
 static int pipefs_file_read(struct file *file,
 			char* buf, int count,int offset)
 {
-	return 0;
+	struct inode *inode;
+	struct pipe_inode_info *info;
+	char *start;
+	int i;
+
+	inode = file->f_inode;
+	info = (struct pipe_inode_info *)inode->i_pipe;
+	start = (char*)page2virt(info->p_page);
+
+
+
+	for (i = 0; i < count; i++) {
+		if (info->p_rpos == info->p_wpos) {
+			return i;
+		}
+		buf[i] = start[info->p_rpos % PAGE_SIZE];
+		info->p_rpos++;
+	}
+
+	return i;
 }
 
 static int pipefs_file_open(struct inode *inode,struct file *file)
@@ -44,49 +82,4 @@ static int pipefs_file_open(struct inode *inode,struct file *file)
 	return 0;
 }
 
-static struct inode *get_pipe_inode(void)
-{
-	struct inode *inode = new_inode(pipe_mnt->mnt_sb);
-	if (inode) {
-		if (!pipe_new(inode)) {
-			inode->i_fop = &pipefs_file_op;	
-			inode->i_mode = S_IFIFO;
-		} else {
-			kfree(inode);
-			inode = NULL;		
-		}
-	}
-	return inode;
-}
 
-static struct pipe_inode_info *
-get_pipe_info(void)
-{
-	struct pipe_inode_info *info;
-	info = kmalloc(sizeof(struct pipe_inode_info));
-	if (info) {
-		struct page *new;
-		new = page_alloc(_GFP_ZERO);
-		if (!new) {
-			kfree(info);
-			return NULL;		
-		}	
-		info->p_page = new;
-		info->p_rpos = 0;
-		info->p_wpos = 0;
-	}
-	return info;
-}
-
-static int pipe_new(struct inode *inode)
-{
-	struct pipe_inode_info *info;
-	info = get_pipe_info();
-	if (!info)
-		return -ENOMEM;
-	inode->i_pipe = info;
-	inode->i_inode = NULL;
-	return 0;
-}
-	
-	

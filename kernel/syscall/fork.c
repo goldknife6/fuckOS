@@ -71,7 +71,7 @@ int alloc_task(struct task_struct **newenv_store,pid_t ppid)
 	if (!task) {
 		return -ENOMEM;
 	}
-
+	memset(task, 0, sizeof(struct task_struct));
 	task->pid = alloc_pidmap();
 	if (task->pid < 0)
 		return -EMPROC;
@@ -79,7 +79,7 @@ int alloc_task(struct task_struct **newenv_store,pid_t ppid)
 	task->ppid = ppid;
 	task->task_type = TASK_TYPE_USER;
 	task->task_status = TASK_RUNNING;
-
+	task->timeslice = 10;
 
 	memset(&task->frame, 0, sizeof(struct frame));
 
@@ -87,14 +87,7 @@ int alloc_task(struct task_struct **newenv_store,pid_t ppid)
 		*newenv_store  = task;
 	return 0;
 }
-/*
 
-struct files_struct {
-	struct file* fd[MAX_FILE];
-};
-
-struct fs_struct
-*/
 
 static int 
 copy_files(struct task_struct *task,int flags)
