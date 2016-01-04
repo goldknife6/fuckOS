@@ -29,7 +29,7 @@ struct super_operations;
 struct file_operations;
 
 struct buffer_head {
-	uint8_t b_data[BLOCK_SIZE];		/* pointer to data block (1024 bytes) */
+	char b_data[BLOCK_SIZE];		/* pointer to data block (1024 bytes) */
 	uint32_t b_blocknr;			/* block number */
 	uint32_t b_dev;				/* device (0 = free) */
 	uint8_t b_uptodate;			/* 1-valid,0-invalid */

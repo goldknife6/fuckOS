@@ -1,7 +1,10 @@
 #include <lib.h>
-
+#include <stdio.h>
+#include <fcntl.h>
+#include <args.h>
+#include <string.h>
 #define BUFSIZ 1024		/* Find the buffer overrun bug! */
-int debug = 0;
+int debug = 1;
 
 
 // gettoken(s, 0) prepares gettoken for subsequent calls and returns 0.
@@ -12,7 +15,25 @@ int debug = 0;
 // tokens from the string.
 int gettoken(char *s, char **token);
 
+void assert(int i) {
+	if (!i) {
+		printf("assert");
+		while(1);	
+	}
+}
+#define panic(...) _panic(__FILE__, __LINE__, __VA_ARGS__)
 
+void _panic(char *file,int len,...) {
+		panic("panic:%s %d",file,len);
+		while(1);
+}
+
+void close_all()
+{
+	int i;
+	for(i = 0; i < 128; i++)
+		close(i);
+}
 // Parse a shell command from string 's' and execute it.
 // Do not return until the shell command is finished.
 // runcmd() is called in a forked child,
@@ -51,11 +72,18 @@ again:
 			// We can't open a file onto a particular descriptor,
 			// so open the file as 'fd',
 			// then check whether 'fd' is 0.
-			// If not, dup 'fd' onto file descriptor 0,
+			// If not, dup2 'fd' onto file descriptor 0,
 			// then close the original 'fd'.
 
 			// LAB 5: Your code here.
-			panic("< redirection not implemented");
+			if ((fd = open(t, O_RDONLY,0)) < 0) {
+				printf("open %s for read: %e", t, fd);
+				exit();
+			}
+			if (fd != 0) {
+				dup2(fd, 0);
+				close(fd);
+			}
 			break;
 
 		case '>':	// Output redirection
@@ -64,18 +92,18 @@ again:
 				printf("syntax error: > not followed by word\n");
 				exit();
 			}
-			if ((fd = open(t, O_WRONLY|O_CREAT|O_TRUNC)) < 0) {
+			if ((fd = open(t, O_WRONLY|O_CREAT|O_TRUNC,0)) < 0) {
 				printf("open %s for write: %e", t, fd);
 				exit();
 			}
 			if (fd != 1) {
-				dup(fd, 1);
+				dup2(fd, 1);
 				close(fd);
 			}
 			break;
 
 		case '|':	// Pipe
-			if ((r = pipe(p)) < 0) {
+			if ((r = pipe(p,0)) < 0) {
 				printf("pipe: %e", r);
 				exit();
 			}
@@ -87,7 +115,7 @@ again:
 			}
 			if (r == 0) {
 				if (p[0] != 0) {
-					dup(p[0], 0);
+					dup2(p[0], 0);
 					close(p[0]);
 				}
 				close(p[1]);
@@ -95,7 +123,7 @@ again:
 			} else {
 				pipe_child = r;
 				if (p[1] != 1) {
-					dup(p[1], 1);
+					dup2(p[1], 1);
 					close(p[1]);
 				}
 				close(p[0]);
@@ -136,14 +164,15 @@ runit:
 
 	// Print the command.
 	if (debug) {
-		printf("[%08x] SPAWN:", thisenv->env_id);
+		printf("[%08x] SPAWN:", getpid());
 		for (i = 0; argv[i]; i++)
 			printf(" %s", argv[i]);
 		printf("\n");
 	}
 
+	
 	// Spawn the command!
-	if ((r = spawn(argv[0], (const char**) argv)) < 0)
+	if ((r = sys_execve(argv[0], (char**) argv)) < 0)
 		printf("spawn %s: %e\n", argv[0], r);
 
 	// In the parent, close all file descriptors and wait for the
@@ -151,20 +180,20 @@ runit:
 	close_all();
 	if (r >= 0) {
 		if (debug)
-			printf("[%08x] WAIT %s %08x\n", thisenv->env_id, argv[0], r);
+			printf("[%08x] WAIT %s %08x\n", getpid(), argv[0], r);
 		wait(r);
 		if (debug)
-			printf("[%08x] wait finished\n", thisenv->env_id);
+			printf("[%08x] wait finished\n", getpid());
 	}
 
 	// If we were the left-hand part of a pipe,
 	// wait for the right-hand part to finish.
 	if (pipe_child) {
 		if (debug)
-			printf("[%08x] WAIT pipe_child %08x\n", thisenv->env_id, pipe_child);
+			printf("[%08x] WAIT pipe_child %08x\n", getpid(), pipe_child);
 		wait(pipe_child);
 		if (debug)
-			printf("[%08x] wait finished\n", thisenv->env_id);
+			printf("[%08x] wait finished\n", getpid());
 	}
 
 	// Done!
@@ -256,8 +285,8 @@ usage(void)
 	exit();
 }
 
-void
-umain(int argc, char **argv)
+int
+main(int argc, char **argv)
 {
 	int r, interactive, echocmds;
 	struct Argstate args;
@@ -284,7 +313,7 @@ umain(int argc, char **argv)
 		usage();
 	if (argc == 2) {
 		close(0);
-		if ((r = open(argv[1], O_RDONLY)) < 0)
+		if ((r = open(argv[1], O_RDONLY,0)) < 0)
 			panic("open %s: %e", argv[1], r);
 		assert(r == 0);
 	}
@@ -318,5 +347,6 @@ umain(int argc, char **argv)
 		} else
 			wait(r);
 	}
+	return 0;
 }
 

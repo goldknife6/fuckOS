@@ -39,9 +39,8 @@ static int ttyfs_init(void *data)
 	list_add(&sb->s_list,&tty_fs.fs_supers);
 	parent = ttyfs_find_dev(root_dentry);
 	assert(parent);
-	res = create_node(parent, &(struct qstr) { "tty", 3},S_IFCHR,
+	create_node(parent, &(struct qstr) { "tty", 3},S_IFCHR,
 				&ttyfs_file_op,&ttyfs_inode_op);
-	assert(res >= 0);
 	return 0;
 }
 

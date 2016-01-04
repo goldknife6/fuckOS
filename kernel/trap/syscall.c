@@ -19,9 +19,13 @@ static int sys_create(char * ,int,int);
 static int sys_mkdir(char *filename, int len,int mode);
 static int sys_write(int, char *,int);
 static int sys_dup(int);
+static int sys_dup2(int,int);
 static void sys_close(int);
 static int sys_pipe(int fd[2],int flags);
 static int sys_wait(pid_t pid);
+static int sys_execve(char *filename,char ** argv);
+static int sys_fdtype(int);
+
 
 //	syscall/exit.c
 extern int exit(struct task_struct *);
@@ -55,9 +59,12 @@ syscall(uint32_t syscallno, uint32_t a1,
 	case SYS_CREATE:{return sys_create((char *)a1,(int)a2,(int)a3);}
 	case SYS_MKDIR:{return sys_mkdir((char *)a1,(int)a2,(int)a3);}
 	case SYS_DUP:{return sys_dup((int)a1);}
+	case SYS_DUP2:{return sys_dup2((int)a1,(int)a2);}
 	case SYS_PIPE:{return sys_pipe((int*)a1,(int)a2);}
 	case SYS_CLOSE:{sys_close((int)a1);}
 	case SYS_WAIT:{return sys_wait((pid_t)a1);}
+	case SYS_EXEC:{return sys_execve((char *)a1,(char **)a2);}
+	case SYS_FDTYPE:{return sys_fdtype((int)a1);}
 	default: return -EINVAL;
 	}
 }
@@ -93,6 +100,12 @@ user_mem_assert(struct task_struct *task, const void *va, size_t len, int perm)
 	return 0;
 }
 
+extern int fdtype(int fd);
+static int sys_fdtype(int fd)
+{
+	return fdtype(fd);
+}
+
 extern int pipe(int fd[2],int flags);
 static int 
 sys_pipe(int fd[2],int flags)
@@ -119,6 +132,12 @@ extern int dup(int);
 static int sys_dup(int fd)
 {
 	return dup(fd);
+}
+
+extern int dup2(int,int);
+static int sys_dup2(int new,int old)
+{
+	return dup2(new,old);
 }
 
 extern int create(char * ,int,int);
@@ -153,6 +172,11 @@ static void sys_close(int fd)
 	close(fd);
 }
 
+extern int execve(char *filename,char ** argv);
+static int sys_execve(char *filename,char **argv)
+{
+	return execve(filename,argv);
+}
 
 static int
 sys_exit(pid_t pid)

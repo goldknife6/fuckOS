@@ -52,8 +52,13 @@ _open(struct dentry *dentry,int mode,int flags,struct vfsmount *mnt)
 		file->f_vfsmnt = mnt;
 		file->f_op = inode->i_fop;
 		file->f_count = 1;
-		if (file->f_op->open) {
+		file->f_inode = inode;
+		if (file->f_op && file->f_op->open) {
 			res = file->f_op->open(inode,file);
+			if (res < 0) {
+				free_file(file);
+				return NULL;			
+			}
 		}
 	}
 	return file;

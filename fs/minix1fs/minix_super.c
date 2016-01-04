@@ -7,17 +7,17 @@
 static void destroy_minix_inode(struct inode *);
 static struct inode *alloc_minix_inode(struct super_block *);
 static int read_minix_inode(struct inode *);
-static int read_minix_super(struct super_block *);
+static int read_minix_super(struct super_block *,void*,int);
 
 struct super_operations minix_super_op = 
 {
 	.alloc_inode = alloc_minix_inode,
 	.destroy_inode = destroy_minix_inode,
 	.read_inode = read_minix_inode,
-	//.read_super = read_minix_super,
+	.read_super = read_minix_super,
 };
 
-int read_minix_super(struct super_block *sb)
+static int read_minix_super(struct super_block *sb,void* data,int slient)
 {
 	struct minix_superblock* msb = NULL;
 	struct buffer_head *buf = NULL;
@@ -76,10 +76,6 @@ alloc_minix_inode(struct super_block *sb)
 	struct minix_superblock *msb = NULL;
 	struct inode *inode = NULL;
 	msb = (struct minix_superblock *)sb->s_super;
-
-
-
-
 
 	return inode;
 }

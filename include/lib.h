@@ -18,11 +18,15 @@ extern int sys_dup(int fd);
 extern void sys_close(int fd);
 extern int sys_pipe(int fd[2],int flags);
 extern int sys_wait(pid_t pid);
+extern int sys_execve(char *filename,char **argv0);
+extern int sys_dup2(int oldfd,int newfd);
+extern int sys_fdtype(int fd);
 
 extern viraddr_t brk(viraddr_t);
 extern viraddr_t sbrk(viraddr_t);
 
-
+extern int iscons(int fd);
+extern int fdtype(int fd);
 extern pid_t fork(void);
 extern void exit(void);
 extern pid_t getpid(void);
@@ -38,10 +42,12 @@ extern int create(char *filename,int mode);
 extern int mkdir(char *filename,int mode);
 extern void close(int fd);
 extern int dup(int fd);
+extern int dup2(int oldfd,int newfd);
 extern int getchar();
 extern int putchar(char);
 extern char *readline(const char *);
 extern int wait(pid_t pid);
+extern int execve(char *filename,char * argv0, ...);
 
 struct malloc_chunk {
 	uint32_t size;

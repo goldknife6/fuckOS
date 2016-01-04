@@ -1,23 +1,26 @@
 #include <fuckOS/ramfs.h>
 #include <fuckOS/assert.h>
 #include <fuckOS/libfs.h>
+
 #include <sys/stat.h>
+#include <sys/elf.h>
 
 #include <string.h>
 #include <errno.h>
 
 
 static struct super_operations ramfs_ops;
-static struct inode_operations ramfs_file_inode_operations;
-static struct inode_operations ramfs_dir_inode_operations;
 
 
 static int ramfs_create(struct inode *,struct dentry *, int , struct nameidata *);
 static int ramfs_mknod(struct inode *, struct dentry *, int , int);
 static int ramfs_mkdir(struct inode *, struct dentry * , int);
+static int ramfs_file_write(struct file *,char* , int ,int );
+static int ramfs_file_read(struct file *,char* , int ,int );
+static int ramfs_file_open(struct inode *,struct file *);
 
 
-static struct inode_operations ramfs_dir_inode_operations = 
+struct inode_operations ramfs_dir_inode_operations = 
 {  
     .create     = ramfs_create,  
     .lookup     = simple_dir_inode_lookup,  
@@ -27,20 +30,62 @@ static struct inode_operations ramfs_dir_inode_operations =
     //.rename     = simple_rename,  
 };  
 
-static struct inode_operations ramfs_file_inode_operations = 
+struct inode_operations ramfs_file_inode_operations = 
 {  
-    .create     = ramfs_create,  
-    .lookup     = simple_file_inode_lookup,  
-    .mkdir      = ramfs_mkdir,  
-    //.rmdir      = simple_rmdir,  
-    .mknod      = ramfs_mknod,  
-    //.rename     = simple_rename,  
+	.create = ramfs_create,  
+	.lookup = simple_file_inode_lookup,  
+	.mkdir = ramfs_mkdir,  
+	//.rmdir  = simple_rmdir,  
+	.mknod  = ramfs_mknod,  
+	//.rename = simple_rename,  
+	
 }; 
 
 static struct file_operations ramfs_dir_operations = 
 {  
     
-}; 
+};
+
+struct file_operations ramfs_file_operations = 
+{
+	.read = ramfs_file_read,
+	.open = ramfs_file_open,
+	.write = ramfs_file_write,
+};
+
+static int ramfs_file_open(struct inode *inode,struct file *file)
+{
+	printk("open ram files\n");
+	return 0;
+}
+
+static int ramfs_file_read(struct file *file,
+			char* buf, int count,int offset)
+{
+	struct ram_file *ram;
+	struct inode *inode;
+	char *binary;
+	int curpos;
+
+	inode = file->f_inode;
+	assert(inode);
+
+	ram = (struct ram_file *)inode->i_inode;
+	assert(ram);
+
+	assert(file);
+	
+	curpos = file->f_pos;
+	assert(ram->start);
+	memcpy(buf,ram->start + curpos,count);
+	return count;
+}
+static int ramfs_file_write(struct file *file,
+			char* buf, int count,int offset)
+{
+	return 0;
+}
+ 
 
 
 static int  
@@ -70,10 +115,10 @@ static int
 ramfs_mkdir(struct inode *dir, 
 			struct dentry * dentry, int mode)  
 {  
-    int retval = ramfs_mknod(dir, dentry, mode | S_IFDIR, 0);  
-    if (!retval)  
-        dir->i_nlink++;
-    return retval;  
+	int retval = ramfs_mknod(dir, dentry, mode | S_IFDIR, 0);  
+	if (!retval)  
+		dir->i_nlink++;
+	return retval;  
 } 
 
 struct inode *

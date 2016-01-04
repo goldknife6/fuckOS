@@ -38,8 +38,9 @@ int exit_notify(struct task_struct *t)
 	
 
 	if (t->pwait) {
-		ret = pid2task(t->ppid, &p, 0);
-		assert(ret == 0);
+		p = task_pidmap[t->ppid];
+		//ret = pid2task(t->ppid, &p, 0);
+		//assert(ret == 0);
 		p->task_status = TASK_RUNNING;
 		schedule_add_task(p);
 	}

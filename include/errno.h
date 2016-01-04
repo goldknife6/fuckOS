@@ -56,5 +56,6 @@ extern int errno;
 #define	EMPROC		37	/* Too many processes */
 #define	EEOF		38	/* eof */
 #define	EPEMPTY		39	/* pipe full or empty */
+#define	ERROR		99
 #define	MAXERROR	40
 #endif/*_ERRNO_H*/

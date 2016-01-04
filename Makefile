@@ -43,6 +43,11 @@ USEROBJ 	:= $(patsubst %.c,%,$(USEROBJ))
 USEROBJ 	:= $(notdir $(USEROBJ))
 USEROBJ 	:= $(patsubst %,$(OBJDIR)/user/%.bin,$(USEROBJ))
 
+FILE 		:= $(ROOTDIR)/fs/*.sh
+FILE 		:= $(wildcard $(FILE))
+FILE 		:= $(notdir $(FILE))
+FILE 		:= $(patsubst %.sh,$(OBJDIR)/fs/%.bin,$(FILE))
+
 OBJFILE 	+= obj/lib/string.o obj/lib/printfmt.o
 
 # Eliminate default suffix rules
@@ -55,10 +60,13 @@ all:$(SUBDIRS)  $(ROOTDIR)/kern $(IMAGES)
 
 $(ROOTDIR)/kern:$(OBJFILE) $(USEROBJ)
 	@echo + $(LD)  -o $@ $(OBJFILE) $(USEROBJ)
-	$(V)$(LD)  -o $@ $(KLDFLAGS) $(OBJFILE) $(USEROBJ)  $(GCC_LIB)
+	$(V)$(LD)  -o $@ $(KLDFLAGS) $(OBJFILE) $(USEROBJ) $(FILE)  $(GCC_LIB)
 	$(V)cp kern $(IOSDIR)/boot/
 	$(V)$(GRUB) -o $(IMAGES) $(IOSDIR)
 	$(V)$(OBJDUMP) -S kern > asm.S
+
+
+
 
 $(SUBDIRS):E
 	$(V)make -s -C  $@

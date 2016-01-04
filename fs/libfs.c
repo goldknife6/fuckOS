@@ -262,13 +262,12 @@ simple_get_inode(struct super_block *sb,
 	return inode;
 }
 
-int create_node(struct dentry *parent, 
+struct inode * create_node(struct dentry *parent, 
 			struct qstr *name,int mode,
 				struct file_operations *fop,
 				struct inode_operations *iop)
 {
-	int res = -ENOMEM;
-	struct inode *inode;
+	struct inode *inode = NULL;
 	struct dentry *dentry;
 	struct super_block *sb;
 	if (parent) {
@@ -283,9 +282,8 @@ int create_node(struct dentry *parent,
 		assert(dentry);
 		dentry->d_inode = inode;
 		dentry_insert(parent,dentry);
-		res = 0;
 		printk("create node:%.*s %o\n",name->len,name->name,mode);
 	}
-	return res;
+	return inode;
 }
 

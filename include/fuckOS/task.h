@@ -81,10 +81,10 @@ struct pidmap
 
 #define TASK_PASTE3(x, y, z) x ## y ## z
 
-#define TASK_CREATE(x, type)						\
+#define TASK_CREATE(x, type,ppid)						\
 	do {									\
 		extern uint8_t TASK_PASTE3(_binary_, x, _start)[];		\
-		task_create(TASK_PASTE3(_binary_, x, _start),type);		\
+		task_create(TASK_PASTE3(_binary_, x, _start),type,ppid);		\
 	} while (0)
 
 #define curtask	 	(thiscpu->cpu_task)
@@ -92,7 +92,7 @@ struct pidmap
 
 extern struct task_struct* task_pidmap[];
 
-extern int task_create(uint8_t *, enum task_type );
+extern struct task_struct * task_create(uint8_t *, enum task_type ,int);
 extern int task_run(struct task_struct *);
 extern int pid2task(pid_t, struct task_struct **, bool);
 extern int user_mem_assert(struct task_struct *, const void *, size_t , int );

@@ -36,5 +36,5 @@ extern int simple_super_read_inode(struct inode *);
 extern int simple_super_read_super(struct super_block * , void *, int );
 
 extern struct inode *simple_get_inode(struct super_block *,int, int);
-extern int create_node(struct dentry *, struct qstr *,int ,struct file_operations *,struct inode_operations *);
+extern struct inode *create_node(struct dentry *, struct qstr *,int ,struct file_operations *,struct inode_operations *);
 #endif/*!_MINIOS_LIBFS_H*/

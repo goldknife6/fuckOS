@@ -38,19 +38,16 @@ void handle_key(uint32_t key)
 				key = -EEOF;goto inkey;
 			default:
 				return;
-		} else {
-			console_write_char(key & 0xFF);
-		}
+		} else
+			key = key & 0xff;
 	} else {
 		int raw_code = key & MASK_RAW;
 		
 		switch(raw_code) {
 		case ENTER:
-			console_write_char('\n');
 			key = '\n';
 			goto inkey;
 		case BACKSPACE:
-			console_write_char('\b');
 			key = '\b';
 			goto inkey;
 		case UP:

@@ -207,26 +207,26 @@ task_alloc(struct task_struct **newenv_store, pid_t parent_id)
 	return 0;
 }
 
-int
-task_create(uint8_t *binary, enum task_type type)
+struct task_struct *
+task_create(uint8_t *binary, enum task_type type,int ppid)
 {
 	int reval;
 	struct task_struct *task;
-	reval = task_alloc(&task, 0);
+	reval = task_alloc(&task, ppid);
 	if (reval < 0) {
 		assert(0);		
-		return reval;
+		return NULL;
 	}
 
 	reval = load_icode(task, binary);
 	if (reval < 0) {
 		assert(0);
-		return reval;
+		return NULL;
 	}
 	task->task_type = type;
 	task_pidmap[task->pid] = task;
 	schedule_add_task(task);
-	return 0;
+	return task;
 }
 
 void

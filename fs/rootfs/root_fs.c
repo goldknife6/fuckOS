@@ -37,8 +37,7 @@ static int rootfs_init(void *v)
 
 	print_dentry(root_dentry);
 
-	res = create_node(root_dentry, &(struct qstr) { "dev", 3},S_IFDIR,NULL,NULL);
-	assert(res >= 0);
+	create_node(root_dentry, &(struct qstr) { "dev", 3},S_IFDIR,NULL,NULL);
 	return 0;
 }
 

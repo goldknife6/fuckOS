@@ -11,11 +11,14 @@ objects := $(patsubst %,$(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%,$(objects))
 
 DEPS = $(patsubst %.c,$(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%.d,$(wildcard *.c)) 
 
-
+FILE 		:= $(ROOTDIR)/fs/*.sh
+FILE 		:= $(wildcard $(FILE))
+FILE 		:= $(notdir $(FILE))
+FILE 		:= $(patsubst %.sh,$(ROOTDIR)/$(OBJDIR)/fs/%.bin,$(FILE))
 
 
 .PHONY: all
-all: $(SUBDIRS) $(DEPS) $(objects)
+all: $(SUBDIRS) $(DEPS) $(objects)  $(FILE)
 	
 $(DEPS):$(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%.d:%.c
 	@mkdir -p $(@D)
@@ -23,6 +26,10 @@ $(DEPS):$(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%.d:%.c
 
 
 -include $(DEPS)
+
+$(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%.bin:%.sh
+	@echo $(notdir $^)
+	@cd $(ROOTDIR)/$(OBJDIR)/$(CURDIR) ; $(OBJCOPY)  -I binary -O  elf32-i386 -B i386 $(notdir $^) $@
 
 $(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%.o:%.c $(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%.d
 	@echo + cc $< 
@@ -33,6 +40,7 @@ $(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%.o:%.S
 	@echo + cc $< 
 	@mkdir -p $(@D)
 	$(V)$(CC) $(KCFLAGS) -c $< -o $@
+
 
 
 

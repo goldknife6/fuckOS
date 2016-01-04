@@ -27,18 +27,12 @@ char *
 readline(const char *prompt)
 {
 	int i, c, echoing;
-/*
-#if JOS_KERNEL
+
 	if (prompt != NULL)
 		printf("%s", prompt);
-#else
-	if (prompt != NULL)
-		fprintf(1, "%s", prompt);
-#endif
-*/
+
 	i = 0;
-	//echoing = iscons(0);
-	echoing = 1;
+	echoing = iscons(0);
 	while (1) {
 		c = getchar();
 		if (c < 0) {
@@ -55,7 +49,7 @@ readline(const char *prompt)
 			buf[i++] = c;
 		} else if (c == '\n' || c == '\r') {
 			if (echoing)
-				printf("1\n");
+				printf("\n");
 			buf[i] = 0;
 			return buf;
 		}

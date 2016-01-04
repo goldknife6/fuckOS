@@ -24,9 +24,24 @@ void sys_cputs(const char *s, size_t len)
 	syscall(SYS_CPUTS,(uint32_t)s, len, 0, 0, 0);
 }
 
+int sys_execve(char *filename,char **argv)
+{
+	return syscall(SYS_EXEC,(uint32_t)filename, (uint32_t)argv, 0, 0, 0);
+}
+
 int sys_exit(pid_t pid)
 {
 	return syscall(SYS_EXIT,(uint32_t)pid,0,0,0,0);
+}
+
+int sys_dup2(int oldfd,int newfd)
+{
+	return syscall(SYS_DUP2,(uint32_t)oldfd,(uint32_t)newfd,0,0,0);
+}
+
+int sys_fdtype(int fd)
+{
+	return syscall(SYS_FDTYPE,(uint32_t)fd,0,0,0,0);
 }
 
 pid_t sys_getpid()

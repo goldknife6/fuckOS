@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 
-#define DEPTH 50
+#define DEPTH 3
 
 void forktree(const char *cur);
 
@@ -37,7 +37,7 @@ forktree(const char *cur)
 int
 main(int argc, char **argv)
 {
-	open("/dev/tty",O_RDWR,0);
+	//open("/dev/tty",O_RDWR,0);
 	forktree("");
 	//printf("forktree over!%d\n",getpid());
 	return 0;
