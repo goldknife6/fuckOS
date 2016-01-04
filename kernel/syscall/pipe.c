@@ -43,6 +43,7 @@ int pipe(int fd[2],int flags)
 	f1->f_dentry = f2->f_dentry = dentry;
 	f1->f_vfsmnt = f2->f_vfsmnt = pipe_mnt;
 	f1->f_inode = f2->f_inode = inode;
+	f1->f_count = f2->f_count = 1;
 
 	f1->f_pos = f2->f_pos = 0;
 	f1->f_flags = O_RDONLY;
@@ -92,6 +93,8 @@ get_pipe_info(void)
 		info->p_page = new;
 		info->p_rpos = 0;
 		info->p_wpos = 0;
+		info->p_reader = 1;
+		info->p_writer = 1;
 	}
 	return info;
 }

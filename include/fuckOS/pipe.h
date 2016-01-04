@@ -11,6 +11,8 @@ struct pipe_inode_info {
 	struct page *p_page;
 	uint32_t p_rpos;
 	uint32_t p_wpos;
+	int	p_reader;
+	int	p_writer;
 };
 
 

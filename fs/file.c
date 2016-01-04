@@ -54,6 +54,10 @@ void deref_file(int fd)
 	struct file *file = curtask->files->fd[fd];
 	if (!file)
 		panic("deref_file\n");
+	
+	if (file->f_op && file->f_op->flush)
+		file->f_op->flush(file);
+
 	file->f_count--;
 	if (!file->f_count) {
 		if (file->f_op && file->f_op->release)

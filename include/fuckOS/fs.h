@@ -101,6 +101,7 @@ struct file_operations {
 	int (*write)(struct file * ,char*, int ,int);
 	int (*open)(struct inode *,struct file *);
 	int (*release)(struct inode *,struct file *);
+	int (*flush)(struct file *);
 };
 
 struct files_struct {

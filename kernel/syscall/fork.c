@@ -79,7 +79,7 @@ int alloc_task(struct task_struct **newenv_store,pid_t ppid)
 	task->ppid = ppid;
 	task->task_type = TASK_TYPE_USER;
 	task->task_status = TASK_RUNNING;
-	task->timeslice = 10;
+	task->timeslice = 3;
 
 	memset(&task->frame, 0, sizeof(struct frame));
 

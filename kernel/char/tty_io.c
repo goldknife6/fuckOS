@@ -18,6 +18,8 @@ int tty_read(int num, int *buf, int nr)
 			break;
 		*(buf++) = *(start++);
 		tty.read_q.head++;
+		if (tty.read_q.head >= TTY_BUF_SIZE)
+			tty.read_q.head = 0;
 	}
 	return i;
 }

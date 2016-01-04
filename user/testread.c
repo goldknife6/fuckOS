@@ -1,11 +1,14 @@
 #include <lib.h>
+#include <fcntl.h>
 #include <stdio.h>
 
 int main()
 {
-	int r;
-	char buf[512];
-	r = read(1,buf,512);
-	printf("%d %s\n",r,buf);
+	int fd,r;
+	fd = open("/dev/tty",O_RDWR,0);
+	while(1){
+		r = getchar();
+		printf("%x\n",r);
+	}
 	return 0;
 }
