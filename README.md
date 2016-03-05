@@ -11,6 +11,7 @@ QEMU emulator version 2.3.0
 ThinkPad E431
 
 具体实现与特点:
+
 1、可在真机上运行
 
 2、实现buddy分页系统，slub内存分配系统
