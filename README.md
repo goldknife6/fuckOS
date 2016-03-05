@@ -1,4 +1,4 @@
-一个迷你型类Linux操作系统
+#迷你型类Linux操作系统
 
 此项目的灵感来源于 MIT 6.828 的课程
 
@@ -33,7 +33,7 @@
 一会再写。。
 
 
-# miniOS
+
 A mini operating system.
 
 You need bochs or qemu to boot this os.
