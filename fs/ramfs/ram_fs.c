@@ -63,4 +63,6 @@ static void create_file(struct dentry *parent)
 	CREATE("num",num,parent);
 	CREATE("cat",cat,parent);
 	CREATE("shell_sh",shell_sh,parent);
+	CREATE("lorem_sh",lorem_sh,parent);
+	CREATE("script_sh",script_sh,parent);
 }

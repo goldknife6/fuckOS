@@ -85,7 +85,6 @@ create_vma(struct mm_struct* mm, viraddr_t addr,
 	assert(mm);
 #endif
 	
-
 	if(!ROUNDDOWN(addr,PAGE_SIZE))  
 		return NULL;
 
@@ -136,9 +135,12 @@ find_vma(struct mm_struct* mm, viraddr_t addr)
 			rb_node = rb_node->rb_left;		
 		} else
 			rb_node = rb_node->rb_right;
+
+
 	}
 	return vma;
 }
+
 
 struct vm_area_struct*
 find_vma_prev(struct mm_struct* mm, viraddr_t addr)
@@ -148,18 +150,19 @@ find_vma_prev(struct mm_struct* mm, viraddr_t addr)
 	struct vm_area_struct* vma_tmp = NULL;
 
 	while (rb_node) {
+
 		vma_tmp = rb_entry(rb_node, struct vm_area_struct, vm_rb);
 
-		if (vma_tmp->vm_start < addr) {
+		if (vma_tmp->vm_end < addr) {
 
 			vma = vma_tmp;
 
-			if(vma_tmp->vm_end > addr)
+			if(vma_tmp->vm_start <= addr)
 				break;
 
-			rb_node = rb_node->rb_right;		
+			rb_node = rb_node->rb_left;		
 		} else
-			rb_node = rb_node->rb_left;
+			rb_node = rb_node->rb_right;
 	}
 	return vma;
 }
@@ -237,6 +240,7 @@ vm_link(struct mm_struct* mm, struct vm_area_struct* vmp)
 	mm->mmap_count++;
 }
 
+
 static void 
 vm_link_del(struct mm_struct* mm, struct vm_area_struct* vmp)
 {
@@ -249,7 +253,7 @@ vm_link_del(struct mm_struct* mm, struct vm_area_struct* vmp)
 	struct rb_node** rb_node = &mm->mm_rb.rb_node;
 	struct vm_area_struct* vma;
 	struct vm_area_struct* tmp;
-
+	
 	vma = find_vma(mm, vmp->vm_start);
 
 	if (vma != vmp) {

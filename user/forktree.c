@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 
-#define DEPTH 3
+#define DEPTH 10
 
 void forktree(const char *cur);
 

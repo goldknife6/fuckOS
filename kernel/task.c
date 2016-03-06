@@ -90,7 +90,10 @@ load_icode(struct task_struct *task, uint8_t *binary)
 
 	task->frame.tf_eip = eh->e_entry;
 
-	lcr3(pgd2p(kpgd));
+	if (!curtask)
+		lcr3(pgd2p(kpgd));
+	else 
+		lcr3(pgd2p(curtask->task_pgd));
 	return 0;
 }
 

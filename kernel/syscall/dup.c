@@ -26,7 +26,7 @@ int dup(int odlfd)
 
 int dup2(int oldfd,int newfd)
 {
-	struct file *file,*old;
+	struct file *old;
 	struct inode * inode;
 	int retval,fd;
 
@@ -37,8 +37,9 @@ int dup2(int oldfd,int newfd)
 	if (retval < 0)
 		return retval;
 
-	if (curtask->files->fd[newfd])
-		return -1;
+	if (curtask->files->fd[newfd]) {
+		deref_file(newfd);
+	}
 
 	curtask->files->fd[newfd] = old;
 	old->f_count++;

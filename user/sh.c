@@ -4,7 +4,7 @@
 #include <args.h>
 #include <string.h>
 #define BUFSIZ 1024		/* Find the buffer overrun bug! */
-int debug = 1;
+int debug = 0;
 
 
 // gettoken(s, 0) prepares gettoken for subsequent calls and returns 0.

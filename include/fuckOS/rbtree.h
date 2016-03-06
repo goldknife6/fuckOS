@@ -38,9 +38,9 @@ struct rb_root
   struct rb_node *rb_node;
 };
 
-extern inline void RBTREE_ROOT_INIT(struct rb_root* rbroot);
-extern inline void RBTREE_NODE_INIT(struct rb_node* rbnode);
+extern void RBTREE_ROOT_INIT(struct rb_root* rbroot);
+extern void RBTREE_NODE_INIT(struct rb_node* rbnode);
 extern void rbtree_delete(struct rb_root* rbroot, struct rb_node* rbnode);
-extern inline void rb_link_node(struct rb_node* node, struct rb_node* parent, struct rb_node** rb_link);
+extern void rb_link_node(struct rb_node* node, struct rb_node* parent, struct rb_node** rb_link);
 extern struct rb_node *rb_first(struct rb_root *root);
 #endif/*!_MINIOS_RBTREE_H_*/

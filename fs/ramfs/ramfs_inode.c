@@ -75,9 +75,16 @@ static int ramfs_file_read(struct file *file,
 
 	assert(file);
 	
-	curpos = file->f_pos;
 	assert(ram->start);
-	memcpy(buf,ram->start + curpos,count);
+	if (file->f_pos >= ram->size)
+		return 0;
+
+	if (file->f_pos +  count >= ram->size) {
+		count = ram->size - file->f_pos;
+	}
+	memcpy(buf,ram->start + file->f_pos,count);
+	file->f_pos += count;
+
 	return count;
 }
 static int ramfs_file_write(struct file *file,

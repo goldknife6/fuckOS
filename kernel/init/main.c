@@ -94,14 +94,14 @@ void os_entry(void* ginfo,uint32_t gmagic)
 	//pci_init();
 
 	keyboard_init();
-	ide_init();
+	//ide_init();
 
 	filesystem_init();
 
 	//AP初始化
 	//ap_startup();
 	TASK_CREATE(initsh, TASK_TYPE_USER,-1);
-	//TASK_CREATE(testopen, TASK_TYPE_USER,-1);
+	//TASK_CREATE(primeproc, TASK_TYPE_USER,-1);
 	//TASK_CREATE(idle, TASK_TYPE_USER,0);
 	schedule();
 }

@@ -6,6 +6,10 @@ int
 main(int argc, char **argv)
 {
 	int i, nflag;
+	//printf("echo runing!\n");
+
+
+	//printf("argc:%d argv:%x ADDR:%x\n",argc,argv,&argc);
 
 	nflag = 0;
 	if (argc > 1 && strcmp(argv[1], "-n") == 0) {

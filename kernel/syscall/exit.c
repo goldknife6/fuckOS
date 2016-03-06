@@ -20,6 +20,7 @@ int exit(struct task_struct *task)
 	schedule_delete_task(task);
 	exit_notify(task);
 	exit_mm(task->mm);
+	exit_files(task);
 	exit_task(task);
 
 	if (task == curtask) {
@@ -49,7 +50,10 @@ int exit_notify(struct task_struct *t)
 
 int exit_files(struct task_struct *task)
 {
-	
+	int i;
+	for (i = 0; i < MAX_FILE;i++) {
+		deref_file(i);	
+	}
 	return 0;
 }
 

@@ -14,5 +14,5 @@ void close(int fd)
 	if (retval < 0)
 		return;
 	
-	deref_file(fd);	
+	//deref_file(fd);	
 }

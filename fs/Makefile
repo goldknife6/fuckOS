@@ -29,6 +29,7 @@ $(DEPS):$(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%.d:%.c
 
 $(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%.bin:%.sh
 	@echo $(notdir $^)
+	@cp $(notdir $^) $(ROOTDIR)/$(OBJDIR)/$(CURDIR)
 	@cd $(ROOTDIR)/$(OBJDIR)/$(CURDIR) ; $(OBJCOPY)  -I binary -O  elf32-i386 -B i386 $(notdir $^) $@
 
 $(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%.o:%.c $(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%.d

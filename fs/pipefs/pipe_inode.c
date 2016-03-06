@@ -72,7 +72,7 @@ static int pipefs_file_write(struct file *file,
 	for (i = 0; i < count; i++) {
 
 		if (info->p_wpos >= info->p_rpos + PAGE_SIZE) {
-			if (i > 0)
+			if (i >= 0)
 				return i;
 			if (info->p_reader == 0) {
 				return 0;

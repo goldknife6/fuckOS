@@ -52,9 +52,7 @@ main(int argc, char **argv)
 	if (pid == 0) {
 		close(p[0]);int r = 0;
 		while (1) {
-			r = getchar();
-			printf("getchar %d\n", r);
-			if ((write(p[1], "x", 1)) != 1) {printf("%d",r++);
+			if ((write(p[1], "x", 1)) != 1) {
 				break;
 			}		
 		}	
