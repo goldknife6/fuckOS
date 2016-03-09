@@ -4,8 +4,8 @@
 
 ##<a name = "index"/>目录
 * [操作系统介绍](#操作系统介绍)
+* [ELF文件格式介绍](#ELF文件格式介绍)
 * [加载器介绍介绍](#加载器介绍) 
-* [ELF文件格式介绍](#语法要素)
 * [Buddy系统介绍](#语法要素)
 * [slub内存分配系统介绍](#语法要素)
 
@@ -50,7 +50,7 @@
 #加载器介绍
 此操作系统并没有实现加载器，而是使用的现成的Grub加载器。为了使内核可以被Grub加载到内存，内核的前8192个字节内必须包含多重引导头部
 
-其实很简单，只要在内核入口文件entry.S前加上几行代码就可以了,这些字段的详细定义和多重引导头部请参考[Multiboot规范](http://www.red-bean.com/doc/multiboot/html/multiboot.html "悬停显示")  
+其实很简单，只要在内核入口文件entry.S前加上几行代码就可以了,这些字段和多重引导头部的详细定义请参考[Multiboot规范](http://www.red-bean.com/doc/multiboot/html/multiboot.html "悬停显示")  
 ```
 	.text
 	.globl  start, _start
@@ -72,9 +72,8 @@ _header_end:
 ```
 有了这个头部，Grub就会把内核加载到制定的物理内存中，然后Grub就会把控制权交给内核的入口点，也就是start
 
-
-
-
+<a name = "ELF文件格式介绍"/>
+#ELF文件格式介绍
 
 
 
