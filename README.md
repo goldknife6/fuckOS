@@ -82,12 +82,79 @@ ELF全称为Executable and Linking Format，在《深入理解计算机系统》
 1) 可重定位目标文件
 
 这是由汇编器汇编生成的 .o 文件。链接器拿一个或一些可重定位目标文件（Relocatable object files） 作为输入，经链接处理后，生成一个可执行的目标文件 (Executable file) 或者一个可被共享的对象文件(Shared object file)。
+
 2) 可执行目标文件(Executable file)
 
 包含二进制代码和数据，可以直接加载进内存并执行的一种文件。文本编辑器vi、调式用的工具gdb、播放mp3歌曲的软件mplayer等等都是Executable object file。
+
 3) 可被共享的对象文件(Shared object file)
 
 一种特殊类型的可重定位目标文件，可以在加载或者运行时被动态地加载到内存中，这些就是所谓的动态库文件，也即 .so 
+
+
+
+zz@zz-pc:~/fuckOS$ readelf -a kern
+ELF Header:
+  Magic:   7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00 
+  Class:                             ELF32
+  Data:                              2's complement, little endian
+  Version:                           1 (current)
+  OS/ABI:                            UNIX - System V
+  ABI Version:                       0
+  Type:                              EXEC (Executable file)
+  Machine:                           Intel 80386
+  Version:                           0x1
+  Entry point address:               0xc0100000
+  Start of program headers:          52 (bytes into file)
+  Start of section headers:          1112092 (bytes into file)
+  Flags:                             0x0
+  Size of this header:               52 (bytes)
+  Size of program headers:           32 (bytes)
+  Number of program headers:         3
+  Size of section headers:           40 (bytes)
+  Number of section headers:         11
+  Section header string table index: 8
+
+Section Headers:
+  [Nr] Name              Type            Addr     Off    Size   ES Flg Lk Inf Al
+  [ 0]                   NULL            00000000 000000 000000 00      0   0  0
+  [ 1] .text             PROGBITS        c0100000 001000 009ce1 00  AX  0   0 16
+  [ 2] .rodata           PROGBITS        c0109d00 00ad00 0015c0 00   A  0   0 32
+  [ 3] .stab             PROGBITS        c010b2c0 00c2c0 01b511 0c   A  4   0  4
+  [ 4] .stabstr          STRTAB          c01267d1 0277d1 00e68e 00   A  0   0  1
+  [ 5] .data             PROGBITS        c0135000 036000 0d3a83 00  WA  0   0 4096
+  [ 6] .bss              NOBITS          c0209000 109a83 13a164 00  WA  0   0 4096
+  [ 7] .comment          PROGBITS        00000000 109a83 000056 01  MS  0   0  1
+  [ 8] .shstrtab         STRTAB          00000000 109ad9 00004c 00      0   0  1
+  [ 9] .symtab           SYMTAB          00000000 109b28 0034f0 10     10 192  4
+  [10] .strtab           STRTAB          00000000 10d018 002802 00      0   0  1
+Key to Flags:
+  W (write), A (alloc), X (execute), M (merge), S (strings)
+  I (info), L (link order), G (group), T (TLS), E (exclude), x (unknown)
+  O (extra OS processing required) o (OS specific), p (processor specific)
+
+There are no section groups in this file.
+
+Program Headers:
+  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
+  LOAD           0x001000 0xc0100000 0x00100000 0x34e5f 0x34e5f R E 0x1000
+  LOAD           0x036000 0xc0135000 0x00135000 0xd3a83 0x20e164 RW  0x1000
+  GNU_STACK      0x000000 0x00000000 0x00000000 0x00000 0x00000 RWE 0x10
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 A mini operating system.
 
