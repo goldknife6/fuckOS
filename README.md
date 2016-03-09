@@ -142,7 +142,7 @@ Program Headers:
   GNU_STACK      0x000000 0x00000000 0x00000000 0x00000 0x00000 RWE 0x10
 ```
 
-
+上面就是内核的ELF文件头的内容，其中 Program Headers 中的 LOAD 类型的节很重要，下面会讲到Grub加载器会把LOAD类型的节加载到由PhysAddr指定的物理内存中去
 
 
 
