@@ -80,12 +80,13 @@ ELF全称为Executable and Linking Format，在《深入理解计算机系统》
 目标文件有三种格式：
 
 1) 可重定位目标文件
+
 这是由汇编器汇编生成的 .o 文件。链接器拿一个或一些可重定位目标文件（Relocatable object files） 作为输入，经链接处理后，生成一个可执行的目标文件 (Executable file) 或者一个可被共享的对象文件(Shared object file)。
-
 2) 可执行目标文件(Executable file)
-包含二进制代码和数据，可以直接加载进内存并执行的一种文件。文本编辑器vi、调式用的工具gdb、播放mp3歌曲的软件mplayer等等都是Executable object file。
 
+包含二进制代码和数据，可以直接加载进内存并执行的一种文件。文本编辑器vi、调式用的工具gdb、播放mp3歌曲的软件mplayer等等都是Executable object file。
 3) 可被共享的对象文件(Shared object file)
+
 一种特殊类型的可重定位目标文件，可以在加载或者运行时被动态地加载到内存中，这些就是所谓的动态库文件，也即 .so 
 
 A mini operating system.
