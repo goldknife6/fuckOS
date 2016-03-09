@@ -48,8 +48,9 @@
 
 <a name = "加载器介绍"/>
 #加载器介绍
-此操作系统并没有实现加载器，而是使用的现成的Grub加载器。为了使内核可以被Grub加载到内存，内核的前8192个字节内必须包含多重引导头部处需要了解Multiboot规范。
-其实很简单，只要在内核入口文件entry.S前加上几行代码就可以了,这些字段的详细定义请参考Multiboot规范[Multiboot规范客](http://www.red-bean.com/doc/multiboot/html/multiboot.html "悬停显示")  
+此操作系统并没有实现加载器，而是使用的现成的Grub加载器。为了使内核可以被Grub加载到内存，内核的前8192个字节内必须包含多重引导头部
+
+其实很简单，只要在内核入口文件entry.S前加上几行代码就可以了,这些字段的详细定义和多重引导头部请参考[Multiboot规范](http://www.red-bean.com/doc/multiboot/html/multiboot.html "悬停显示")  
 ```
 	.text
 	.globl  start, _start
@@ -69,7 +70,7 @@ _header_start:
 	.long 8
 _header_end:
 ```
-
+有了这个头部，Grub就会把内核加载到制定的物理内存中，然后Grub就会把控制权交给内核的入口点，也就是start
 
 
 
