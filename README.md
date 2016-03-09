@@ -155,11 +155,11 @@ _header_end:
 ##内存管理
 内存管理
 <a name = "#Buddy系统"/>
-###Buddy系统
+####Buddy系统
 
 Buddy系统
 <a name = "#Slub内存分配系统"/>
-###Slub内存分配系统 
+####Slub内存分配系统 
         Slub内存分配系统
 <a name = "#链接脚本介绍"/>
 #链接脚本介绍
