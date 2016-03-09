@@ -92,7 +92,7 @@ ELF全称为Executable and Linking Format，在《深入理解计算机系统》
 一种特殊类型的可重定位目标文件，可以在加载或者运行时被动态地加载到内存中，这些就是所谓的动态库文件，也即 .so 
 
 
-
+```
 zz@zz-pc:~/fuckOS$ readelf -a kern
 ELF Header:
   Magic:   7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00 
@@ -140,7 +140,7 @@ Program Headers:
   LOAD           0x001000 0xc0100000 0x00100000 0x34e5f 0x34e5f R E 0x1000
   LOAD           0x036000 0xc0135000 0x00135000 0xd3a83 0x20e164 RW  0x1000
   GNU_STACK      0x000000 0x00000000 0x00000000 0x00000 0x00000 RWE 0x10
-
+```
 
 
 
