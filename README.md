@@ -5,7 +5,7 @@
 ##<a name = "index"/>目录
 * [操作系统介绍](#操作系统介绍)
 * [ELF文件格式介绍](#ELF文件格式介绍)
-* [加载器介绍介绍](#加载器介绍) 
+* [Grub加载器介绍](#加载器介绍) 
 * [Buddy系统介绍](#语法要素)
 * [slub内存分配系统介绍](#语法要素)
 
@@ -46,7 +46,7 @@
 制作u盘启动:
 一会再写。。
 
-<a name = "加载器介绍"/>
+<a name = "Grub加载器介绍"/>
 #加载器介绍
 此操作系统并没有实现加载器，而是使用的现成的Grub加载器。为了使内核可以被Grub加载到内存，内核的前8192个字节内必须包含多重引导头部
 
@@ -74,11 +74,14 @@ _header_end:
 
 <a name = "ELF文件格式介绍"/>
 #ELF文件格式介绍
-
-
-
-
-
+ELF全称为Executable and Linking Format，在《深入理解计算机系统》的第七章里面说的很明白了，说白了就是一种目标文件格式。
+目标文件有三种格式：
+1) 可重定位目标文件
+这是由汇编器汇编生成的 .o 文件。链接器拿一个或一些可重定位目标文件（Relocatable object files） 作为输入，经链接处理后，生成一个可执行的目标文件 (Executable file) 或者一个可被共享的对象文件(Shared object file)。
+2) 可执行目标文件(Executable file)
+包含二进制代码和数据，可以直接加载进内存并执行的一种文件。文本编辑器vi、调式用的工具gdb、播放mp3歌曲的软件mplayer等等都是Executable object file。
+3) 可被共享的对象文件(Shared object file)
+一种特殊类型的可重定位目标文件，可以在加载或者运行时被动态地加载到内存中，这些就是所谓的动态库文件，也即 .so 
 A mini operating system.
 
 You need bochs or qemu to boot this os.
