@@ -158,8 +158,8 @@ _header_end:
 ### Buddy系统
 
 Buddy系统
-<a name = "Slub内存分配系统"/>
-### 内存分配系统 
+<a name = "内存分配系统"/>
+### Slub内存分配系统 
 
 Slub内存分配系统
         
