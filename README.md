@@ -47,35 +47,10 @@
 
 一会再写。。
 
-<a name = "Grub加载器介绍"/>
-#加载器介绍
-此操作系统并没有实现加载器，而是使用的现成的Grub加载器。为了使内核可以被Grub加载到内存，内核的前8192个字节内必须包含多重引导头部
-
-其实很简单，只要在内核入口文件entry.S前加上几行代码就可以了,这些字段和多重引导头部的详细定义请参考[Multiboot规范](http://www.red-bean.com/doc/multiboot/html/multiboot.html "悬停显示")  
-```
-	.text
-	.globl  start, _start
-start: 
-_start:
-	jmp 	multiboot_entry
-
-	.balign	MULTIBOOT_HEADER_ALIGN
-_header_start:
-	.long	MULTIBOOT2_HEADER_MAGIC
-	.long	MULTIBOOT_ARCHITECTURE_I386
-	.long	_header_end - _header_start
-	.long	CHECKSUM
-	.balign MULTIBOOT_TAG_ALIGN
-	.word MULTIBOOT_HEADER_TAG_END
-	.word 0	
-	.long 8
-_header_end:
-```
-有了这个头部，Grub就会把内核加载到制定的物理内存中，然后Grub就会把控制权交给内核的入口点，也就是start
 
 <a name = "ELF文件格式介绍"/>
 #ELF文件格式介绍
-ELF全称为Executable and Linking Format，在《深入理解计算机系统》的第七章里面说的很明白了，说白了就是一种目标文件格式。
+ELF全称为Executable and Linking Format，在《深入理解计算机系统》的第七章里面说的很明白了，说白了就是一种目标文件格式。详细内容请自行参考[Executable and Linking Format Specification](https://uclibc.org/docs/elf.pdf "悬停显示")
 
 目标文件有三种格式：
 
@@ -142,9 +117,34 @@ Program Headers:
   GNU_STACK      0x000000 0x00000000 0x00000000 0x00000 0x00000 RWE 0x10
 ```
 
-上面就是内核的ELF文件头的内容，其中 Program Headers 中的 LOAD 类型的节很重要，下面会讲到Grub加载器会把LOAD类型的节加载到由PhysAddr指定的物理内存中去
+上面就是内核的ELF文件头的内容，其中 Program Headers 中的 LOAD 类型的节会被加载到内存中
 
 
+<a name = "Grub加载器介绍"/>
+#加载器介绍
+此操作系统并没有实现加载器，而是使用的现成的Grub加载器。为了使内核可以被Grub加载到内存，内核的前8192个字节内必须包含多重引导头部
+
+其实很简单，只要在内核入口文件entry.S前加上几行代码就可以了,这些字段和多重引导头部的详细定义请参考[Multiboot规范](http://www.red-bean.com/doc/multiboot/html/multiboot.html "悬停显示")  
+```
+	.text
+	.globl  start, _start
+start: 
+_start:
+	jmp 	multiboot_entry
+
+	.balign	MULTIBOOT_HEADER_ALIGN
+_header_start:
+	.long	MULTIBOOT2_HEADER_MAGIC
+	.long	MULTIBOOT_ARCHITECTURE_I386
+	.long	_header_end - _header_start
+	.long	CHECKSUM
+	.balign MULTIBOOT_TAG_ALIGN
+	.word MULTIBOOT_HEADER_TAG_END
+	.word 0	
+	.long 8
+_header_end:
+```
+有了这个头部，Grub就会把内核加载到由ELF文件格式中PhysAddr指定的物理内存中，然后Grub就会把控制权交给内核的入口点，也就是start ，0x00100000，是物理地址而不室虚拟地址，之后就开始运行内核了。
 
 
 
