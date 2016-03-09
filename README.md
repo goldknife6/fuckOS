@@ -49,7 +49,7 @@
 <a name = "加载器介绍"/>
 #加载器介绍
 此操作系统并没有实现加载器，而是使用的现成的Grub加载器。为了使内核可以被Grub加载到内存，内核的前8192个字节内必须包含多重引导头部处需要了解Multiboot规范。
-其实很简单，只要在内核入口文件前加上几行代码就可以了
+其实很简单，只要在内核入口文件entry.S前加上几行代码就可以了,这些字段的详细定义请参考Multiboot规范[Multiboot规范客](http://www.red-bean.com/doc/multiboot/html/multiboot.html "悬停显示")  
 ```
 	.text
 	.globl  start, _start
@@ -68,7 +68,7 @@ _header_start:
 	.word 0	
 	.long 8
 _header_end:
-
+```
 
 
 
