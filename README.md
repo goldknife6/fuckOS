@@ -49,8 +49,25 @@
 <a name = "加载器介绍"/>
 #加载器介绍
 此操作系统并没有实现加载器，而是使用的现成的Grub加载器。为了使内核可以被Grub加载到内存，内核的前8192个字节内必须包含多重引导头部处需要了解Multiboot规范。
+其实很简单，只要在内核入口文件前加上几行代码就可以了
+```
+	.text
+	.globl  start, _start
+start: 
+_start:
+	jmp 	multiboot_entry
 
-
+	.balign	MULTIBOOT_HEADER_ALIGN
+_header_start:
+	.long	MULTIBOOT2_HEADER_MAGIC
+	.long	MULTIBOOT_ARCHITECTURE_I386
+	.long	_header_end - _header_start
+	.long	CHECKSUM
+	.balign MULTIBOOT_TAG_ALIGN
+	.word MULTIBOOT_HEADER_TAG_END
+	.word 0	
+	.long 8
+_header_end:
 
 
 
