@@ -10,7 +10,7 @@
     * [内存管理](#内存管理)
     	* [物理页框](#物理页框)
     	* [页表](#页表)
-    	* [虚拟内存](#虚拟内存)
+    	* [内核地址空间](#内核地址空间)
         * [Buddy系统](#Buddy系统)
         * [Slub内存分配系统](#内存分配系统)
     * [进程环境](#进程环境)
@@ -190,8 +190,8 @@ void page_remove(pgd_t *pgd, viraddr_t va)；//删除某虚拟地址上的物理
 struct page* page_lookup(pgd_t *pgd,viraddr_t va, pte_t **pte_store)
 void page_decref(struct page* page)//减少引用计数
 ```
-<a name = "虚拟内存"/>
-###虚拟内存
+<a name = "内核地址空间"/>
+###内核地址空间
 ```
 /*
  * Virtual memory map:                                		Permissions
