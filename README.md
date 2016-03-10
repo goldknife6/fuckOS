@@ -8,6 +8,7 @@
 * [Grub加载器介绍](#加载器介绍) 
 * [内核](#内核) 
     * [内存管理](#内存管理)
+    	* [页表管理](#页表管理)
         * [Buddy系统](#Buddy系统)
         * [Slub内存分配系统](#内存分配系统)
     * [进程环境](#进程环境)
@@ -154,16 +155,41 @@ _header_end:
 #内核
 <a name = "内存管理"/>
 ##内存管理
-内存管理
+内存管理大至分为两个部分
+
+第一个部分是内核的物理内存分配器，内核中所有核心数据结构都是由物理内存分配器分配和释放的。
+此内核的物理内存分配器又分为两个部分，第一部分是Buddy分页系统，第二部分是Slub内存分配系统，Slub内存分配系统是建立在第一部之上的。
+
+第二个部分就是虚拟内存的管理，我们需要把内核和用户级程序的虚拟内存映射到物理内存上
+<a name = "页表管理"/>
+###页表管理
+操作系统必须保持跟踪哪一个物理页是空闲的，哪一个物理页是正在使用的。关于物理页的信息是由叫做struct page的结构体来维护的。
+
+
+
+
 <a name = "Buddy系统"/>
 ### Buddy系统
+涉及的文件为kernel/mm/zone include/mm/mmzone.h
 
-Buddy系统
+此算法的详细内容请参考《深入理解Linux内核》或自行百度。
+
+Buddy系统管理内存的单位是页，也就是4K为一个单位
+```c
+struct page* alloc_buddy(struct zone_struct *,uint8_t); 物理页分配函数 一次分配2的0~10次方个页，也就是4KB～4BM
+void free_buddy(struct zone_struct *,struct page*,uint8_t);释放函数
+void zone_init();初始化函数
+```
+
 <a name = "内存分配系统"/>
 ### Slub内存分配系统 
-
-Slub内存分配系统
-
+涉及的文件为kernel/mm/slab.c include/slab.h
+```c
+void slab_init();初始化函数
+void* kmalloc(size_t size);内存分配函数
+void kfree(void* );释放函数
+```
+内核中的所有数据结构都是由这个函数分配和释放的。
 <a name = "进程环境"/>
 ##进程环境
 
