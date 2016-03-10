@@ -175,8 +175,21 @@ struct page *mempage;
 
 <a name = "页表"/>
 ###页表
+先看一下二级页表的图
 [![页表]](https://pdos.csail.mit.edu/6.828/2014/readings/i386/s05_02.htm)  
 [页表]:https://pdos.csail.mit.edu/6.828/2014/readings/i386/fig5-9.gif "百度Logo"  
+操作系统理论书籍都描述了页表转换是如何进行的，在此我就不描述了。
+对页表进行操作的函数为以下几个函数：
+``` 
+涉及的文件:
+kernel/mm/pages.c include/mm/pages.h include/mm/pgtable-3level.h include/mm/pgtable-2level.h
+
+pte_t *page_walk(pgd_t *pgdp,viraddr_t address,bool create) //对全局页目录进行遍历，返回对应地址的页表实体
+int page_insert(pgd_t *pgd, struct page *page,viraddr_t va, uint32_t perm)//对某个虚拟地址插入一个物理页
+void page_remove(pgd_t *pgd, viraddr_t va)；//删除某虚拟地址上的物理页
+struct page* page_lookup(pgd_t *pgd,viraddr_t va, pte_t **pte_store)
+void page_decref(struct page* page)//减少引用计数
+```
 <a name = "虚拟内存"/>
 ###虚拟内存
 ```
