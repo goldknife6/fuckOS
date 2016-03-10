@@ -8,7 +8,9 @@
 * [Grub加载器介绍](#加载器介绍) 
 * [内核](#内核) 
     * [内存管理](#内存管理)
-    	* [页表管理](#页表管理)
+    	* [物理页框](#物理页框)
+    	* [页表](#页表)
+    	* [虚拟内存](#虚拟内存)
         * [Buddy系统](#Buddy系统)
         * [Slub内存分配系统](#内存分配系统)
     * [进程环境](#进程环境)
@@ -161,20 +163,68 @@ _header_end:
 此内核的物理内存分配器又分为两个部分，第一部分是Buddy分页系统，第二部分是Slub内存分配系统，Slub内存分配系统是建立在第一部之上的。
 
 第二个部分就是虚拟内存的管理，我们需要把内核和用户级程序的虚拟内存映射到物理内存上
-<a name = "页表管理"/>
-###页表管理
+<a name = "物理页框"/>
+###物理页框
+本操作系统的物理地址被分为两个区域，一个称为normal zone，一个称为high zone。normal zone管理0x0~0x4000000之间的物理页面，high zone管理0x4000000～16GB之间的物理页面。
 操作系统必须保持跟踪哪一个物理页是空闲的，哪一个物理页是正在使用的。关于物理页的信息是由叫做struct page的结构体来维护的。
+```
+struct page *mempage;
+```
+这个变量用来管理struct page数组。
+操作系统首先先探测电脑的物理内存布局,之后根据物理内存是否可用对物理页进行标记。
 
-
-
-
+<a name = "页表"/>
+###页表
+[![页表]](https://pdos.csail.mit.edu/6.828/2014/readings/i386/s05_02.htm)  
+[页表]:https://pdos.csail.mit.edu/6.828/2014/readings/i386/fig5-9.gif "百度Logo"  
+<a name = "虚拟内存"/>
+###虚拟内存
+```
+/*
+ * Virtual memory map:                                		Permissions
+ *                                                   		kernel/user
+ *
+ *	4 Gig ------------------------------------------------>0xFFFFFFFF
+ *								PTSIZE
+ *	KERNEL_LIMIT/KERNEL_MMIO_LIMIT------------------------>0xFFC00000
+ *								PTSIZE
+ *	KERNEL_MMIO------------------------------------------->0xFF800000
+ *				Gap.				PTSIZE
+ *	------------------------------------------------------>0xFF400000
+ * 								PTSIZE
+ *	KERNEL_VIDEO & KERNEL_TEMP---------------------------->0xFF000000
+ *		
+ *			  
+ *	KERNEL_STACK_TOP-------------------------------------->0xF0800000
+ *		
+ *			CPU  Kernel Stack PAGE_SIZE
+ *			
+ *			 Invalid Memory (*) PAGE_SIZE
+ *
+ *			
+ *	KERNEL_NORMAL/KERNEL_STACK---------------------------->0xF0000000
+ *								RW/--
+ *	KERNEL_BASE_ADDR-------------------------------------->0xC0000000 
+ *								2*PTSIZE
+ *	USER_STACKTOP/USER_TEMPBOTT--------------------------->0xBF800000			      . 
+ *				      .				PTSIZE
+ *	USER_STACKBOTT---------------------------------------->0xBF400000
+ *
+ *
+ *	USER_UNNAME_ZONE-------------------------------------->0x40000000
+ *
+ *
+ *	USER_BRK_ZONE----------------------------------------->0x10000000
+ */
+ ```
+ 
 <a name = "Buddy系统"/>
 ### Buddy系统
 涉及的文件为kernel/mm/zone include/mm/mmzone.h
 
 此算法的详细内容请参考《深入理解Linux内核》或自行百度。
 
-Buddy系统管理内存的单位是页，也就是4K为一个单位
+Buddy系统管理内存的单位是页，也就是4K为一个单位。Buddy系统会用struct page *mempage这个已经初始化好了的物理页描述符数组来进行buddy系统的初始化。
 ```c
 struct page* alloc_buddy(struct zone_struct *,uint8_t); 物理页分配函数 一次分配2的0~10次方个页，也就是4KB～4BM
 void free_buddy(struct zone_struct *,struct page*,uint8_t);释放函数
