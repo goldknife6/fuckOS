@@ -304,8 +304,31 @@ void kfree(void* );释放函数
 ##进程环境
 <a name = "进程的管理"/>
 ###进程的管理
-进程的管理
+进程描述符
+```c
+struct task_struct
+{
+	struct mm_struct* mm;
+	struct files_struct* files;
+	struct fs_struct* fs;
+	struct frame frame;
+	pgd_t* task_pgd;
+	pid_t pid;			
+	pid_t ppid;
+	int32_t  task_cpunum;
+	int32_t  task_status;
+	int32_t  task_type;
 
+	int32_t timeslice;
+	int32_t prio;
+	int32_t static_prio;
+	int32_t flags;
+	int32_t runnum;
+	struct list_head list;
+	struct list_head wait_list;
+	int pwait;
+};
+```
 
 <a name = "用户进程"/>
 ###进程地址空间
