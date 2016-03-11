@@ -5,7 +5,8 @@
 ##<a name = "index"/>目录
 * [项目介绍](#操作系统介绍)
 * [ELF文件格式介绍](#ELF文件格式介绍)
-* [Grub加载器介绍](#加载器介绍) 
+* [Grub加载器介绍](#加载器介绍)
+* [链接脚本介绍](#链接脚本介绍)
 * [内核](#内核) 
     * [内存管理](#内存管理)
     	* [物理页框](#物理页框)
@@ -14,7 +15,9 @@
         * [Buddy系统](#Buddy系统)
         * [Slub内存分配系统](#内存分配系统)
     * [进程环境](#进程环境)
-* [脚本设定介绍](#脚本设定介绍)
+    	* [用户进程](#用户进程)	
+    	* [异常处理](#异常处理)	
+	* [页故障与系统调用](#页故障与系统调用)	
 
 <a name = "操作系统介绍"/>
 #操作系统介绍
@@ -192,6 +195,8 @@ void page_decref(struct page* page)//减少引用计数
 ```
 <a name = "内核地址空间"/>
 ###内核地址空间
+
+操作系统的地址空间划分为了两个部分，0xC0000000～0xFFFFFFFF为内核的地址空间，0x0～0xC0000000为用户进程的地址空间。关于地址空间的一些常熟定义在include/mm/layout.h 中。
 ```
 /*
  * Virtual memory map:                                		Permissions
@@ -231,6 +236,36 @@ void page_decref(struct page* page)//减少引用计数
  */
  ```
  
+ 内核页目录的映射代码在kernel/mm/bootmm.c文件中
+ ```c
+ static void bootmm_init()
+{
+	...
+	//分配内核页目录
+	kpgd = alloc_bootmm_pages(1);
+	memset(kpgd,0,PAGE_SIZE);
+	
+	//映射内核页目录 0xc0000000 ~ 0xf0000000 = 0x00000000 ~ 0x30000000
+	boot_map_region(kpgd, KERNEL_BASE_ADDR, NORMAL_ADDR, 0, _PAGE_RW | _PAGE_PRESENT);
+	
+	//映射内核VAG映射区
+	boot_map_region(kpgd, KERNEL_VIDEO, PT_SIZE, 0xb8000, _PAGE_RW | _PAGE_PRESENT);
+	
+	....
+	
+	//映射内核栈区域
+	for(i = 0;i < CPUNUMS; i++) {
+		boot_map_region(kpgd, KERNEL_STACK_TOP -KERNEL_STKSIZE - (KERNEL_STKSIZE + PAGE_SIZE) * i, 
+			KERNEL_STKSIZE, v2p(percpu_kstacks[i]),_PAGE_PRESENT|_PAGE_RW);
+	}
+
+	lcr3(pgd2p(kpgd));
+	
+	.....	
+}
+ ```
+ 因为用户空间和内核空间都出现在进程的地址空间中，我们在页表中使用x86的权限位从而限制用户进程访问内核空间。用户进程对高于0xc0000000的地址是没有访问权限的。
+ 
 <a name = "Buddy系统"/>
 ### Buddy系统
 涉及的文件为kernel/mm/zone include/mm/mmzone.h
@@ -255,7 +290,13 @@ void kfree(void* );释放函数
 内核中的所有数据结构都是由这个函数分配和释放的。
 <a name = "进程环境"/>
 ##进程环境
-
+<a name = "用户进程"/>
+###用户进程
+<a name = "异常处理"/>
+###异常处理
+<a name = "页故障与系统调用"/>
+###页故障与系统调用
+    
 <a name = "链接脚本介绍"/>
 #链接脚本介绍
 
