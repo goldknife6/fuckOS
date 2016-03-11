@@ -372,12 +372,14 @@ struct vm_area_struct
 	struct vm_area_struct* vm_next;
 	struct rb_node vm_rb;
 
-	viraddr_t vm_start;
+	viraddr_t vm_start;//线性区起始地址
 	viraddr_t vm_end;
 	uint32_t vm_flags;
 };
 ```
 以上结构体就是用来描述一个进程的地址空间的。
+比如，当进程需要扩展堆段的时候就会调用系统函数brk(); 之后内核就会增加viraddr_t end_brk;这个值；
+
 <a name = "异常处理"/>
 ###异常处理
 异常处理
