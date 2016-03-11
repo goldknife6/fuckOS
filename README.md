@@ -308,33 +308,76 @@ void kfree(void* );释放函数
 ```c
 struct task_struct
 {
-	struct mm_struct* mm;
-	struct files_struct* files;
+	struct mm_struct* mm; //进程的内存描述符
+	struct files_struct* files;//关于进程文件的结构体
 	struct fs_struct* fs;
-	struct frame frame;
-	pgd_t* task_pgd;
-	pid_t pid;			
-	pid_t ppid;
-	int32_t  task_cpunum;
-	int32_t  task_status;
-	int32_t  task_type;
-
-	int32_t timeslice;
-	int32_t prio;
-	int32_t static_prio;
-	int32_t flags;
-	int32_t runnum;
-	struct list_head list;
-	struct list_head wait_list;
+	struct frame frame; //进程切换时保存的上下文
+	pgd_t* task_pgd;//进程的页表
+	pid_t pid;	//进程ID		
+	pid_t ppid;	//父进程ID
+	
+	.....
+	
+	int32_t timeslice;//进程所剩的时间片
+	
+	.....
 	int pwait;
 };
 ```
+此结构体标识了一个进程，每个字段为进程的一个基本信息。
+
+```c
+kernel/task.c
+
+static int load_icode(struct task_struct *, uint8_t *);
+static int region_alloc(struct task_struct *, viraddr_t, size_t ,int );
+static int task_alloc(struct task_struct **, pid_t);
+struct task_struct* task_pidmap[PID_MAX_DEFAULT];
+static int alloc_files_struct(struct task_struct *);
+```
+以上几个函数就是创建进程的基本函数，这些函数只用于静态创建init进程。在编译内核的时候我们以及把用户程序件链接进了内核，load_icode这个函数用于把相应的用户复制进struct task_struct结构体中从而创建了进程init。
 
 <a name = "用户进程"/>
 ###进程地址空间
-用户进程
+进程的内存描述符，详细内容请参考《深入理解Linux内核》第九章
 
+```c
+struct mm_struct
+{
+	struct vm_area_struct* mmap;//进程的线性地址空间的链表
+	struct rb_root mm_rb;
+	pgd_t* mm_pgd;
 
+	viraddr_t free_area_cache;
+
+	viraddr_t start_code;//起始代码段
+	viraddr_t end_code;
+
+	viraddr_t start_data;//起始数据段段
+	viraddr_t end_data;
+	
+	viraddr_t start_brk;//起始堆段
+	viraddr_t end_brk;
+
+	viraddr_t start_stack;//栈段
+
+	int mmap_count;
+	atomic_t mm_count;
+	spinlock_t page_table_lock;
+};
+
+struct vm_area_struct
+{
+	struct mm_struct* vm_mm;
+	struct vm_area_struct* vm_next;
+	struct rb_node vm_rb;
+
+	viraddr_t vm_start;
+	viraddr_t vm_end;
+	uint32_t vm_flags;
+};
+```
+以上结构体就是用来描述一个进程的地址空间的。
 <a name = "异常处理"/>
 ###异常处理
 异常处理
