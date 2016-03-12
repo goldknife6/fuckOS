@@ -384,7 +384,7 @@ struct vm_area_struct
 <a name = "异常处理"/>
 ###中断与异常
 参考 [Chapter 9, Exceptions and Interrupts](https://pdos.csail.mit.edu/6.828/2014/readings/i386/c09.htm "悬停显示")
-#中断描述符表
+#####中断描述符表
 [![中断与异常]](https://pdos.csail.mit.edu/6.828/2014/readings/i386/s09_05.htm)  
 [中断与异常]:https://pdos.csail.mit.edu/6.828/2014/readings/i386/fig9-3.gif "百度Logo" 
 中断与异常都是受保护的控制转移，在英特尔的术语中，中断是由异步事件所导致的，比如IO事件。而异常是由同步事件所导致的，比如执行了某条命令（int），为了使中断与异常的控制转移在内核的控制之下，我们需要配置中断描述符表和任务状态段。
