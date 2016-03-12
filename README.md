@@ -443,6 +443,7 @@ void trap_init()
 
 当刚创建进程的时候内核只给进程分配了一个页的栈，当经常使用了超出4KB的栈的范围的时候，会出现一个缺页异常，然后就会进入缺页处理程序
 ```c
+kernel/trap/page_fault.c
 void page_fault_handler(struct frame *tf)
 {
 	viraddr_t va;
