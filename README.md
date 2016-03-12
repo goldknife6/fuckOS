@@ -384,12 +384,49 @@ struct vm_area_struct
 <a name = "异常处理"/>
 ###中断与异常
 参考 [Chapter 9, Exceptions and Interrupts](https://pdos.csail.mit.edu/6.828/2014/readings/i386/c09.htm "悬停显示")
-#####中断描述符表
+####中断描述符表
 [![中断与异常]](https://pdos.csail.mit.edu/6.828/2014/readings/i386/s09_05.htm)  
 [中断与异常]:https://pdos.csail.mit.edu/6.828/2014/readings/i386/fig9-3.gif "百度Logo" 
-中断与异常都是受保护的控制转移，在英特尔的术语中，中断是由异步事件所导致的，比如IO事件。而异常是由同步事件所导致的，比如执行了某条命令（int），为了使中断与异常的控制转移在内核的控制之下，我们需要配置中断描述符表和任务状态段。
 
+####任务状态段
+[![任务状态段]](https://pdos.csail.mit.edu/6.828/2014/readings/i386/s07_01.htm)  
+[任务状态段]:https://pdos.csail.mit.edu/6.828/2014/readings/i386/fig7-1.gif "百度Logo" 
+	中断与异常都是受保护的控制转移，在英特尔的术语中，中断是由异步事件所导致的，比如IO事件。而异常是由同步事件所导致的，比如执行了某条命令（int），为了使中断与异常的控制转移在内核的控制之下，我们需要配置中断描述符表和任务状态段。
 
+	x86最多可以有256个中断和异常，有硬件设备使用的（时钟中断为32号），有异常条件使用的（比如页故障是14号），也有用户自定义的（比如系统调用就是使用中断号128），所以说我们要为每一个号分配一个地址，这样当中断或异常发生的时候控制路径就会转移到制定的地点。在中断或异常发生之前，处理器需要一个地方来存放寄存器的状态（这就是操作系统理论中进程的上下文），这样执行完异常处理器之后就可以返回到原来发生中断或异常的地方了。这个存放进程的上下文的地方需要保护起来，不然进程就可能随意更改从而导致内核奔溃。
+	
+	配置中断描述符表和任务状态段涉及文件kernel/trap/trapentry.S 和kernel/trap/trap.c
+
+```c
+//配置任务状态段
+void trap_init_percpu()
+{
+	extern struct seg_descriptor gdt[CPUNUMS + 5];
+	extern int ncpu;
+	uint32_t cid = get_cpuid();
+	struct taskstate *pts = &(thiscpu->cpu_ts);
+	pts->ts_ss0 = _KERNEL_DS_;
+	pts->ts_esp0 = KERNEL_STACK_TOP - (KERNEL_STKSIZE + PAGE_SIZE) * cid;
+	
+	gdt[(_TSS0_ >> 3) + cid] = set_seg(STS_T32A, (uint32_t) (pts), sizeof(struct taskstate), 0);
+	gdt[(_TSS0_ >> 3) + cid].s = 0;
+	
+	ltr(_TSS0_ + cid * sizeof(struct seg_descriptor));
+	lidt(&idt_pd);
+}
+
+//配置中断描述符表
+void trap_init()
+{
+	int i;
+	extern uint32_t trap_handlers[];
+	for(i = 0;i < 255; i++) {
+		setgate(idt[i], 0, _KERNEL_CS_, trap_handlers[i], 0);
+	}
+	setgate(idt[T_SYSCALL], 0, _KERNEL_CS_, trap_handlers[T_SYSCALL], 3);
+	trap_init_percpu();
+}
+```
 
 <a name = "页故障与系统调用"/>
 ###页故障与系统调用
