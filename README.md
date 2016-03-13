@@ -473,9 +473,31 @@ exit:
 这个程序会判断导致缺页异常的地址是否属于进程的地址空间，如果不是就退出进程，如果是就为进程分配物理页。
 <a name = "系统调用"/>
 ###系统调用
-进程使用ini指令来进行系统调用。
+进程使用ini指令来进行系统调用。尤其是使用128号中断。用寄存器来传递参数。
+```c
+kernel/trap/syscall.c
+//一下为实现的系统服务例程
+static int sys_exit(pid_t);
+static pid_t sys_clone(int ,int (*)(void*));
+static pid_t sys_getpid();
+static void sys_cputs(const char *,size_t );
+static viraddr_t sys_brk(viraddr_t);
+static int sys_read(uint32_t,int8_t*,int32_t);
+static int sys_open(char * ,int ,int, int);
+static int sys_create(char * ,int,int);
+static int sys_mkdir(char *filename, int len,int mode);
+static int sys_write(int, char *,int);
+static int sys_dup(int);
+static int sys_dup2(int,int);
+static void sys_close(int);
+static int sys_pipe(int fd[2],int flags);
+static int sys_wait(pid_t pid);
+static int sys_execve(char *filename,char ** argv);
+static int sys_fdtype(int);
+```
 <a name = "fork与写时复制"/>
 ###fork与写时复制
+>>写入时复制(Copy-on-write)是一个被使用在程式设计领域的最佳化策略。其基础的观念是，如果有多个呼叫者(callers)同时要求相同资源，他们会共同取得相同的指标指向相同的资源，直到某个呼叫者(caller)尝试修改资源时，系统才会真正复制一个副本(private copy)给该呼叫者，以避免被修改的资源被直接察觉到，这过程对其他的呼叫只都是通透的(transparently)。此作法主要的优点是如果呼叫者并没有修改该资源，就不会有副本(private copy)被建立。
 fork与写时复制
 <a name = "malloc的实现"/>
 ###malloc的实现
