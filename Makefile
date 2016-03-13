@@ -24,7 +24,7 @@ export GCC_LIB 	:= $(shell $(CC) $(CFLAGE) -print-libgcc-file-name)
 IMAGES		:= kenrel.iso
 BOCHS		:= bochs
 QEMU		:= qemu-system-i386 
-QEMUOPTS	:= -m 60M -smp 4 -hdb fs/image.img 
+QEMUOPTS	:= -m 60M -smp 4 
 GRUB		:= grub-mkrescue
 IOSDIR		:= iso
 

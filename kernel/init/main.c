@@ -18,6 +18,7 @@
 #include <mm/mmu.h>
 #include <mm/pages.h>
 #include <mm/mmzone.h>
+
 int ap_lock;//AP启动时的锁
 
 int ncpu = 1;
