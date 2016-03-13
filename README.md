@@ -497,8 +497,26 @@ static int sys_fdtype(int);
 ```
 <a name = "fork与写时复制"/>
 ###fork与写时复制
+```c
+//文件kernel/syscall/fork.c
+
+extern int alloc_pidmap();
+extern void free_pidmap(pid_t);
+
+extern int exit_task(struct task_struct *);
+extern int exit_mm(struct mm_struct *);
+
+static int copy_files(struct task_struct *task,int flags);
+static int copy_task(struct task_struct *,struct task_struct *);
+static int alloc_task(struct task_struct **,pid_t);
+static int task_set_vm(int,struct task_struct *);
+```
+以上就是fork系统调用的实现了。其实根究函数的名字就可以判断这些函数的功能，比如copy_files其实就是复制父进程的文联描述符啦，copy_task就是复制父进程的地址空间了，alloc_pidmap()是分配一个pid啦。
+
+
+
 >>	写入时复制(Copy-on-write)是一个被使用在程式设计领域的最佳化策略。其基础的观念是，如果有多个呼叫者(callers)同时要求相同资源，他们会共同取得相同的指标指向相同的资源，直到某个呼叫者(caller)尝试修改资源时，系统才会真正复制一个副本(private copy)给该呼叫者，以避免被修改的资源被直接察觉到，这过程对其他的呼叫只都是通透的(transparently)。此作法主要的优点是如果呼叫者并没有修改该资源，就不会有副本(private copy)被建立。
-fork与写时复制
+
 
 
 <a name = "malloc的实现"/>
