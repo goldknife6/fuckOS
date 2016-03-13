@@ -17,12 +17,12 @@ libobj := $(patsubst %.S,$(ROOTDIR)/$(OBJDIR)/lib/%.o,$(libobj))
 all:$(objects) $(ROOTDIR)/$(OBJDIR)/$(CURDIR)/libOS.a
 	
 $(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%.o:%.c
-	@echo + cc $(CURDIR)/$<
+	@echo $(CC)  -nostdinc $(UCFLAGS)  -c  -o $@ $< 
 	@mkdir -p $(@D)
 	@$(CC)  -nostdinc $(UCFLAGS)  -c -o  $@ $< 
 	
 $(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%.o:%.S
-	@echo + cc $(CURDIR)/$<  
+	@echo $(CC)  -nostdinc $(UCFLAGS)  -c  -o $@ $< 
 	@mkdir -p $(@D)
 	@$(CC)  -nostdinc $(UCFLAGS)  -c  -o $@ $< 
 	

@@ -28,20 +28,20 @@ BinObjects := $(patsubst %,$(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%,$(BinObjects))
 all:$(objects) $(BinObjects)
 	
 $(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%.o:%.c
-	@echo + cc [user] $(CURDIR)/$< 
+	@echo $(UCFLAGS) -nostdinc  -c  -o $@ $<
 	@mkdir -p $(@D)
 	$(CC) $(UCFLAGS) -nostdinc  -c -o $@ $< 
 	
 
 $(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%.o:%.S
-	@echo + cc [user] $(CURDIR)/$<
+	@echo $(UCFLAGS) -nostdinc  -c  -o $@ $<
 	@mkdir -p $(@D)
 	$(CC)  $(UCFLAGS) -nostdinc  -c  -o $@ $<
 
 $(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%:$(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%.o \
 				    $(ROOTDIR)/$(OBJDIR)/lib/entry.o
 
-	@echo + $(LD) [user] $(notdir $@) 
+	@echo $(LD) -o $@  $(ULDFLAGS) $(LDFLAGS) $@.o -L$(ROOTDIR)/$(OBJDIR)/lib -lOS $(GCC_LIB)
 	@$(LD) -o $@  $(ULDFLAGS) $(LDFLAGS) $@.o -L$(ROOTDIR)/$(OBJDIR)/lib -lOS $(GCC_LIB)
 	@cd $(ROOTDIR)/$(OBJDIR)/$(CURDIR) ; $(OBJCOPY)  -I binary -O  elf32-i386 -B i386 $(notdir $@) $@.bin
 	@$(OBJDUMP) -S $@ > $@.asm

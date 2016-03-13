@@ -28,17 +28,17 @@ $(DEPS):$(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%.d:%.c
 -include $(DEPS)
 
 $(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%.bin:%.sh
-	@echo $(notdir $^)
+	@echo $(OBJCOPY)  -I binary -O  elf32-i386 -B i386 $(notdir $^) $@
 	@cp $(notdir $^) $(ROOTDIR)/$(OBJDIR)/$(CURDIR)
 	@cd $(ROOTDIR)/$(OBJDIR)/$(CURDIR) ; $(OBJCOPY)  -I binary -O  elf32-i386 -B i386 $(notdir $^) $@
 
 $(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%.o:%.c $(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%.d
-	@echo + cc $< 
+	@echo $(CC) $(KCFLAGS) -c $< -o $@
 	@mkdir -p $(@D)
 	$(V)$(CC) $(KCFLAGS) -c $< -o $@
 	
 $(ROOTDIR)/$(OBJDIR)/$(CURDIR)/%.o:%.S
-	@echo + cc $< 
+	@echo $(CC) $(KCFLAGS) -c $< -o $@
 	@mkdir -p $(@D)
 	$(V)$(CC) $(KCFLAGS) -c $< -o $@
 

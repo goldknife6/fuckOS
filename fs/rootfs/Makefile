@@ -23,12 +23,12 @@ $(DEPS):$(ROOTDIR)/$(OBJDIR)/fs/$(CURDIR)/%.d:%.c
 -include $(DEPS)
 
 $(ROOTDIR)/$(OBJDIR)/fs/$(CURDIR)/%.o:%.c $(ROOTDIR)/$(OBJDIR)/fs/$(CURDIR)/%.d
-	@echo + cc $(CURDIR)/$<
+	@echo $(CC) $(KCFLAGS) -c $< -o $@
 	@mkdir -p $(@D)
 	$(V)$(CC) $(KCFLAGS) -c $< -o $@
 	
 $(ROOTDIR)/$(OBJDIR)/fs/$(CURDIR)/%.o:%.S
-	@echo + cc $(CURDIR)/$<
+	@echo $(CC) $(KCFLAGS) -c $< -o $@
 	@mkdir -p $(@D)
 	$(V)$(CC) $(KCFLAGS) -c $< -o $@
 	

@@ -59,7 +59,7 @@ OBJFILE 	+= obj/lib/string.o obj/lib/printfmt.o
 all:$(SUBDIRS)  $(ROOTDIR)/kern $(IMAGES)
 
 $(ROOTDIR)/kern:$(OBJFILE) $(USEROBJ)
-	@echo + $(LD)  -o $@ $(OBJFILE) $(USEROBJ)
+	@echo $(LD)  -o $@ $(KLDFLAGS) $(OBJFILE) $(USEROBJ) $(FILE)  $(GCC_LIB)
 	$(V)$(LD)  -o $@ $(KLDFLAGS) $(OBJFILE) $(USEROBJ) $(FILE)  $(GCC_LIB)
 	$(V)cp kern $(IOSDIR)/boot/
 	$(V)$(GRUB) -o $(IMAGES) $(IOSDIR)
