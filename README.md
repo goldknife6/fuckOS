@@ -521,7 +521,14 @@ static int task_set_vm(int,struct task_struct *);
 
 <a name = "malloc的实现"/>
 ###malloc的实现
-malloc的实现
+```c
+//fuckOS/lib/malloc.c
+static struct malloc_chunk *find_malloc(uint32_t);
+static struct malloc_chunk *extend_malloc(uint32_t);
+static void split_malloc(struct malloc_chunk *,uint32_t);
+static void merger_malloc(struct malloc_chunk *);
+```
+malloc的实现其实挺简单，利用sbrk这个系统调用进行堆的扩展，然后利用隐式空闲链表来管理内存。详细内容请参考《深入理解计算机系统》第9章第9节
 <a name = "抢占式多任务"/>
 ##抢占式多任务
 抢占式多任务
