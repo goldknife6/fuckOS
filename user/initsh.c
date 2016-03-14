@@ -25,10 +25,10 @@ main(int argc, char **argv)
 	if ((r = dup2(0, 1)) < 0)
 		panic("dup: %e", r);
 
-	printf("initsh: running sh\n");
+	//printf("initsh: running sh\n");
 
 	while (1) {
-		printf("init: starting sh\n");
+		printf("starting sh\n");
 		r = execve("/sh", "sh", (char*)0);
 		if (r < 0) {
 			printf("init: spawn sh: %e\n", r);
