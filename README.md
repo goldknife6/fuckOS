@@ -48,8 +48,8 @@ cd fuckOS
 
 等内核编译完之后就开始在虚拟机里运行内核了
 
-[![内核]](https://pdos.csail.mit.edu/6.828/2014/readings/i386/s05_02.htm)  
-[内核]:https://pdos.csail.mit.edu/6.828/2014/readings/i386/fig5-9.gif "内核"
+[![内核]](https://raw.githubusercontent.com/Zhang626/fuckOS/master/img/Screenshot%20from%202016-03-15%2021-02-01.png)  
+[内核]:https://raw.githubusercontent.com/Zhang626/fuckOS/master/img/Screenshot%20from%202016-03-15%2021-02-01.png "内核"
 
 开发环境:
 
