@@ -33,8 +33,23 @@
 #项目介绍
 此项目的灵感来源于 MIT 6.828 的课程
 由于本人水平有限,又由于只想写一个玩具操作系统，所以部分代码可能不是很规范，注释也是很少，请大家谅解
+
+
 此操作系统在重定向和管道功能上有点小bug，由于时间原因我就不debug了
 
+
+在终端输入 
+
+git clone https://github.com/Zhang626/fuckOS.git
+
+cd fuckOS
+
+然后在终端输入 make qemu
+
+等内核编译完之后就开始在虚拟机里运行内核了
+
+[![内核]](https://pdos.csail.mit.edu/6.828/2014/readings/i386/s05_02.htm)  
+[内核]:https://pdos.csail.mit.edu/6.828/2014/readings/i386/fig5-9.gif "内核"
 
 开发环境:
 
