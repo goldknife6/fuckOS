@@ -235,7 +235,15 @@ _header_end:
 
 <a name = "制作U盘启动"/>
 #制作U盘启动
-制作U盘启动
+我们需要grub2程序，使用前先检查是否是最新的版本
+插入U盘，U盘最少需要一个分区，分区容量最好小一点，20MB就够，不然速度会很慢。
+假设U盘设备为/dev/sdb，其中某个分区挂载到了/mnt
+执行下面的命令
+```
+sudo grub-install --root-directory=/mnt --no-floppy /dev/sdb
+```
+等待完成就OK
+
 
 
 <a name = "内核介绍"/>
