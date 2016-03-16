@@ -244,7 +244,7 @@ sudo grub-install --root-directory=/mnt --no-floppy /dev/sdb
 ```
 等待完成就OK
 
-
+然后把grub.cfg 考到/mnt/boot/grub文件加下，然后把内核文件kern拷到/mnt/boot下就可以了，然后再用fdisk把/dev/sdb1设置成启动分区
 
 <a name = "内核介绍"/>
 #内核
