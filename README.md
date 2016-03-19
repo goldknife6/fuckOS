@@ -612,11 +612,35 @@ malloc的实现其实挺简单，利用sbrk这个系统调用进行堆的扩展�
 ###多处理器支持
 多处理器支持需要涉及些硬件和协议，在多处理器系统中，每个CPU都有一个LAPIC（本地高级可编程中断控制器），LAPIC用于为CPU递送中断的，LAPIC也为每个CUP提供的一个唯一的标识。电脑加电的时候，先启动一个CPU，叫做BSP（ bootstrap processor ），等内核完成了相应的初始化，由BSP启动其他的CPU，叫做AP（application processors）。BSP启动AP的时候需要发IPI（Inter-Processor Interrupts）给AP，这就用到LAPIC了。详细内容请参考《x86/x64体系探索及编程》的第十八章。
 
+```c
+//kernel/trap/lapic.c
+void ap_startup()；
+void lapic_init()
+```
+再启动AP之前，我们还需要为AP处理器建立内核栈。之前已经给出代码kernel/mm/bootmm bootmm_init()
 
 <a name = "进程调度"/>
 ###进程调度
-进程调度
+此操作系统实现的只是简单的轮转调度每次时钟中断发生的时候会调用schedule_tick()减少进程的时间片。
 
+```c
+//kernel/trap/irq_timer.c
+void timer_handler(struct frame *tf)
+{
+	lapic_eoi();
+	time_tick();
+	schedule_tick();//减少进程的时间片
+}
+```
+
+每次中断返回时会检查时间片是否还有剩余，如果没有就进行切换，否则什么也不做。
+```c
+void trap(struct frame *tf)
+{
+        ...
+	schedule();//调度
+}
+```
 <a name = "虚拟文件系统"/>
 ##虚拟文件系统
 虚拟文件系统
