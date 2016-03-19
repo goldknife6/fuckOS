@@ -610,7 +610,7 @@ malloc的实现其实挺简单，利用sbrk这个系统调用进行堆的扩展�
 抢占式多任务
 <a name = "多处理器支持"/>
 ###多处理器支持
-在SMP系统中，每个CPU都有一个LAPIC（本地高级可编程中断控制器），我们需要配置时钟中断。
+多处理器支持需要涉及些硬件和协议，在多处理器系统中，每个CPU都有一个LAPIC（本地高级可编程中断控制器），LAPIC用于为CPU递送中断的，LAPIC也为每个CUP提供的一个唯一的标识。电脑加电的时候，先启动一个CPU，叫做BSP（ bootstrap processor ），等内核完成了相应的初始化，由AP启动其他的CPU，叫做AP（application processors）
 
 <a name = "进程调度"/>
 ###进程调度
