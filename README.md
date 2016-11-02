@@ -49,6 +49,11 @@ cd fuckOS
 
 等内核编译完之后就开始在虚拟机里运行内核了
 
+```
+if occur anything problems likes undefined reference to __udivdi3
+please sudo apt-get install gcc-4.8-multilib
+```
+
 [![内核]](https://raw.githubusercontent.com/Zhang626/fuckOS/master/img/Screenshot%20from%202016-03-15%2021-02-01.png)  
 [内核]:https://raw.githubusercontent.com/Zhang626/fuckOS/master/img/Screenshot%20from%202016-03-15%2021-02-01.png "内核"
 
