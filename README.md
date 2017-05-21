@@ -103,8 +103,8 @@ int main(int argc, char **argv)
 }
 
 ```
-[![内核1]](https://raw.githubusercontent.com/Zhang626/fuckOS/master/img/Screenshot%20from%202016-03-15%2021-07-35.png)  
-[内核1]:https://raw.githubusercontent.com/Zhang626/fuckOS/master/img/Screenshot%20from%202016-03-15%2021-07-35.png "内核"
+![内核1](https://raw.githubusercontent.com/Zhang626/fuckOS/master/img/Screenshot%20from%202016-03-15%2021-07-35.png)  
+
 
 
 开发环境:
@@ -287,8 +287,10 @@ struct page *mempage;
 
 ### 页表
 先看一下二级页表的图
-[![页表]](https://pdos.csail.mit.edu/6.828/2014/readings/i386/s05_02.htm)  
-[页表]:https://pdos.csail.mit.edu/6.828/2014/readings/i386/fig5-9.gif "百度Logo"  
+
+![页表](https://pdos.csail.mit.edu/6.828/2014/readings/i386/fig5-9.gif)
+
+
 操作系统理论书籍都描述了页表转换是如何进行的，在此我就不描述了。
 对页表进行操作的函数为以下几个函数：
 ``` 
@@ -487,12 +489,12 @@ struct vm_area_struct
 ### 中断与异常
 参考 [Chapter 9, Exceptions and Interrupts](https://pdos.csail.mit.edu/6.828/2014/readings/i386/c09.htm "悬停显示")
 #### 中断描述符表
-[![中断与异常]](https://pdos.csail.mit.edu/6.828/2014/readings/i386/s09_05.htm)  
-[中断与异常]:https://pdos.csail.mit.edu/6.828/2014/readings/i386/fig9-3.gif "百度Logo" 
+
+[![中断与异常](https://pdos.csail.mit.edu/6.828/2014/readings/i386/fig9-3.gif)](https://pdos.csail.mit.edu/6.828/2014/readings/i386/s09_05.htm)
 
 #### 任务状态段
-[![任务状态段]](https://pdos.csail.mit.edu/6.828/2014/readings/i386/s07_01.htm)  
-[任务状态段]:https://pdos.csail.mit.edu/6.828/2014/readings/i386/fig7-1.gif "百度Logo" 
+[![任务状态段](https://pdos.csail.mit.edu/6.828/2014/readings/i386/fig7-1.gif)](https://pdos.csail.mit.edu/6.828/2014/readings/i386/s07_01.htm)  
+
 
 
 中断与异常都是受保护的控制转移，在英特尔的术语中，中断是由异步事件所导致的，比如IO事件。而异常是由同步事件所导致的，比如执行了某条命令（int），为了使中断与异常的控制转移在内核的控制之下，我们需要配置中断描述符表和任务状态段。
