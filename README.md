@@ -56,8 +56,8 @@ if occur anything problems likes undefined reference to __udivdi3
 please sudo apt-get install gcc-4.8-multilib
 ```
 
-[![内核]](https://raw.githubusercontent.com/Zhang626/fuckOS/master/img/Screenshot%20from%202016-03-15%2021-02-01.png)  
-[内核]:https://raw.githubusercontent.com/Zhang626/fuckOS/master/img/Screenshot%20from%202016-03-15%2021-02-01.png "内核"
+![内核](https://raw.githubusercontent.com/Zhang626/fuckOS/master/img/Screenshot%20from%202016-03-15%2021-02-01.png)  
+
 
 
 然后让我们运行一下小程序吧
