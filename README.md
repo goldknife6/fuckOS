@@ -1,8 +1,8 @@
-#迷你型类Linux操作系统
+# 迷你型类Linux操作系统
 
 
 
-##<a name = "index"/>目录
+## <a name = "index"/>目录
 * [项目介绍](#操作系统介绍)
 * [ELF文件格式介绍](#ELF文件格式介绍)
 * [Grub加载器介绍](#加载器介绍)
@@ -31,7 +31,7 @@
     	 
     	
 <a name = "操作系统介绍"/>
-#项目介绍
+# 项目介绍
 此项目的灵感来源于 MIT 6.828 的课程
 由于本人水平有限,又由于只想写一个玩具操作系统，所以部分代码可能不是很规范，注释也是很少，请大家谅解
 
@@ -136,7 +136,7 @@ int main(int argc, char **argv)
 
 
 <a name = "ELF文件格式介绍"/>
-#ELF文件格式介绍
+# ELF文件格式介绍
 ELF全称为Executable and Linking Format，在《深入理解计算机系统》的第七章里面说的很明白了，说白了就是一种目标文件格式。详细内容请自行参考[Executable and Linking Format Specification](https://uclibc.org/docs/elf.pdf "悬停显示")
 
 目标文件有三种格式：
@@ -208,7 +208,7 @@ Program Headers:
 
 
 <a name = "Grub加载器介绍"/>
-#加载器介绍
+# 加载器介绍
 此操作系统并没有实现加载器，而是使用的现成的Grub加载器。为了使内核可以被Grub加载到内存，内核的前8192个字节内必须包含多重引导头部
 
 其实很简单，只要在内核入口文件entry.S前加上几行代码就可以了,这些字段和多重引导头部的详细定义请参考[Multiboot规范](http://www.red-bean.com/doc/multiboot/html/multiboot.html "悬停显示")  
@@ -234,12 +234,12 @@ _header_end:
 有了这个头部，Grub就会把内核加载到由ELF文件格式中PhysAddr指定的物理内存中，然后Grub就会把控制权交给内核的入口点，也就是start ，0x00100000，是物理地址而不室虚拟地址，之后就开始运行内核了。PhysAddr的值是由链接脚本设定的，后面我会讲。
 
 <a name = "链接脚本介绍"/>
-#链接脚本介绍
+# 链接脚本介绍
 链接脚本介绍
 
 
 <a name = "制作U盘启动"/>
-#制作U盘启动
+# 制作U盘启动
 我们需要grub2程序，使用前先检查是否是最新的版本
 插入U盘，U盘最少需要一个分区，分区容量最好小一点，20MB就够，不然速度会很慢。
 假设U盘设备为/dev/sdb，其中某个分区挂载到了/mnt
@@ -252,9 +252,9 @@ sudo grub-install --root-directory=/mnt --no-floppy /dev/sdb
 然后把grub.cfg 考到/mnt/boot/grub文件加下，然后把内核文件kern拷到/mnt/boot下就可以了，然后再用fdisk把/dev/sdb1设置成启动分区
 
 <a name = "内核介绍"/>
-#内核
+# 内核
 <a name = "内存管理"/>
-##内存管理
+## 内存管理
 内存管理大至分为两个部分
 
 第一个部分是内核的物理内存分配器，内核中所有核心数据结构都是由物理内存分配器分配和释放的。
@@ -262,7 +262,7 @@ sudo grub-install --root-directory=/mnt --no-floppy /dev/sdb
 
 第二个部分就是虚拟内存的管理，我们需要把内核和用户级程序的虚拟内存映射到物理内存上
 <a name = "物理页框"/>
-###物理页框
+### 物理页框
 本操作系统的物理地址被分为两个区域，一个称为normal zone，一个称为high zone。normal zone管理0x0~0x4000000之间的物理页面，high zone管理0x4000000～16GB之间的物理页面。
 操作系统必须保持跟踪哪一个物理页是空闲的，哪一个物理页是正在使用的。关于物理页的信息是由叫做struct page的结构体来维护的。
 ```
@@ -272,7 +272,7 @@ struct page *mempage;
 操作系统首先先探测电脑的物理内存布局,之后根据物理内存是否可用对物理页进行标记。
 
 <a name = "页表"/>
-###页表
+### 页表
 先看一下二级页表的图
 [![页表]](https://pdos.csail.mit.edu/6.828/2014/readings/i386/s05_02.htm)  
 [页表]:https://pdos.csail.mit.edu/6.828/2014/readings/i386/fig5-9.gif "百度Logo"  
@@ -289,7 +289,7 @@ struct page* page_lookup(pgd_t *pgd,viraddr_t va, pte_t **pte_store)
 void page_decref(struct page* page)//减少引用计数
 ```
 <a name = "内核地址空间"/>
-###内核地址空间
+### 内核地址空间
 
 操作系统的地址空间划分为了两个部分，0xC0000000～0xFFFFFFFF为内核的地址空间，0x0～0xC0000000为用户进程的地址空间。关于地址空间的一些常熟定义在include/mm/layout.h 中。
 ```
@@ -384,9 +384,9 @@ void kfree(void* );释放函数
 ```
 内核中的所有数据结构都是由这个函数分配和释放的。
 <a name = "进程环境"/>
-##进程环境
+## 进程环境
 <a name = "进程的管理"/>
-###进程的管理
+### 进程的管理
 进程描述符
 ```c
 struct task_struct
@@ -421,7 +421,7 @@ static int alloc_files_struct(struct task_struct *);
 以上几个函数就是创建进程的基本函数，这些函数只用于静态创建init进程。在编译内核的时候我们以及把用户程序件链接进了内核，load_icode这个函数用于把相应的用户复制进struct task_struct结构体中从而创建了进程init。
 
 <a name = "用户进程"/>
-###进程地址空间
+### 进程地址空间
 进程的内存描述符，详细内容请参考《深入理解Linux内核》第九章
 
 ```c
@@ -464,13 +464,13 @@ struct vm_area_struct
 比如，当进程需要扩展堆段的时候就会调用系统函数brk(); 之后内核就会增加viraddr_t end_brk;这个值；
 
 <a name = "异常处理"/>
-###中断与异常
+### 中断与异常
 参考 [Chapter 9, Exceptions and Interrupts](https://pdos.csail.mit.edu/6.828/2014/readings/i386/c09.htm "悬停显示")
-####中断描述符表
+#### 中断描述符表
 [![中断与异常]](https://pdos.csail.mit.edu/6.828/2014/readings/i386/s09_05.htm)  
 [中断与异常]:https://pdos.csail.mit.edu/6.828/2014/readings/i386/fig9-3.gif "百度Logo" 
 
-####任务状态段
+#### 任务状态段
 [![任务状态段]](https://pdos.csail.mit.edu/6.828/2014/readings/i386/s07_01.htm)  
 [任务状态段]:https://pdos.csail.mit.edu/6.828/2014/readings/i386/fig7-1.gif "百度Logo" 
 
@@ -517,7 +517,7 @@ void trap_init()
 ```
 
 <a name = "页故障"/>
-###页故障
+### 页故障
 内存保护是确保进程隔离的关键，内核的缺页处理器要区分两种情况：1、由编程错误引起的异常，程序访问了不属于进程地址空间的地址。2、进程访问了属于进程地址空间但是还没有分配物理页面的地址
 
 第一种情况是非法的，要杀死进程。第二种情况是合法的，要给相应的地址分配物理内存。
@@ -553,7 +553,7 @@ exit:
 ```
 这个程序会判断导致缺页异常的地址是否属于进程的地址空间，如果不是就退出进程，如果是就为进程分配物理页。
 <a name = "系统调用"/>
-###系统调用
+### 系统调用
 进程使用ini指令来进行系统调用。尤其是使用128号中断。用寄存器来传递参数。
 ```c
 kernel/trap/syscall.c
@@ -577,7 +577,7 @@ static int sys_execve(char *filename,char ** argv);
 static int sys_fdtype(int);
 ```
 <a name = "fork与写时复制"/>
-###fork与写时复制
+### fork与写时复制
 ```c
 //文件kernel/syscall/fork.c
 
@@ -601,7 +601,7 @@ static int task_set_vm(int,struct task_struct *);
 内核实际进行fork的时候并不会真正复制一个副本给子进程，实际上子进程是与父进程共享相同的地址空间的。但是父进程与子进程的地址空间的权限变成了只读的。无论父进程还是子进程何时试图写一个共享的页帧，就产生一个异常，这时内核就把这个页复制到一个新的页帧中并标记为可写。原来的页帧仍然是写保护的：当其他进程试图写入时，内核检查写进程是否是这个页帧的唯一属主，如果是，就把这个页帧标记为对这个进程是可写的。这部分的代码其实由页故障处理器完成的。
 
 <a name = "malloc的实现"/>
-###malloc的实现
+### malloc的实现
 ```c
 //fuckOS/lib/malloc.c
 static struct malloc_chunk *find_malloc(uint32_t);
@@ -611,10 +611,10 @@ static void merger_malloc(struct malloc_chunk *);
 ```
 malloc的实现其实挺简单，利用sbrk这个系统调用进行堆的扩展，然后利用隐式空闲链表来管理内存。详细内容请参考《深入理解计算机系统》第9章第9节
 <a name = "抢占式多任务"/>
-##抢占式多任务
+## 抢占式多任务
 抢占式多任务
 <a name = "多处理器支持"/>
-###多处理器支持
+### 多处理器支持
 多处理器支持需要涉及些硬件和协议，在多处理器系统中，每个CPU都有一个LAPIC（本地高级可编程中断控制器），LAPIC用于为CPU递送中断的，LAPIC也为每个CUP提供的一个唯一的标识。电脑加电的时候，先启动一个CPU，叫做BSP（ bootstrap processor ），等内核完成了相应的初始化，由BSP启动其他的CPU，叫做AP（application processors）。BSP启动AP的时候需要发IPI（Inter-Processor Interrupts）给AP，这就用到LAPIC了。详细内容请参考《x86/x64体系探索及编程》的第十八章。
 
 ```c
@@ -625,7 +625,7 @@ void lapic_init()
 再启动AP之前，我们还需要为AP处理器建立内核栈。之前已经给出代码kernel/mm/bootmm bootmm_init()
 
 <a name = "进程调度"/>
-###进程调度
+### 进程调度
 此操作系统实现的只是简单的轮转调度每次时钟中断发生的时候会调用schedule_tick()减少进程的时间片。
 
 ```c
@@ -647,11 +647,11 @@ void trap(struct frame *tf)
 }
 ```
 <a name = "虚拟文件系统"/>
-##虚拟文件系统
+## 虚拟文件系统
 虚拟文件系统
 
 <a name = "进程间通信"/>
-###进程间通信
+### 进程间通信
 进程间通信
    
 
