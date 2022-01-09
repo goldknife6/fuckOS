@@ -2,7 +2,7 @@
 
 #include <mm/slab.h>
 
-
+#include <sys/stat.h>
 
 struct list_head super_list = LIST_HEAD_INIT(super_list);
 
@@ -131,7 +131,7 @@ static void test()
 	int i;
 	struct m_inode *inode;
 	struct buffer_head * buf;
-	for (i =1; i < 2; i++) {
+	for (i =2; i < 3; i++) {
 		inode = inode_get(0x307,i);
 		assert(inode);
 		print_inode(inode);
@@ -142,22 +142,25 @@ static void test()
 	
 	buf = buffer_read(inode->i_dev,i);
 	assert(buf);
-
+//
 	//print_sector(buf);
-	printk("%s\n",buf->b_data);
+	//printk("%s\n",buf->b_data);
 }
 
-void mount_root()
+struct m_inode * 
+mount_root()
 {
 	struct super_block *s;
-	struct m_inode *inode;
-	s = read_super(0x307);
+	struct m_inode *rooti;
+	s = read_super(ROOT_DEV);
 
 	assert(s);
-	inode = inode_get(0x307,15);
-	assert(inode);
-	test();
+	rooti = inode_get(ROOT_DEV,ROOT_INODE);
+	assert(rooti);
+	//test();
 	//print_super(s);
+	print_inode(inode);
+	return rooti;
 }
 
 static int print_sector(struct buffer_head *bh)
@@ -186,8 +189,15 @@ static int print_super(struct super_block * s)
 static int print_inode(struct m_inode *i)
 {
 	assert(i);
-
-	printk("i_size:%d i_mtim:%d ",i->i_size,i->i_mtime);
+	struct buffer_head * buf;
+	printk("i_size:%d i_mtim:%d i_mode:0x%x dir:%d ",i->i_size,i->i_mtime,i->i_mode,S_ISDIR(i->i_mode));
+	if (S_ISDIR(i->i_mode)) {
+		int b;
+		b = bmap(i,0);
+		buf = buffer_read(i->i_dev,b);
+		struct dir_entry *dir = (struct dir_entry *)buf->b_data;	
+		printk("%s \n",dir->name);
+	}
 	printk("i_zone[0]:%d i_zone[1]:%x ",i->i_zone[0],i->i_zone[1]);
 	printk("i_zone[2]:%d i_zone[3]:%x\n",i->i_zone[2],i->i_zone[3]);
 	return 0;
