@@ -52,7 +52,7 @@
 
 在终端输入 
 
-git clone https://github.com/Zhang626/fuckOS.git
+git clone https://github.com/goldknife6/fuckOS
 
 cd fuckOS
 
